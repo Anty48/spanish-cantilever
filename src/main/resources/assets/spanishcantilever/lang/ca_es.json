@@ -1,0 +1,15 @@
+{
+  "block.spanishcantilever.mensula": "Mènsula espanyola",
+  "itemGroup.spanishcantilever": "Mènsules espanyoles",
+  "message.spanishcantilever.modo": "Mode: %s",
+  "message.spanishcantilever.tipo": "Aïllador: %s",
+  "message.spanishcantilever.alcance": "Abast: %s blocs",
+  "message.spanishcantilever.tirante_si": "Tirant: sí",
+  "message.spanishcantilever.tirante_no": "Tirant: no",
+  "modo.spanishcantilever.interior": "interior",
+  "modo.spanishcantilever.medio": "mig",
+  "modo.spanishcantilever.exterior": "exterior",
+  "tipo.spanishcantilever.tipo1": "tipus 1 (cable a sobre)",
+  "tipo.spanishcantilever.tipo2": "tipus 2 (cable penjant)",
+  "tipo.spanishcantilever.tipo3": "tipus 3 (vertical)"
+}

@@ -1,0 +1,15 @@
+{
+  "block.spanishcantilever.mensula": "Spanish Cantilever",
+  "itemGroup.spanishcantilever": "Spanish Cantilevers",
+  "message.spanishcantilever.modo": "Mode: %s",
+  "message.spanishcantilever.tipo": "Insulator: %s",
+  "message.spanishcantilever.alcance": "Reach: %s blocks",
+  "message.spanishcantilever.tirante_si": "Stay rod: on",
+  "message.spanishcantilever.tirante_no": "Stay rod: off",
+  "modo.spanishcantilever.interior": "inner",
+  "modo.spanishcantilever.medio": "middle",
+  "modo.spanishcantilever.exterior": "outer",
+  "tipo.spanishcantilever.tipo1": "type 1 (wire on top)",
+  "tipo.spanishcantilever.tipo2": "type 2 (wire hanging)",
+  "tipo.spanishcantilever.tipo3": "type 3 (vertical)"
+}
