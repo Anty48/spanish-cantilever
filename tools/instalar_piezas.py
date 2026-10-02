@@ -3,9 +3,9 @@
 Uso:  python tools/instalar_piezas.py
 
 - Copia los .json de `new stuff/new json/` a assets/<mod>/models/block/piezas/<id>.json,
-  arreglando las rutas de textura (`spanish_metal` -> `spanishcantilever:block/spanish_metal`).
+  arreglando las rutas de textura (`iberian_metal` -> `iberiancantilever:block/iberian_metal`).
 - Copia los .png de `new stuff/new textures/` a assets/<mod>/textures/block/.
-- Genera src/main/java/spanishcantilever/geometry/PiezasDatos.java con los centros de los cubos
+- Genera src/main/java/iberiancantilever/geometry/PiezasDatos.java con los centros de los cubos
   con nombre y los grupos de cada pieza. El codigo de la mensula (cliente Y servidor) usa esas
   constantes; por eso hay que volver a ejecutar este script si cambias una pieza.
 """
@@ -14,7 +14,7 @@ import os
 import re
 import shutil
 
-MOD = 'spanishcantilever'
+MOD = 'iberiancantilever'
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_MODELS = os.path.join(ROOT, 'new stuff', 'new json')
 SRC_TEXTURES = os.path.join(ROOT, 'new stuff', 'new textures')
@@ -30,16 +30,24 @@ PIEZAS = {
     'stee_bar_holes_vertical.json': 'perforada_vertical',
     'cable_holder_short.json': 'brazo_corto',
     'cable_holder_long.json': 'brazo_largo',
+    'cable_holder_inner.json': 'brazo_interior',
+    'cable_holder_all.json': 'sujetador',
+    'cable_holder_all_short.json': 'sujetador_corto',
     'sustainig_metal_cable.json': 'tirante',
     'horizontal_insulator.json': 'aislador_horizontal',
     'vertical_insulator.json': 'aislador_vertical',
+    # catenaria rigida de tunel (estas estan en otra carpeta)
+    '../../modelos_pnw/blockbench/postes/Tunnel iberian canteliver left.json': 'tunel_izquierda',
+    '../../modelos_pnw/blockbench/postes/Tunnel iberian canteliver center.json': 'tunel_centro',
+    '../../modelos_pnw/blockbench/postes/Tunnel iberian canteliver right.json': 'tunel_derecha',
+    '../../modelos_pnw/blockbench/postes/steel catenary tunnel fixed cable segment.json': 'perfil_rigido',
 }
 
 
 def fix_texture(ref):
     if ref.startswith('#') or ':' in ref:
         return ref
-    return f'{MOD}:block/{os.path.basename(ref)}'
+    return f'{MOD}:block/{os.path.basename(ref).replace("spanish_", "iberian_")}'
 
 
 def java_name(s):
@@ -69,7 +77,7 @@ def main():
     os.makedirs(OUT_TEXTURES, exist_ok=True)
     for f in os.listdir(SRC_TEXTURES):
         if f.endswith('.png'):
-            shutil.copy(os.path.join(SRC_TEXTURES, f), os.path.join(OUT_TEXTURES, f))
+            shutil.copy(os.path.join(SRC_TEXTURES, f), os.path.join(OUT_TEXTURES, f.replace('spanish_', 'iberian_')))
             print('textura', f)
 
     java = []
@@ -115,7 +123,7 @@ def main():
 
     os.makedirs(os.path.dirname(OUT_JAVA), exist_ok=True)
     with open(OUT_JAVA, 'w', encoding='utf-8') as fh:
-        fh.write('package spanishcantilever.geometry;\n\n')
+        fh.write('package iberiancantilever.geometry;\n\n')
         fh.write('// GENERADO por tools/instalar_piezas.py a partir de las piezas de Blockbench. No editar a mano.\n')
         fh.write('// Coordenadas en pixeles de Blockbench, en el sistema de cada pieza.\n')
         fh.write('public final class PiezasDatos {\n')

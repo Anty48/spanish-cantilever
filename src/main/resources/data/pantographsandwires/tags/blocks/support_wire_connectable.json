@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    "iberiancantilever:iberian_flat_lattice_mast",
+    "iberiancantilever:waxed_iberian_flat_lattice_mast",
+    "iberiancantilever:iberian_flat_lattice_mast_exposed",
+    "iberiancantilever:waxed_iberian_flat_lattice_mast_exposed",
+    "iberiancantilever:iberian_flat_lattice_mast_weathered",
+    "iberiancantilever:waxed_iberian_flat_lattice_mast_weathered",
+    "iberiancantilever:iberian_flat_lattice_mast_oxidized",
+    "iberiancantilever:waxed_iberian_flat_lattice_mast_oxidized",
+    "iberiancantilever:iberian_flat_lattice_mast_diagonal",
+    "iberiancantilever:waxed_iberian_flat_lattice_mast_diagonal",
+    "iberiancantilever:iberian_flat_lattice_mast_diagonal_exposed",
+    "iberiancantilever:waxed_iberian_flat_lattice_mast_diagonal_exposed",
+    "iberiancantilever:iberian_flat_lattice_mast_diagonal_weathered",
+    "iberiancantilever:waxed_iberian_flat_lattice_mast_diagonal_weathered",
+    "iberiancantilever:iberian_flat_lattice_mast_diagonal_oxidized",
+    "iberiancantilever:waxed_iberian_flat_lattice_mast_diagonal_oxidized",
+    "iberiancantilever:iberian_lattice_mast",
+    "iberiancantilever:waxed_iberian_lattice_mast",
+    "iberiancantilever:iberian_lattice_mast_exposed",
+    "iberiancantilever:waxed_iberian_lattice_mast_exposed",
+    "iberiancantilever:iberian_lattice_mast_weathered",
+    "iberiancantilever:waxed_iberian_lattice_mast_weathered",
+    "iberiancantilever:iberian_lattice_mast_oxidized",
+    "iberiancantilever:waxed_iberian_lattice_mast_oxidized"
+  ]
+}

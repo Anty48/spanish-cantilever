@@ -1,27 +1,64 @@
-# Spanish Cantilevers for Pantographs & Wires
+# Iberian Cantilevers for Pantographs & Wires
 
-Addon para **Minecraft 1.20.1 (Forge)** que añade **ménsulas de catenaria españolas** (estilo Renfe/ADIF CR-160)
+Addon para **Minecraft 1.20.1 (Forge)** que añade **ménsulas de catenaria ibéricas** (estilo Renfe/ADIF CR-160)
 a [Create: Pantographs & Wires](https://www.curseforge.com/minecraft/mc-mods/create-pantographs-and-wires) de MrJulsen.
 PNW es dependencia obligatoria: se usan sus postes, sus cables y su sistema de colocación.
 
-> Estado: **en desarrollo** (v0.1). La ménsula ya se dibuja en el juego; quedan ajustes de geometría.
+> Estado: **en desarrollo** (v0.1). Ménsula, postes ibéricos, acero ibérico y recetas funcionando; los cables de PNW se enganchan.
 
 ## La ménsula
 
 Un solo bloque, que se coloca en la cara de un poste de PNW (16 direcciones, como la ménsula de PNW).
 
-| Acción sobre el bloque | Cambia |
+Se configura igual que la ménsula de PNW: **clic derecho al aire con el objeto** abre la ventana de ajustes
+(la misma de PNW, con vista previa) y lo escogido se guarda en el objeto; cada ménsula que coloques sale así.
+Una ménsula ya puesta se cambia con **clic derecho con la mano vacía**.
+
+| Opción | Valores |
 |---|---|
-| Clic derecho con la mano vacía | Modo: interior / medio / exterior (descentramiento del hilo de contacto) |
-| Agachado + clic derecho con la mano vacía | Aislador de arriba: tipo 1 (cable encima), 2 (cable colgando), 3 (vertical) |
-| Clic derecho con un palo | Alcance: distancia del poste al centro de la vía (1 a 4 bloques) |
-| Agachado + clic derecho con un palo | Tirante sí / no |
+| Anchura | distancia del poste al centro de la vía, de 1,5 a 6,5 bloques (como en PNW) |
+| Altura del soporte *(avanzado)* | cuánto baja la diagonal bajo la barra (en interior con anchura 1,5 no se usa) |
+| Altura catenaria *(avanzado)* | hilo de contacto por debajo del bloque, hasta 0,75 (como en PNW) |
+| Desplazamiento Y *(avanzado)* | baja toda la ménsula medio bloque (como en PNW) |
+| Aislador del sustentador | tipo 1 (cable encima), 2 (cable colgando), 3 (vertical) |
+| Hilo de contacto (zigzag) | interior / medio / exterior |
+| Cable de soporte | sí / no |
+
+## Postes y materiales
+
+- **Postes ibéricos de celosía** (plano, plano diagonal y cuadrado): los de PNW con acero ibérico. Se oxidan solos
+  (normal → expuesto → erosionado → oxidado), un panal los encera y un hacha los rasca, como en PNW.
+  No tienen versión galvanizada. Recetas: plano = 5 tiras de hierro de PNW + 1 acero ibérico (6 postes);
+  cuadrado = 6 tiras + 2 varillas de hierro + 1 acero ibérico (6 postes).
+- **Acero ibérico**: lingote de hierro + tinte negro.
+- **Ménsula**: montaje secuenciado de Create, como la de PNW pero con acero ibérico: haz de varillas de
+  hierro y, dos veces, acero ibérico + aislador marrón + prensa.
+
+## Catenaria rígida de túnel
+
+- **Soporte de túnel ibérico**: se cuelga del techo y gira en 16 direcciones (se pone mirando a lo largo de
+  la vía y queda cruzado sobre ella). Su ventana escoge dónde agarra el perfil (inner / center / outer, para
+  el zigzag) y cuánto cuelga (altura, de 0 a 1 bloque). Como la ménsula: **clic derecho al aire con el
+  objeto** lo configura antes de ponerlo, y **clic derecho con la mano vacía** cambia uno ya puesto (los
+  cables ya tendidos se recolocan solos).
+- **Haz de perfiles de catenaria rígida**: se tiende de soporte a soporte como la bobina de PNW y se va
+  gastando por metros (64 m por haz; al romper un tramo se recuperan sus metros en otro haz). Para PNW es un
+  cable más de su catenaria, así que el pantógrafo lo toca. Si en un soporte se juntan dos tramos que no van
+  rectos, el perfil se dibuja en trozos rectos un poco girados que hacen la curva (el hilo que toca el
+  pantógrafo sigue yendo recto de soporte a soporte).
+- **Transición**: la catenaria normal de PNW también se engancha al soporte de túnel (el hilo de contacto en
+  la pinza y el sustentador en el techo).
+- Recetas: soporte = 2 aceros ibéricos + 1 aislador marrón (2 soportes); haz de perfiles = 6 aceros ibéricos.
+- `/mensula tunel [soportes]` (operador): monta un túnel de prueba (con curva al fondo) y la transición desde
+  una ménsula.
 
 ## Cómo está hecho
 
 - Las piezas se modelan en Blockbench (`new stuff/new json/`) y `tools/instalar_piezas.py` las instala en el mod
   y genera `geometry/PiezasDatos.java` con los puntos de enganche (cubos con nombre).
 - `geometry/MensulaLayout` coloca las piezas y estira las barras; `client/MensulaBakedModel` las dibuja.
+- `tools/generar_postes.py` genera los postes ibéricos (modelos, texturas, recetas, etiquetas y nombres).
+- `/mensula linea [postes]` (operador): monta una línea de prueba con postes, ménsulas en zigzag y cable.
 - `Guia_piezas_Blockbench.pdf`: guía de modelado de las piezas.
 
 ## Compilar y probar
@@ -37,9 +74,5 @@ GPL-3.0, igual que Pantographs & Wires. Gracias a **MrJulsen** por PNW y DragonL
 
 ## Próximos pasos
 
-- [ ] Uniones entre tramos de la barra principal: ahora se solapan y hacen *Z-fighting*.
-- [ ] El tirante (varilla de soporte) siempre horizontal.
-- [ ] Menos diagonal y más horizontal en la barra principal.
-- [ ] Nuevo modelo para el ítem.
-- [ ] Probar las 9 variantes (3 tipos × 3 modos) con la prueba automática.
-- [ ] Probar los cables de PNW enganchados y la colocación en diagonal.
+- [ ] Probar la colocación en diagonal (16 direcciones) con cables.
+- [ ] Créditos finales a MrJulsen (PNW) en la página del mod.

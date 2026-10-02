@@ -44,7 +44,7 @@ minecraft {
         autotest {
             parent runs.client
             taskName 'runAutoTest'
-            property 'spanishcantilever.autotest', 'true'
+            property 'iberiancantilever.autotest', 'true'
             args '--width', '1280', '--height', '720'
         }
 

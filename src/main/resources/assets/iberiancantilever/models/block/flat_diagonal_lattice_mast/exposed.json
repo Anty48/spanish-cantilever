@@ -1,0 +1,7 @@
+{
+  "parent": "pantographsandwires:block/flat_diagonal_lattice_mast/base",
+  "textures": {
+    "base": "iberiancantilever:block/iberian_metal_exposed",
+    "particle": "iberiancantilever:block/iberian_metal_exposed"
+  }
+}
