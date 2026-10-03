@@ -16,9 +16,9 @@ import de.mrjulsen.mcdragonlib.client.gui.events.DLGuiStandardEvents;
 import de.mrjulsen.mcdragonlib.client.gui.widgets.base.DLGuiComponent;
 import de.mrjulsen.mcdragonlib.client.gui.widgets.base.DLWindow;
 import de.mrjulsen.mcdragonlib.client.gui.widgets.base.DLWindowManager;
-import de.mrjulsen.mcdragonlib.client.gui.widgets.components.DLButton;
 import de.mrjulsen.mcdragonlib.client.gui.widgets.components.DLCheckBox;
 import de.mrjulsen.mcdragonlib.client.gui.widgets.components.DLSlider;
+import de.mrjulsen.mcdragonlib.client.gui.widgets.components.DLTooltip;
 import de.mrjulsen.mcdragonlib.client.gui.widgets.components.DLToggleButton;
 import de.mrjulsen.mcdragonlib.client.gui.widgets.util.CursorType;
 import de.mrjulsen.mcdragonlib.client.util.DLGuiGraphics;
@@ -57,10 +57,14 @@ public class VentanaMensula extends DLWindow {
     private static boolean avanzado = false;
 
     private static final DLTexture TEXTURA = new DLTexture(new ResourceLocation("pantographsandwires", "textures/gui/cantilever_settings.png"), 256, 256);
-    private static final DLTexture ICONOS = new DLTexture(new ResourceLocation(IberianCantilever.MOD_ID, "textures/gui/iconos.png"), 80, 16);
+    private static final DLTexture ICONOS = new DLTexture(new ResourceLocation(IberianCantilever.MOD_ID, "textures/gui/iconos.png"), 224, 16);
     /** Primer icono de cada selector en textures/gui/iconos.png (uno de 16x16 por opcion, en orden). */
     private static final int ICONO_AISLADOR = 0;
     private static final int ICONO_CABLE_SOPORTE = 3;
+    static final int ICONO_POSICION_TUNEL = 5;
+    static final int ICONO_VERSION_TUNEL = 8;
+    static final int ICONO_TAMANO_TECHO = 10;
+    static final int ICONO_TAMANO_PARED = 12;
     private static final int ANCHO = 251;
     private static final int ALTO = 231;
     private static final int FILA_DESLIZADORES = 155;
@@ -116,7 +120,7 @@ public class VentanaMensula extends DLWindow {
                 v -> ajustes = ajustes.conDesplazamientoY(v));
 
         // --- fila de abajo: lo que se escoge con iconos ---
-        SelectorIconos<OpcionAislador> aislador = new SelectorIconos<>(OpcionAislador.class, ICONO_AISLADOR);
+        SelectorIconos<OpcionAislador> aislador = new SelectorIconos<>(0, FILA_SELECTORES, OpcionAislador.class, ICONO_AISLADOR);
         aislador.value.set((double) ajustes.tipo().ordinal());
         catenaria.min.set((double) Ajustes.alturaCatenariaMinima(ajustes.tipo()));
         aislador.addEventListener(DLSlider.ValueChangedEvent.class, (s, e) -> {
@@ -141,7 +145,7 @@ public class VentanaMensula extends DLWindow {
         });
         addComponent(zigzag);
 
-        SelectorIconos<Tirante> tirante = new SelectorIconos<>(Tirante.class, ICONO_CABLE_SOPORTE);
+        SelectorIconos<Tirante> tirante = new SelectorIconos<>(0, FILA_SELECTORES, Tirante.class, ICONO_CABLE_SOPORTE);
         tirante.value.set((double) (ajustes.tirante() ? Tirante.SI : Tirante.NO).ordinal());
         tirante.addEventListener(DLSlider.ValueChangedEvent.class, (s, e) -> {
             ajustes = ajustes.conTirante(Tirante.values()[(int) e.value()].valor);
@@ -170,12 +174,13 @@ public class VentanaMensula extends DLWindow {
         addComponent(hecho);
 
         // guarda lo que hay ahora como configuracion por defecto (la que propone la ventana a objetos nuevos)
-        DLButton predeterminar = new DLButton(7, ALTO - 6 - 18, 130, 18);
-        predeterminar.text.set(Component.translatable("gui.iberiancantilever.mensula.predeterminar"));
+        // (boton de Create con icono, como el de hecho; lo que hace va en su tooltip)
+        CreateButton predeterminar = new CreateButton(7, ALTO - 6 - 18, AllIcons.I_CONFIG_SAVE);
+        predeterminar.tooltip.set(new DLTooltip(List.of(Component.translatable("gui.iberiancantilever.mensula.predeterminar")), 200));
         predeterminar.addEventListener(DLGuiStandardEvents.ClickEvent.class, (s, e) -> {
             boolean ok = ClienteMensula.guardarPredeterminado(ajustes);
-            predeterminar.text.set(Component.translatable(ok ? "gui.iberiancantilever.mensula.predeterminado_guardado"
-                    : "gui.iberiancantilever.mensula.predeterminado_error"));
+            predeterminar.tooltip.set(new DLTooltip(List.of(Component.translatable(ok ? "gui.iberiancantilever.mensula.predeterminado_guardado"
+                    : "gui.iberiancantilever.mensula.predeterminado_error")), 200));
             return false;
         });
         addComponent(predeterminar);
@@ -301,12 +306,15 @@ public class VentanaMensula extends DLWindow {
         graphics.poseStack().popPose();
     }
 
-    /** Selector de PNW, pero con nuestros iconos (PNW no tiene de estos aisladores ni del cable de soporte). */
-    private static class SelectorIconos<T extends Enum<T> & ITranslatableEnum & IIconRepresentable> extends CreateEnumSlider<T> {
+    /**
+     * Selector de PNW, pero con nuestros iconos (PNW no tiene de estos aisladores, ni del cable de soporte,
+     * ni de la pinza del soporte de tunel).
+     */
+    static class SelectorIconos<T extends Enum<T> & ITranslatableEnum & IIconRepresentable> extends CreateEnumSlider<T> {
         private final int primerIcono;
 
-        SelectorIconos(Class<T> clase, int primerIcono) {
-            super(0, FILA_SELECTORES, 50, 20, clase);
+        SelectorIconos(int x, int y, Class<T> clase, int primerIcono) {
+            super(x, y, 50, 20, clase);
             this.primerIcono = primerIcono;
         }
 

@@ -87,7 +87,14 @@ public class MensulaBlock extends AbstractSupportedRotatableWireConnectorBlock<M
 
     /** Hueco en px entre la cara de nuestro bloque y la del poste que la sujeta. */
     public float huecoPoste(BlockGetter level, BlockPos pos, BlockState state) {
-        BlockState soporte = level.getBlockState(getSupportBlockPos(level, pos, state));
+        return hueco(level.getBlockState(getSupportBlockPos(level, pos, state)));
+    }
+
+    /**
+     * Hueco en px entre la cara de un bloque y la del poste de PNW {@code soporte} que tiene al lado
+     * (segun su grosor); 0 si no es un poste (una pared llega hasta la cara).
+     */
+    public static float hueco(BlockState soporte) {
         for (Grosor g : GROSORES) {
             if (soporte.is(g.tag())) {
                 return (16 - g.px()) / 2f;

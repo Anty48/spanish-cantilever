@@ -62,7 +62,8 @@ public class MensulaBakedModel implements BakedModel {
     @Override
     public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand,
                                              @NotNull ModelData data, @Nullable RenderType renderType) {
-        if (side != null || state == null || !(state.getBlock() instanceof MensulaBlock)) {
+        // sin capa es el agrietado de cuando se pica el bloque: las catenarias no lo llevan
+        if (side != null || renderType == null || state == null || !(state.getBlock() instanceof MensulaBlock)) {
             return List.of();
         }
         Float hueco = data.get(HUECO);

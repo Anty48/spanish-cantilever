@@ -53,5 +53,22 @@
   "item.iberiancantilever.perfil_rigido.no_alcanza": "No queda bastante perfil rígido en el haz",
   "gui.iberiancantilever.soporte_tunel.titulo": "Ajustes del soporte de túnel",
   "gui.iberiancantilever.soporte_tunel.altura": "Altura",
-  "item.iberiancantilever.soporte_tunel.ajustes": "Pinza: %s, altura: %s"
+  "item.iberiancantilever.soporte_tunel.ajustes": "Pinza: %s, altura: %s",
+  "enum.iberiancantilever.posicion_tunel": "Pinza",
+  "enum.iberiancantilever.posicion_tunel.izquierda": "Izquierda",
+  "enum.iberiancantilever.posicion_tunel.centro": "Centro",
+  "enum.iberiancantilever.posicion_tunel.derecha": "Derecha",
+  "enum.iberiancantilever.version_tunel": "Versión",
+  "enum.iberiancantilever.version_tunel.techo": "Techo",
+  "enum.iberiancantilever.version_tunel.pared": "Pared",
+  "enum.iberiancantilever.tamano_tunel_techo": "Tamaño",
+  "enum.iberiancantilever.tamano_tunel_techo.normal": "Normal",
+  "enum.iberiancantilever.tamano_tunel_techo.grande": "Grande",
+  "enum.iberiancantilever.tamano_tunel_pared": "Brazo",
+  "enum.iberiancantilever.tamano_tunel_pared.normal": "Corto",
+  "enum.iberiancantilever.tamano_tunel_pared.grande": "Largo",
+  "item.iberiancantilever.soporte_tunel.ajustes_pared": "Altura: %s px",
+  "gui.iberiancantilever.soporte_tunel.no_cabe": "Aquí no tiene dónde agarrarse: no se cambia la versión",
+  "gui.iberiancantilever.soporte_tunel.altura_pared": "Altura (px)",
+  "block.iberiancantilever.pantografo_iberico": "Pantógrafo ibérico"
 }

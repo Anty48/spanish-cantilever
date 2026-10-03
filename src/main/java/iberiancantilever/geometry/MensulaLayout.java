@@ -44,9 +44,9 @@ public final class MensulaLayout {
     public static final float ANCHURA_INTERIOR_PUNTAL = 3f;
     /** Modo interior con alcance largo: el puntal se inclina esto desde la vertical hacia el poste. */
     public static final float ANGULO_PUNTAL = 20f;
-    /** Modo medio: el brazo largo baja estos grados desde la perforada hasta el hilo. */
+    /** Modo medio: el brazo en arco (alargado) baja estos grados desde la perforada hasta el hilo. */
     public static final float INCLINACION_BRAZO_MEDIO = 10f;
-    /** Modo exterior: el brazo corto baja estos grados desde la perforada vertical hasta el hilo. */
+    /** Modo exterior: el brazo en arco baja estos grados desde la perforada vertical hasta el hilo. */
     public static final float INCLINACION_BRAZO_EXTERIOR = 10f;
     /** Cuanto se mete el wall_joint del brazo dentro de la pieza de la que cuelga, para que nunca quede hueco. */
     public static final float HUNDIMIENTO_GANCHO = 0.4f;
@@ -93,15 +93,23 @@ public final class MensulaLayout {
         }
     }
 
-    private static final Sujetador SUJETADOR_CORTO = new Sujetador(PiezasDatos.BRAZO_CORTO.ID,
-            PiezasDatos.BRAZO_CORTO.WALL_JOINT, PiezasDatos.BRAZO_CORTO.CABLE_JOINT, 3, 4f, 13f,
-            new int[]{4, 5, 6, 7}, new int[]{0, 1, 2});
-    private static final Sujetador SUJETADOR_LARGO = new Sujetador(PiezasDatos.BRAZO_LARGO.ID,
-            PiezasDatos.BRAZO_LARGO.WALL_JOINT, PiezasDatos.BRAZO_LARGO.CABLE_JOINT, 3, 4f, 19f,
-            new int[]{4, 5, 6, 7}, new int[]{0, 1, 2});
-    /** cable_holder_inner: el sujetador recto del modo interior. */
-    private static final Sujetador SUJETADOR_INTERIOR = new Sujetador(PiezasDatos.BRAZO_INTERIOR.ID,
-            PiezasDatos.BRAZO_INTERIOR.WALL_JOINT, PiezasDatos.BRAZO_INTERIOR.CABLE_JOINT, 2, 12f, 19f,
+    /**
+     * cable_holder_convex: el brazo en arco (sube en diagonal con su aislador, sigue recto y baja en
+     * diagonal hasta la pinza). Es el del exterior y, alargado {@link #ALARGAR_MEDIO}, el del medio; en
+     * el interior solo sirve de medida. Su tubo recto de arriba es el cubo 1 (x 5,3..12,3).
+     */
+    private static final Sujetador SUJETADOR_CORTO = new Sujetador(PiezasDatos.BRAZO_CONVEXO.ID,
+            PiezasDatos.BRAZO_CONVEXO.WALL_JOINT, PiezasDatos.BRAZO_CONVEXO.CABLE_JOINT, 1, 5.3f, 12.3f,
+            new int[]{2, 4, 5, 6, 7, 8, 9}, new int[]{0, 3});
+    /** Lo que se alarga el brazo en arco en el modo medio (el brazo largo de antes media 6 px mas). */
+    private static final float ALARGAR_MEDIO = 6f;
+    /**
+     * Medidas del sujetador recto que tenia antes el modo interior (cable_holder_inner, ya retirado):
+     * no se dibuja, pero la geometria del interior se sigue calculando con el, como se acordo al poner
+     * los sujetadores nuevos.
+     */
+    private static final Sujetador SUJETADOR_INTERIOR = new Sujetador("brazo_interior",
+            new float[]{0.5f, 1.0f, 0.5f}, new float[]{21.0f, 0.5f, 0.5f}, 2, 12f, 19f,
             new int[]{3, 4, 5, 6}, new int[]{0, 1});
 
     /** cable_holder_all y cable_holder_all_short: los sujetadores nuevos (con aislador) del modo interior. */
@@ -332,12 +340,13 @@ public final class MensulaLayout {
 
 
     /**
-     * Medio: la horizontal sigue, baja a 45 grados y acaba en UNA perforada diagonal. El brazo largo
-     * cuelga metido en la cara de abajo de la perforada, cerca de su final, y BAJA hacia el hilo
+     * Medio: la horizontal sigue, baja a 45 grados y acaba en UNA perforada diagonal. El brazo en arco
+     * alargado cuelga metido en la cara de abajo de la perforada, cerca de su final, y BAJA hacia el hilo
      * (nunca sube). Si el hilo queda muy abajo para el alcance, baja mas inclinado (hasta 45 grados).
      */
     private static Vector2f brazoMedio(List<Colocacion> out, Vector2f contacto, Vector2f codo, float tanCodo, float r) {
-        float largo = SUJETADOR_LARGO.largo();
+        Sujetador s = SUJETADOR_CORTO;
+        float largo = (float) Math.hypot(s.cable()[0] - s.gancho()[0] + ALARGAR_MEDIO, s.cable()[1] - s.gancho()[1]);
         // cara de abajo de la perforada: su normal hacia fuera (abajo a la izquierda)
         Vector2f bajo = new Vector2f(-SEN45, -SEN45);
         Vector2f gancho = new Vector2f();
@@ -345,7 +354,7 @@ public final class MensulaLayout {
         for (float grados = INCLINACION_BRAZO_MEDIO; grados <= 45f; grados += 1f) {
             double inc = Math.toRadians(grados);
             gancho.set(contacto.x + largo * (float) Math.cos(inc), contacto.y + largo * (float) Math.sin(inc));
-            float eje = minimoGancho(gancho, giroBrazo(gancho, contacto, SUJETADOR_LARGO, true, 0f), bajo)
+            float eje = minimoGancho(gancho, giroBrazo(gancho, contacto, s, true, ALARGAR_MEDIO), bajo)
                     - MEDIA_PERFORADA + HUNDIMIENTO_GANCHO;
             // el eje de la perforada pasa por el final de la horizontal: fin * bajo.x + BARRA_Y * bajo.y = eje
             fin = (eje - BARRA_Y * bajo.y) / bajo.x;
@@ -357,7 +366,7 @@ public final class MensulaLayout {
             // la horizontal no puede acabar antes del aislador: el gancho se mete en la perforada que queda
             fin = r + FIN_MIN;
             float cara = new Vector2f(fin, BARRA_Y).dot(bajo) + MEDIA_PERFORADA - HUNDIMIENTO_GANCHO;
-            gancho = tocar(gancho, giroBrazo(gancho, contacto, SUJETADOR_LARGO, true, 0f), bajo, cara);
+            gancho = tocar(gancho, giroBrazo(gancho, contacto, s, true, ALARGAR_MEDIO), bajo, cara);
         }
         Vector2f inicio = new Vector2f(fin, BARRA_Y);
         // el gancho cae en un agujero cerca del final de la perforada; el tubo a 45 grados pone el resto
@@ -368,12 +377,12 @@ public final class MensulaLayout {
         barra(out, codo, inicio, tanCodo, inglete(HORIZONTAL, DIR45)[0]);
         bajada(out, inicio, finBajada, DIR45);
         perforadaDiagonal(out, finBajada, -45f, 1, 0f);
-        return brazo(out, SUJETADOR_LARGO, gancho, contacto, true, 0f);
+        return brazo(out, s, gancho, contacto, true, ALARGAR_MEDIO);
     }
 
     /**
      * Exterior: la horizontal sigue, baja a 45 grados, perforada diagonal y perforada vertical. El
-     * brazo corto, girado hacia el poste, va metido en el lado de la vertical, cerca de su final, y
+     * brazo en arco, girado hacia el poste, va metido en el lado de la vertical, cerca de su final, y
      * baja un poco hacia el hilo. El tubo a 45 grados se alarga para que sobre la menor vertical posible.
      */
     private static Vector2f brazoExterior(List<Colocacion> out, Vector2f contacto, Vector2f codo, float tanCodo, float r) {
@@ -420,8 +429,8 @@ public final class MensulaLayout {
 
     /** Lo mas que llega el wall_joint del brazo (girado {@code giro}, colgado en {@code gancho}) en la direccion -n. */
     private static float minimoGancho(Vector2f gancho, float giro, Vector2f n) {
-        float hx = PiezasDatos.BRAZO_CORTO.WALL_JOINT[0] - PiezasDatos.BRAZO_CORTO.MIN[0];
-        float hy = PiezasDatos.BRAZO_CORTO.WALL_JOINT[1] - PiezasDatos.BRAZO_CORTO.MIN[1];
+        float hx = PiezasDatos.BRAZO_CONVEXO.WALL_JOINT[0] - PiezasDatos.BRAZO_CONVEXO.MIN[0];
+        float hy = PiezasDatos.BRAZO_CONVEXO.WALL_JOINT[1] - PiezasDatos.BRAZO_CONVEXO.MIN[1];
         float cos = (float) Math.cos(giro), sin = (float) Math.sin(giro);
         float min = Float.MAX_VALUE;
         for (int sx = -1; sx <= 1; sx += 2) {
@@ -494,18 +503,41 @@ public final class MensulaLayout {
         }
     }
 
+    /** Cubos de la placa del tirante: la chapa, el saliente del centro y los tornillos de cada lado (en Z). */
+    private static final int[] PLACA_CHAPA = {0};
+    private static final int[] PLACA_SALIENTE = {1};
+    private static final int[] PLACA_TORNILLOS_MENOS = {4, 5};
+    private static final int[] PLACA_TORNILLOS_MAS = {3, 6};
+
     /**
      * Placa atornillada al poste (la del tirante sin la varilla); su cara trasera en x = mastil. En los
-     * postes gruesos (los cuadrados, de mas de 8 px) se ensancha para abarcar casi toda su cara.
+     * postes gruesos (los cuadrados, de mas de 8 px, o un bloque) se ensancha para abarcar casi toda su
+     * cara: la chapa se repite en trozos de su tamano (la textura no se estira), el saliente se queda en
+     * medio y los tornillos, sin deformar, en las esquinas.
      */
     private static void placa(List<Colocacion> out, float mastil, float y) {
         float[] p = PiezasDatos.TIRANTE.JOINT_WALL_POINT;
         float trasera = PiezasDatos.TIRANTE.MIN[0];
         float grosorPoste = 16f + 2f * mastil;
         float ancho = PiezasDatos.TIRANTE.MAX[2] - PiezasDatos.TIRANTE.MIN[2];
-        float escala = grosorPoste > 8f ? (grosorPoste - MARGEN_PLACA) / ancho : 1f;
-        out.add(new Colocacion(PiezasDatos.TIRANTE.ID, sinClonable(),
-                new Matrix4f().translate(mastil - trasera, y - p[1], Z).scale(1f, 1f, escala).translate(0, 0, -p[2])));
+        Matrix4f centro = new Matrix4f().translate(mastil - trasera, y - p[1], Z).translate(0, 0, -p[2]);
+        if (grosorPoste <= 8f) {
+            out.add(new Colocacion(PiezasDatos.TIRANTE.ID, sinClonable(), centro));
+            return;
+        }
+        float total = grosorPoste - MARGEN_PLACA;
+        int trozos = Math.max(1, Math.round(total / ancho));
+        float trozo = total / trozos;
+        for (int k = 0; k < trozos; k++) {
+            out.add(new Colocacion(PiezasDatos.TIRANTE.ID, PLACA_CHAPA, new Matrix4f(centro)
+                    .translate(0, 0, p[2] - total / 2f + k * trozo).scale(1f, 1f, trozo / ancho)
+                    .translate(0, 0, -PiezasDatos.TIRANTE.MIN[2])));
+        }
+        out.add(new Colocacion(PiezasDatos.TIRANTE.ID, PLACA_SALIENTE, centro));
+        // los tornillos, a la misma distancia del borde que en la placa pequena
+        float mover = (total - ancho) / 2f;
+        out.add(new Colocacion(PiezasDatos.TIRANTE.ID, PLACA_TORNILLOS_MENOS, new Matrix4f(centro).translate(0, 0, -mover)));
+        out.add(new Colocacion(PiezasDatos.TIRANTE.ID, PLACA_TORNILLOS_MAS, new Matrix4f(centro).translate(0, 0, mover)));
     }
 
     /** Copias de la perforada diagonal desde {@code inicio}; el final se corta a inglete con {@code tanFin}. */

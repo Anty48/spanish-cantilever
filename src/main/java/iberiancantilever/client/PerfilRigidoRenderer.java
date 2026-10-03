@@ -15,6 +15,7 @@ import org.joml.Vector3f;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
+import de.mrjulsen.paw.item.CatenaryWireType;
 import de.mrjulsen.wires.WiresApi;
 import de.mrjulsen.wires.graph.WireEdge;
 import de.mrjulsen.wires.graph.WireGraphClient;
@@ -43,6 +44,8 @@ import net.minecraftforge.fml.common.Mod;
  * cada tramo de {@link CatenariaRigida} (PNW solo dibuja un hilo fino que queda dentro). Si en un
  * soporte se juntan dos tramos que no van rectos, cada tramo se parte en trozos rectos un poco girados
  * entre si siguiendo una curva suave (Catmull-Rom) que pasa por las pinzas: el perfil hace la curva.
+ * Donde llega una catenaria normal (transicion), el hilo de contacto cuenta como el tramo siguiente:
+ * la punta del perfil se tuerce hacia el, sin codo.
  */
 @Mod.EventBusSubscriber(modid = IberianCantilever.MOD_ID, value = Dist.CLIENT)
 public final class PerfilRigidoRenderer {
@@ -97,11 +100,13 @@ public final class PerfilRigidoRenderer {
         if (grafo == null) {
             return;
         }
-        // todos los tramos rigidos y, por nodo, los que llegan a el
+        // todos los tramos rigidos y, por nodo, los que llegan a el (tambien los hilos de contacto de las
+        // catenarias normales, que no se dibujan aqui pero guian la punta del perfil en las transiciones)
         List<Extremos> tramos = new ArrayList<>();
         Map<UUID, List<Extremos>> porNodo = new HashMap<>();
         for (WireEdge edge : grafo.getEdges()) {
-            if (edge.getType() != ModCables.RIGIDA) {
+            boolean rigido = edge.getType() == ModCables.RIGIDA;
+            if (!rigido && !(edge.getType() instanceof CatenaryWireType)) {
                 continue;
             }
             WireNode na = grafo.getNode(edge.getNodeAId());
@@ -111,7 +116,9 @@ public final class PerfilRigidoRenderer {
             }
             Extremos e = new Extremos(na.getId(), CatenariaRigida.enganche(na, edge.getWireConnectionData().connectorA()),
                     nb.getId(), CatenariaRigida.enganche(nb, edge.getWireConnectionData().connectorB()));
-            tramos.add(e);
+            if (rigido) {
+                tramos.add(e);
+            }
             porNodo.computeIfAbsent(e.nodoA(), k -> new ArrayList<>()).add(e);
             porNodo.computeIfAbsent(e.nodoB(), k -> new ArrayList<>()).add(e);
         }
@@ -147,8 +154,8 @@ public final class PerfilRigidoRenderer {
     }
 
     /**
-     * El otro extremo del tramo que sigue a {@code e} por el nodo dado (el que sale mas recto), o null
-     * si el perfil acaba ahi o hace esquina.
+     * El otro extremo del tramo que sigue a {@code e} por el nodo dado (el que sale mas recto, sea perfil
+     * o hilo de contacto de una transicion), o null si el perfil acaba ahi o hace esquina.
      */
     @Nullable
     private static Vector3d vecino(Map<UUID, List<Extremos>> porNodo, Extremos e, UUID nodo) {

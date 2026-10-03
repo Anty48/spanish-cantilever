@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.loading.FMLPaths;
 import iberiancantilever.geometry.Ajustes;
 import iberiancantilever.item.MensulaItem;
+import iberiancantilever.block.AjustesTunel;
 import iberiancantilever.item.SoporteTunelItem;
 import iberiancantilever.network.ConfigurarMensula;
 import iberiancantilever.network.ConfigurarSoporteTunel;
@@ -77,26 +78,52 @@ public final class ClienteMensula {
         abrir(ajustes, nuevos -> ModRed.CANAL.sendToServer(new ConfigurarMensula(pos, nuevos)));
     }
 
-    /** Ventana de un soporte de tunel ya puesto: posicion de la pinza y altura. */
-    public static void abrirSoporteTunel(BlockPos pos, BlockState state) {
-        abrirVentana(root -> new VentanaSoporteTunel(root, state,
-                (posicion, altura) -> ModRed.CANAL.sendToServer(new ConfigurarSoporteTunel(pos, posicion, altura))));
+    /** Donde se guarda la configuracion por defecto del soporte de tunel de este jugador. */
+    private static final Path PREDETERMINADO_TUNEL = FMLPaths.CONFIGDIR.get().resolve("iberiancantilever-predeterminado-tunel.nbt");
+
+    /** La configuracion por defecto del soporte de tunel guardada por el jugador, o la del bloque si no hay. */
+    public static AjustesTunel predeterminadoTunel() {
+        try {
+            CompoundTag nbt = Files.exists(PREDETERMINADO_TUNEL) ? NbtIo.read(PREDETERMINADO_TUNEL.toFile()) : null;
+            return nbt == null ? AjustesTunel.DEFECTO : AjustesTunel.leer(nbt);
+        } catch (IOException e) {
+            return AjustesTunel.DEFECTO;
+        }
     }
 
-    /** Ventana para el soporte de tunel en la mano: lo escogido se guarda en el objeto y se aplica al ponerlo. */
-    public static void abrirSoporteTunelObjeto(BlockState state) {
-        abrirVentana(root -> new VentanaSoporteTunel(root, state, (posicion, altura) -> {
+    public static boolean guardarPredeterminadoTunel(AjustesTunel ajustes) {
+        try {
+            NbtIo.write(ajustes.escribir(new CompoundTag()), PREDETERMINADO_TUNEL.toFile());
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /** Ventana de un soporte de tunel ya puesto: version, tamano, posicion de la pinza y altura. */
+    public static void abrirSoporteTunel(BlockPos pos, BlockState state) {
+        abrirVentana(root -> new VentanaSoporteTunel(root, AjustesTunel.de(state),
+                ajustes -> ModRed.CANAL.sendToServer(new ConfigurarSoporteTunel(pos, ajustes))));
+    }
+
+    /**
+     * Ventana para el soporte de tunel en la mano: lo escogido se guarda en el objeto y se aplica al
+     * ponerlo. Si el objeto nunca se configuro ({@code state} null), propone la configuracion por defecto.
+     */
+    public static void abrirSoporteTunelObjeto(@Nullable BlockState state) {
+        AjustesTunel inicial = state != null ? AjustesTunel.de(state) : predeterminadoTunel();
+        abrirVentana(root -> new VentanaSoporteTunel(root, inicial, ajustes -> {
             var player = Minecraft.getInstance().player;
             if (player != null) {
                 for (InteractionHand mano : InteractionHand.values()) {
                     ItemStack stack = player.getItemInHand(mano);
                     if (stack.getItem() instanceof SoporteTunelItem) {
-                        SoporteTunelItem.setAjustes(stack, posicion, altura);
+                        SoporteTunelItem.setAjustes(stack, ajustes);
                         break;
                     }
                 }
             }
-            ModRed.CANAL.sendToServer(new ConfigurarSoporteTunel(null, posicion, altura));
+            ModRed.CANAL.sendToServer(new ConfigurarSoporteTunel(null, ajustes));
         }));
     }
 

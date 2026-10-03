@@ -4,12 +4,16 @@ Uso:  python tools/instalar_piezas.py
 
 - Copia los .json de `new stuff/new json/` a assets/<mod>/models/block/piezas/<id>.json,
   arreglando las rutas de textura (`iberian_metal` -> `iberiancantilever:block/iberian_metal`).
+  Tambien acepta el .bbmodel (lo pasa a .json como hace Blockbench) por si el .json exportado
+  no es el bueno.
 - Copia los .png de `new stuff/new textures/` a assets/<mod>/textures/block/.
 - Genera src/main/java/iberiancantilever/geometry/PiezasDatos.java con los centros de los cubos
-  con nombre y los grupos de cada pieza. El codigo de la mensula (cliente Y servidor) usa esas
+  con nombre y los grupos de cada pieza (con los giros de cada cubo ya aplicados: Blockbench guarda
+  los cubos girados sin girar, junto a su pivote, y pueden salir en coordenadas raras como -13). El codigo de la mensula (cliente Y servidor) usa esas
   constantes; por eso hay que volver a ejecutar este script si cambias una pieza.
 """
 import json
+import math
 import os
 import re
 import shutil
@@ -28,19 +32,24 @@ PIEZAS = {
     'Main_steel_bar.json': 'barra',
     'stee_bar_holes.json': 'perforada_diagonal',
     'stee_bar_holes_vertical.json': 'perforada_vertical',
-    'cable_holder_short.json': 'brazo_corto',
-    'cable_holder_long.json': 'brazo_largo',
-    'cable_holder_inner.json': 'brazo_interior',
+    # el brazo en arco de medio y exterior (sustituye al cable_holder_short; el de medio es este alargado)
+    'cable_holder_convex.json': 'brazo_convexo',
     'cable_holder_all.json': 'sujetador',
     'cable_holder_all_short.json': 'sujetador_corto',
     'sustainig_metal_cable.json': 'tirante',
     'horizontal_insulator.json': 'aislador_horizontal',
     'vertical_insulator.json': 'aislador_vertical',
-    # catenaria rigida de tunel (estas estan en otra carpeta)
-    '../../modelos_pnw/blockbench/postes/Tunnel iberian canteliver left.json': 'tunel_izquierda',
-    '../../modelos_pnw/blockbench/postes/Tunnel iberian canteliver center.json': 'tunel_centro',
-    '../../modelos_pnw/blockbench/postes/Tunnel iberian canteliver right.json': 'tunel_derecha',
-    '../../modelos_pnw/blockbench/postes/steel catenary tunnel fixed cable segment.json': 'perfil_rigido',
+    # catenaria rigida de tunel: soportes de techo (normal y grande), de pared (corto y largo) y el perfil
+    'Tunnel iberian canteliver left.json': 'tunel_izquierda',
+    'Tunnel iberian canteliver center.json': 'tunel_centro',
+    'Tunnel iberian canteliver right.json': 'tunel_derecha',
+    'Tunnel iberian canteliver large left.json': 'tunel_grande_izquierda',
+    'Tunnel iberian canteliver large center.json': 'tunel_grande_centro',
+    # el .json de este se exporto mal (le falta la mitad): se usa el .bbmodel
+    'Tunnel iberian canteliver large right.bbmodel': 'tunel_grande_derecha',
+    'alternative_tunnel_canteliver_short.json': 'tunel_pared_corto',
+    'alternative_tunnel_canteliver_long.json': 'tunel_pared_largo',
+    'steel catenary tunnel fixed cable segment.json': 'perfil_rigido',
 }
 
 
@@ -48,6 +57,68 @@ def fix_texture(ref):
     if ref.startswith('#') or ':' in ref:
         return ref
     return f'{MOD}:block/{os.path.basename(ref).replace("spanish_", "iberian_")}'
+
+
+def desde_bbmodel(bb):
+    """Un .bbmodel (formato Java Block) como el .json que exporta Blockbench."""
+    texturas = bb.get('textures', [])
+    model = {'textures': {str(i): os.path.splitext(t['name'])[0] for i, t in enumerate(texturas)}}
+    if texturas:
+        model['textures']['particle'] = model['textures']['0']
+    elements = []
+    indice = {}
+    for i, e in enumerate(bb['elements']):
+        indice[e['uuid']] = i
+        rot = e.get('rotation') or [0, 0, 0]
+        ejes = [k for k in range(3) if rot[k]]
+        eje = ejes[0] if ejes else 1
+        el = {'name': e.get('name'), 'from': e['from'], 'to': e['to'],
+              'rotation': {'angle': rot[eje], 'axis': 'xyz'[eje], 'origin': e.get('origin', [8, 8, 8])}, 'faces': {}}
+        if e.get('rescale'):
+            el['rotation']['rescale'] = True
+        if el['name'] == 'cube':
+            el.pop('name')
+        for lado, f in e.get('faces', {}).items():
+            if f.get('texture') is None:
+                continue
+            cara = {'uv': f['uv'], 'texture': '#' + str(f['texture'])}
+            if f.get('rotation'):
+                cara['rotation'] = f['rotation']
+            el['faces'][lado] = cara
+        elements.append(el)
+    model['elements'] = elements
+
+    def grupo(nodo):
+        if isinstance(nodo, str):
+            return indice[nodo]
+        return {'name': nodo.get('name', 'group'), 'origin': nodo.get('origin', [8, 8, 8]),
+                'children': [grupo(c) for c in nodo.get('children', [])]}
+
+    model['groups'] = [grupo(n) for n in bb.get('outliner', [])]
+    return model
+
+
+def esquinas(e):
+    """Las 8 esquinas del cubo con su giro aplicado (como lo dibuja Minecraft)."""
+    f, t = e['from'], e['to']
+    pts = [[x, y, z] for x in (f[0], t[0]) for y in (f[1], t[1]) for z in (f[2], t[2])]
+    r = e.get('rotation')
+    if not r or not r.get('angle'):
+        return pts
+    a = math.radians(r['angle'])
+    c, s = math.cos(a), math.sin(a)
+    o = r['origin']
+    out = []
+    for p in pts:
+        x, y, z = p[0] - o[0], p[1] - o[1], p[2] - o[2]
+        if r['axis'] == 'x':
+            y, z = y * c - z * s, y * s + z * c
+        elif r['axis'] == 'y':
+            x, z = x * c + z * s, -x * s + z * c
+        else:
+            x, y = x * c - y * s, x * s + y * c
+        out.append([x + o[0], y + o[1], z + o[2]])
+    return out
 
 
 def java_name(s):
@@ -84,6 +155,8 @@ def main():
     for src, pid in PIEZAS.items():
         with open(os.path.join(SRC_MODELS, src), encoding='utf-8') as fh:
             model = json.load(fh)
+        if src.endswith('.bbmodel'):
+            model = desde_bbmodel(model)
         model['textures'] = {k: fix_texture(v) for k, v in model.get('textures', {}).items()}
         model.pop('format_version', None)
         with open(os.path.join(OUT_MODELS, pid + '.json'), 'w', encoding='utf-8') as fh:
@@ -94,15 +167,17 @@ def main():
             name = e.get('name')
             if not name:
                 continue
-            c = [(a + b) / 2 for a, b in zip(e['from'], e['to'])]
+            pts = esquinas(e)
+            c = [sum(p[k] for p in pts) / len(pts) for k in range(3)]
             joints.setdefault(name.lower(), (i, c))
         groups = group_indices(model.get('groups'))
         # piezas clonables marcadas por nombre de cubo (p. ej. el cable del tirante)
         for i, e in enumerate(model['elements']):
             if 'clonable' in (e.get('name') or '').lower():
                 groups.setdefault('clonable', []).append(i)
-        lo = [min(min(e['from'][k], e['to'][k]) for e in model['elements']) for k in range(3)]
-        hi = [max(max(e['from'][k], e['to'][k]) for e in model['elements']) for k in range(3)]
+        todas = [p for e in model['elements'] for p in esquinas(e)]
+        lo = [min(p[k] for p in todas) for k in range(3)]
+        hi = [max(p[k] for p in todas) for k in range(3)]
 
         cls = java_name(pid)
         java.append(f'    /** {src} -> models/block/piezas/{pid}.json */')

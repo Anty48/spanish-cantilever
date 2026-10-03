@@ -4,6 +4,7 @@ import java.util.Map;
 
 import de.mrjulsen.mcdragonlib.client.model.DLBlockModelRegistry;
 import de.mrjulsen.paw.block.model.BasicRotatableBlockModel;
+import iberiancantilever.ModBlocks;
 import iberiancantilever.ModPostes;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.RegistryObject;
@@ -12,6 +13,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -30,6 +32,12 @@ public final class ClientSetup {
         for (RegistryObject<? extends Block> poste : ModPostes.POSTES.values()) {
             DLBlockModelRegistry.registerForBlock(() -> poste.get(), BasicRotatableBlockModel::new, BasicRotatableBlockModel::new);
         }
+    }
+
+    /** El pantografo iberico se dibuja como el de PNW (GeckoLib), con su textura. */
+    @SubscribeEvent
+    public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(ModBlocks.PANTOGRAFO_BE.get(), PantografoIbericoRenderer::new);
     }
 
     /** Sustituye el modelo vacio de todos los estados de la mensula por el modelo montado. */

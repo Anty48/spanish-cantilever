@@ -53,5 +53,22 @@
   "item.iberiancantilever.perfil_rigido.no_alcanza": "No queda prou perfil rígid al feix",
   "gui.iberiancantilever.soporte_tunel.titulo": "Ajustos del suport de túnel",
   "gui.iberiancantilever.soporte_tunel.altura": "Alçada",
-  "item.iberiancantilever.soporte_tunel.ajustes": "Pinça: %s, alçada: %s"
+  "item.iberiancantilever.soporte_tunel.ajustes": "Pinça: %s, alçada: %s",
+  "enum.iberiancantilever.posicion_tunel": "Pinça",
+  "enum.iberiancantilever.posicion_tunel.izquierda": "Esquerra",
+  "enum.iberiancantilever.posicion_tunel.centro": "Centre",
+  "enum.iberiancantilever.posicion_tunel.derecha": "Dreta",
+  "enum.iberiancantilever.version_tunel": "Versió",
+  "enum.iberiancantilever.version_tunel.techo": "Sostre",
+  "enum.iberiancantilever.version_tunel.pared": "Paret",
+  "enum.iberiancantilever.tamano_tunel_techo": "Mida",
+  "enum.iberiancantilever.tamano_tunel_techo.normal": "Normal",
+  "enum.iberiancantilever.tamano_tunel_techo.grande": "Gran",
+  "enum.iberiancantilever.tamano_tunel_pared": "Braç",
+  "enum.iberiancantilever.tamano_tunel_pared.normal": "Curt",
+  "enum.iberiancantilever.tamano_tunel_pared.grande": "Llarg",
+  "item.iberiancantilever.soporte_tunel.ajustes_pared": "Alçada: %s px",
+  "gui.iberiancantilever.soporte_tunel.no_cabe": "Aquí no té on agafar-se: no es canvia la versió",
+  "gui.iberiancantilever.soporte_tunel.altura_pared": "Alçada (px)",
+  "block.iberiancantilever.pantografo_iberico": "Pantògraf ibèric"
 }

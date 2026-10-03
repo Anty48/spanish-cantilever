@@ -53,5 +53,22 @@
   "item.iberiancantilever.perfil_rigido.no_alcanza": "Not enough rigid profile left in the bundle",
   "gui.iberiancantilever.soporte_tunel.titulo": "Tunnel Support Settings",
   "gui.iberiancantilever.soporte_tunel.altura": "Height",
-  "item.iberiancantilever.soporte_tunel.ajustes": "Clamp: %s, height: %s"
+  "item.iberiancantilever.soporte_tunel.ajustes": "Clamp: %s, height: %s",
+  "enum.iberiancantilever.posicion_tunel": "Clamp",
+  "enum.iberiancantilever.posicion_tunel.izquierda": "Left",
+  "enum.iberiancantilever.posicion_tunel.centro": "Center",
+  "enum.iberiancantilever.posicion_tunel.derecha": "Right",
+  "enum.iberiancantilever.version_tunel": "Version",
+  "enum.iberiancantilever.version_tunel.techo": "Ceiling",
+  "enum.iberiancantilever.version_tunel.pared": "Wall",
+  "enum.iberiancantilever.tamano_tunel_techo": "Size",
+  "enum.iberiancantilever.tamano_tunel_techo.normal": "Normal",
+  "enum.iberiancantilever.tamano_tunel_techo.grande": "Large",
+  "enum.iberiancantilever.tamano_tunel_pared": "Arm",
+  "enum.iberiancantilever.tamano_tunel_pared.normal": "Short",
+  "enum.iberiancantilever.tamano_tunel_pared.grande": "Long",
+  "item.iberiancantilever.soporte_tunel.ajustes_pared": "Height: %s px",
+  "gui.iberiancantilever.soporte_tunel.no_cabe": "Nothing to hold on to here: version not changed",
+  "gui.iberiancantilever.soporte_tunel.altura_pared": "Height (px)",
+  "block.iberiancantilever.pantografo_iberico": "Iberian Pantograph"
 }

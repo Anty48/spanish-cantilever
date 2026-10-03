@@ -11,6 +11,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkEvent;
+import iberiancantilever.cable.RecolocarCables;
 import iberiancantilever.block.MensulaBlockEntity;
 import iberiancantilever.geometry.Ajustes;
 import iberiancantilever.item.MensulaItem;
@@ -54,6 +55,8 @@ public record ConfigurarMensula(@Nullable BlockPos pos, Ajustes ajustes) {
                     && player.distanceToSqr(pos.getCenter()) <= DISTANCIA_MAX_SQ
                     && level.getBlockEntity(pos) instanceof MensulaBlockEntity be) {
                 be.setAjustes(validos);
+                // PNW guarda los enganches al tender: los cables ya puestos se rehacen con los nuevos
+                RecolocarCables.enBloque(level, pos);
             }
         });
         ctx.get().setPacketHandled(true);

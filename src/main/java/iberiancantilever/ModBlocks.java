@@ -13,11 +13,14 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import de.mrjulsen.paw.blockentity.PantographBlockEntity;
 import iberiancantilever.block.MensulaBlock;
+import iberiancantilever.block.PantografoIbericoBlock;
 import iberiancantilever.block.MensulaBlockEntity;
 import iberiancantilever.block.SoporteTunelBlock;
 import iberiancantilever.block.SoporteTunelBlockEntity;
 import iberiancantilever.item.MensulaItem;
+import iberiancantilever.item.PantografoIbericoItem;
 import iberiancantilever.item.PerfilRigidoItem;
 import iberiancantilever.item.SoporteTunelItem;
 
@@ -40,7 +43,7 @@ public final class ModBlocks {
                     .requiresCorrectToolForDrops()));
 
     public static final RegistryObject<Item> MENSULA_ITEM = ITEMS.register("mensula",
-            () -> new MensulaItem(MENSULA.get(), new Item.Properties().stacksTo(16)));
+            () -> new MensulaItem(MENSULA.get(), new Item.Properties()));
 
     /** Acero iberico: hierro y tinte negro. Material de los postes y de la mensula. */
     public static final RegistryObject<Item> ACERO_IBERICO = ITEMS.register("iberian_steel", () -> new Item(new Item.Properties()));
@@ -64,6 +67,21 @@ public final class ModBlocks {
     public static final RegistryObject<Item> PERFIL_RIGIDO = ITEMS.register("perfil_rigido",
             () -> new PerfilRigidoItem(new Item.Properties().stacksTo(1)));
 
+    /** Pantografo iberico: el de PNW con el cuerpo rojo. */
+    public static final RegistryObject<PantografoIbericoBlock> PANTOGRAFO = BLOCKS.register("pantografo_iberico",
+            () -> new PantografoIbericoBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(3.0f, 6.0f)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> PANTOGRAFO_ITEM = ITEMS.register("pantografo_iberico",
+            () -> new PantografoIbericoItem(PANTOGRAFO.get(), new Item.Properties()));
+
+    @SuppressWarnings("DataFlowIssue")
+    public static final RegistryObject<BlockEntityType<PantographBlockEntity>> PANTOGRAFO_BE = BLOCK_ENTITIES.register("pantografo_iberico",
+            () -> BlockEntityType.Builder.<PantographBlockEntity>of((pos, state) -> new PantographBlockEntity(ModBlocks.PANTOGRAFO_BE.get(), pos, state),
+                    PANTOGRAFO.get()).build(null));
+
     @SuppressWarnings("DataFlowIssue")
     public static final RegistryObject<BlockEntityType<SoporteTunelBlockEntity>> SOPORTE_TUNEL_BE = BLOCK_ENTITIES.register("soporte_tunel",
             () -> BlockEntityType.Builder.of(SoporteTunelBlockEntity::new, SOPORTE_TUNEL.get()).build(null));
@@ -81,6 +99,7 @@ public final class ModBlocks {
                         output.accept(ACERO_IBERICO.get());
                         output.accept(SOPORTE_TUNEL_ITEM.get());
                         output.accept(PERFIL_RIGIDO.get());
+                        output.accept(PANTOGRAFO_ITEM.get());
                         ModPostes.POSTES.values().forEach(b -> output.accept(b.get()));
                     })
                     .build());

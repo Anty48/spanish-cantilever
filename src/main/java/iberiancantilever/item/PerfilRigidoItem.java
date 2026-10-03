@@ -37,7 +37,7 @@ import net.minecraft.world.phys.HitResult;
  */
 public class PerfilRigidoItem extends AbstractWireItemBase {
     /** Metros de perfil de un haz nuevo. */
-    public static final int CAPACIDAD = 64;
+    public static final int CAPACIDAD = 200;
     private static final String NBT_METROS = "Metros";
     private static final int COLOR_BARRA = 0x9AA3B0;
 
@@ -57,6 +57,24 @@ public class PerfilRigidoItem extends AbstractWireItemBase {
     public static int metros(ItemStack stack) {
         CompoundTag nbt = stack.getTag();
         return nbt != null && nbt.contains(NBT_METROS) ? nbt.getInt(NBT_METROS) : CAPACIDAD;
+    }
+
+    /**
+     * Como PNW con la bobina al romper un cable: los metros vuelven a los haces que el jugador lleva
+     * encima (hasta llenarlos). Devuelve los que no han cabido.
+     */
+    public static int devolver(Player player, int metros) {
+        for (ItemStack stack : player.getInventory().items) {
+            if (metros <= 0) {
+                break;
+            }
+            if (stack.getItem() instanceof PerfilRigidoItem && metros(stack) < CAPACIDAD) {
+                int cabe = Math.min(metros, CAPACIDAD - metros(stack));
+                stack.getOrCreateTag().putInt(NBT_METROS, metros(stack) + cabe);
+                metros -= cabe;
+            }
+        }
+        return metros;
     }
 
     private static boolean gratis(@Nullable Player player) {

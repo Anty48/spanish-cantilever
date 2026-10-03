@@ -33,12 +33,12 @@ public record Ajustes(TipoAislador tipo, ModoZigzag modo, boolean tirante,
             2.5f, 1f, 0.5f, 0f);
 
     /**
-     * Altura del soporte que se usa sin opciones avanzadas. Con alcance corto la diagonal quedaria muy
-     * plana, asi que baja un poco mas; en el modo interior con anchura 2..3 manda en el triangulo de la
-     * foto de referencia.
+     * Altura del soporte que se usa sin opciones avanzadas: 1 en el medio y el exterior. En el interior,
+     * con alcance corto la diagonal quedaria muy plana, asi que baja un poco mas; con anchura 2..3 manda
+     * en el triangulo de la foto de referencia.
      */
     public static float alturaAutomatica(float anchura, ModoZigzag modo) {
-        if (modo == ModoZigzag.INTERIOR && anchura >= 2f && anchura < 3f) {
+        if (modo != ModoZigzag.INTERIOR || anchura >= 2f && anchura < 3f) {
             return 1f;
         }
         return anchura < 2f ? 0.75f : ALTURA.defecto();

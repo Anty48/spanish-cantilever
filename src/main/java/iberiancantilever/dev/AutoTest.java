@@ -67,12 +67,21 @@ public final class AutoTest {
     private static final String OBJETO = "objeto";
     private static final String VENTANA_TUNEL = "ventana_tunel";
     private static final String OBJETO_TUNEL = "objeto_tunel";
+    private static final String VENTANA_MENSULA = "ventana_mensula";
+    /** Linea con postes ibericos (para las capturas de la documentacion): empieza en z = LINEA_IBERICA_Z. */
+    private static final int LINEA_IBERICA_Z = 120;
     /** X de los postes de la linea con cables (lejos de las otras filas). */
     private static final int LINEA_X = -40;
     /** X de la fila de postes ibericos. */
     private static final int POSTES_X = -80;
     /** X del eje de la via del tunel. */
     private static final int TUNEL_X = -120;
+    /** X del primer poste de la escena de las 16 direcciones. */
+    private static final int DIAGONAL_X = -200;
+    /** X del eje de la via del tunel con las otras variantes del soporte. */
+    private static final int TUNEL2_X = -160;
+    /** X del pantografo de PNW (el iberico, 3 bloques al este). */
+    private static final int PANTOGRAFOS_X = 20;
 
     private record Vista(String nombre, double x, double y, double z, double mirarX, double mirarY, double mirarZ) {
     }
@@ -102,6 +111,8 @@ public final class AutoTest {
         Minecraft mc = Minecraft.getInstance();
         // la primera vez sale la pantalla de accesibilidad en vez del menu principal
         mc.options.onboardAccessibility = false;
+        // si la ventana pierde el foco (alguien usando el PC) no tiene que salir el menu de pausa en las capturas
+        mc.options.pauseOnLostFocus = false;
         mc.options.save();
         try (var access = mc.getLevelSource().createAccess(WORLD)) {
             access.deleteLevel();
@@ -147,11 +158,18 @@ public final class AutoTest {
             }
             wait++;
             if (VENTANA_TUNEL.equals(v.nombre()) && wait == 30) {
-                BlockPos soporte = new BlockPos(TUNEL_X, SUELO + ALTURA_MENSULA, -7);
+                BlockPos soporte = new BlockPos(TUNEL_X, SUELO + ALTURA_MENSULA - 1, -7);
                 LOGGER.info("[autotest] clic en {} ({}), mano: {}", soporte, mc.level.getBlockState(soporte), mc.player.getMainHandItem());
                 InteractionResult r = mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND,
                         new BlockHitResult(Vec3.atCenterOf(soporte), Direction.SOUTH, soporte, false));
                 LOGGER.info("[autotest] resultado {}, pantalla {}", r, mc.screen);
+            }
+            if (VENTANA_MENSULA.equals(v.nombre()) && wait == 30) {
+                mc.gameMode.useItem(mc.player, InteractionHand.MAIN_HAND);
+            }
+            if (VENTANA_MENSULA.equals(v.nombre()) && wait == 72) {
+                de.mrjulsen.mcdragonlib.client.gui.widgets.base.DLWindow.closeWindow();
+                mc.setScreen(null);
             }
             if (OBJETO_TUNEL.equals(v.nombre()) && wait == 30) {
                 InteractionResult r = mc.gameMode.useItem(mc.player, InteractionHand.MAIN_HAND);
@@ -162,20 +180,22 @@ public final class AutoTest {
                 mc.setScreen(null);
             }
             if (OBJETO_TUNEL.equals(v.nombre()) && wait == 73) {
+                // escogido "pared": se pone en la cara este del muro del soporte largo del tunel 2, mas abajo
                 LOGGER.info("[autotest] objeto tras cerrar: {}", mc.player.getMainHandItem().getTag());
-                BlockPos techo = new BlockPos(TUNEL_X + 2, SUELO + ALTURA_MENSULA + 1, -10);
+                BlockPos muro = new BlockPos(TUNEL2_X - 3, SUELO + 3, -13);
                 mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND,
-                        new BlockHitResult(Vec3.atBottomCenterOf(techo), Direction.DOWN, techo, false));
+                        new BlockHitResult(Vec3.atCenterOf(muro).add(0.5, 0, 0), Direction.EAST, muro, false));
             }
             if (OBJETO_TUNEL.equals(v.nombre()) && wait == 74) {
-                BlockPos puesto = new BlockPos(TUNEL_X + 2, SUELO + ALTURA_MENSULA, -10);
+                BlockPos puesto = new BlockPos(TUNEL2_X - 2, SUELO + 3, -13);
                 LOGGER.info("[autotest] soporte puesto: {}", mc.level.getBlockState(puesto));
             }
             if ((VENTANA_TUNEL.equals(v.nombre()) || OBJETO_TUNEL.equals(v.nombre())) && mc.screen != null && (wait == 40 || wait == 50)) {
-                // como un jugador: clic en el extremo derecho del selector de posicion y del de altura
+                // como un jugador: clic en el extremo derecho de un selector (con el soporte puesto, el de
+                // tamano; con el objeto, el de version: pasa a pared) y del de altura
                 double cx = mc.getWindow().getGuiScaledWidth() / 2.0;
                 double cy = mc.getWindow().getGuiScaledHeight() / 2.0;
-                double x = wait == 40 ? cx + 22 : cx + 20;
+                double x = wait == 40 ? (OBJETO_TUNEL.equals(v.nombre()) ? cx - 36 : cx + 22) : cx + 20;
                 double y = wait == 40 ? cy - 115 + 187 : cy - 115 + 162;
                 boolean ok = mc.screen.mouseClicked(x, y, 0);
                 mc.screen.mouseReleased(x, y, 0);
@@ -185,7 +205,7 @@ public final class AutoTest {
                 de.mrjulsen.mcdragonlib.client.gui.widgets.base.DLWindow.closeWindow();
             }
             if (VENTANA_TUNEL.equals(v.nombre()) && wait == 74) {
-                BlockPos soporte = new BlockPos(TUNEL_X, SUELO + ALTURA_MENSULA, -7);
+                BlockPos soporte = new BlockPos(TUNEL_X, SUELO + ALTURA_MENSULA - 1, -7);
                 LOGGER.info("[autotest] tras cerrar: servidor {} / cliente {}", server.overworld().getBlockState(soporte), mc.level.getBlockState(soporte));
                 mc.setScreen(null);
             }
@@ -242,7 +262,22 @@ public final class AutoTest {
         }
         // Fila E: tunel con catenaria rigida y transicion desde una mensula
         int tramos = LineaPrueba.montarTunel(player, new BlockPos(TUNEL_X, SUELO, 0), 5);
-        LOGGER.info("[autotest] escena montada ({} vanos con cable, {} tramos rigidos)", cables, tramos);
+        // Fila E2: las otras variantes del soporte de tunel (grande, de pared en hormigon y en muro)
+        int tramos2 = LineaPrueba.montarTunelVariantes(player, new BlockPos(TUNEL2_X, SUELO, 0));
+        LOGGER.info("[autotest] tunel con variantes: {} tramos rigidos", tramos2);
+        // el pantografo iberico al lado del de PNW
+        Block pantografoPnw = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("pantographsandwires", "pantograph"));
+        if (pantografoPnw != null) {
+            level.setBlock(new BlockPos(PANTOGRAFOS_X, SUELO, 30), pantografoPnw.defaultBlockState(), Block.UPDATE_ALL);
+        }
+        level.setBlock(new BlockPos(PANTOGRAFOS_X + 3, SUELO, 30), ModBlocks.PANTOGRAFO.get().defaultBlockState(), Block.UPDATE_ALL);
+        // linea con postes ibericos, mensulas en zigzag y cable de PNW (vista general)
+        int cablesIbericos = LineaPrueba.tenderCables(player, LineaPrueba.montar(level, new BlockPos(0, SUELO, LINEA_IBERICA_Z), 4,
+                ModPostes.POSTES.get("iberian_flat_lattice_mast").get()));
+        LOGGER.info("[autotest] linea iberica: {} vanos", cablesIbericos);
+        // Fila F: las 16 direcciones de la mensula, con la de PNW debajo para comparar
+        int diagonales = LineaPrueba.montarDiagonales(player, new BlockPos(DIAGONAL_X, SUELO, 40));
+        LOGGER.info("[autotest] escena montada ({} vanos con cable, {} tramos rigidos, {} vanos en diagonales)", cables, tramos, diagonales);
     }
 
     /** Camaras: miran al norte, asi se ve la mensula de perfil (poste a la izquierda, via a la derecha). */
@@ -267,15 +302,34 @@ public final class AutoTest {
         // la linea con cables: a lo largo de la via y de lado
         VISTAS.add(new Vista("linea", LINEA_X + 3.5, y - 1, 8, LINEA_X + 3.5, y - 1, -36));
         VISTAS.add(new Vista("linea_lado", LINEA_X + 16, y + 1, -18, LINEA_X + 2, y - 1, -18));
-        VISTAS.add(new Vista("tunel", TUNEL_X + 1.5, SUELO + 5, 3, TUNEL_X + 0.5, SUELO + 6, -14));
-        VISTAS.add(new Vista("tunel_cerca", TUNEL_X + 2.3, SUELO + 5.3, -4.5, TUNEL_X + 0.5, SUELO + 6.4, -6.5));
-        VISTAS.add(new Vista("tunel_curva", TUNEL_X + 1, SUELO + 4.6, -11, TUNEL_X + 4, SUELO + 6.3, -20));
-        VISTAS.add(new Vista("tunel_altura", TUNEL_X + 8.8, SUELO + 5, -22, TUNEL_X + 6.5, SUELO + 6, -24.5));
+        VISTAS.add(new Vista("tunel", TUNEL_X + 1.2, SUELO + 4.6, -2.5, TUNEL_X + 0.5, SUELO + 5.4, -16));
+        VISTAS.add(new Vista("tunel_cerca", TUNEL_X + 2.3, SUELO + 4.3, -4.5, TUNEL_X + 0.5, SUELO + 5.4, -6.5));
+        VISTAS.add(new Vista("tunel_curva", TUNEL_X + 1.5, SUELO + 4.6, -10, TUNEL_X + 5, SUELO + 5.4, -22));
+        VISTAS.add(new Vista("tunel_altura", TUNEL_X + 8.8, SUELO + 4.0, -22, TUNEL_X + 6.5, SUELO + 5.0, -24.5));
+        // la transicion de catenaria normal a rigida, de lado y de cerca en el primer soporte
+        VISTAS.add(new Vista("transicion", TUNEL_X + 9, SUELO + 5.5, 6, TUNEL_X - 1, SUELO + 5.0, 4));
+        VISTAS.add(new Vista("transicion_cerca", TUNEL_X + 2.5, SUELO + 4.6, 1.8, TUNEL_X + 0.3, SUELO + 5.3, -0.8));
+        // las variantes del soporte de tunel: a lo largo y de cerca los de pared
+        VISTAS.add(new Vista("tunel2", TUNEL2_X + 1.2, SUELO + 4.6, 1.5, TUNEL2_X, SUELO + 5.4, -14));
+        // los de pared mirando a lo largo de la via, desde un poco antes: el brazo sale de lado
+        VISTAS.add(new Vista("tunel2_pared_corto", TUNEL2_X + 0.6, SUELO + 5.0, -3.6, TUNEL2_X - 0.6, SUELO + 5.3, -6.5));
+        VISTAS.add(new Vista("tunel2_pared_largo", TUNEL2_X + 0.6, SUELO + 5.0, -9.6, TUNEL2_X - 1.1, SUELO + 5.3, -12.5));
+        VISTAS.add(new Vista("tunel2_grande", TUNEL2_X + 1.5, SUELO + 4.8, 1.2, TUNEL2_X, SUELO + 5.6, -1));
+        // las 16 direcciones: cada fila (una cara) vista desde justo encima, nuestra mensula encima de la de PNW
+        String[] caras = {"norte", "este", "sur", "oeste"};
+        for (int f = 0; f < caras.length; f++) {
+            double z = 40 + f * 16;
+            VISTAS.add(new Vista("diagonal_" + caras[f], DIAGONAL_X + 15.5, SUELO + 24, z + 0.5, DIAGONAL_X + 15.5, SUELO, z + 0.51));
+        }
+        VISTAS.add(new Vista("linea_iberica", 9, SUELO + 4.5, LINEA_IBERICA_Z + 7, 2, SUELO + 5.5, LINEA_IBERICA_Z - 22));
+        VISTAS.add(new Vista("linea_iberica_cerca", 5.5, SUELO + 6.2, LINEA_IBERICA_Z + 3.5, 1, SUELO + 6.4, LINEA_IBERICA_Z - 2));
+        VISTAS.add(new Vista(VENTANA_MENSULA, 15, y, 17, 15, y, 0));
+        VISTAS.add(new Vista("pantografos", PANTOGRAFOS_X + 2, SUELO + 2.2, 35, PANTOGRAFOS_X + 2, SUELO + 0.6, 30.5));
         VISTAS.add(new Vista("postes_ibericos", POSTES_X + 4.5, SUELO + 3, 10, POSTES_X + 4.5, SUELO + 1.5, 1.5));
         // clic derecho con la mano vacia en el segundo soporte del tunel: tiene que abrir su ventana
-        VISTAS.add(new Vista(VENTANA_TUNEL, TUNEL_X + 2.3, SUELO + 5.3, -4.5, TUNEL_X + 0.5, SUELO + 6.4, -6.5));
+        VISTAS.add(new Vista(VENTANA_TUNEL, TUNEL_X + 2.3, SUELO + 4.3, -4.5, TUNEL_X + 0.5, SUELO + 5.4, -6.5));
         // el soporte en la mano: clic derecho al aire, escoger, y ponerlo con lo escogido
-        VISTAS.add(new Vista(OBJETO_TUNEL, TUNEL_X + 2.3, SUELO + 5.3, -4.5, TUNEL_X + 0.5, SUELO + 6.4, -6.5));
+        VISTAS.add(new Vista(OBJETO_TUNEL, TUNEL2_X + 0.5, SUELO + 4.5, -10.5, TUNEL2_X - 2, SUELO + 3.5, -13));
         // la ultima con la interfaz visible y la mensula en la mano (modelo del objeto)
         VISTAS.add(new Vista(OBJETO, 15, y, 17, 15, y, 0));
     }
@@ -314,6 +368,13 @@ public final class AutoTest {
             player.getInventory().setItem(0, new ItemStack(ModBlocks.MENSULA.get()));
             player.connection.send(new ClientboundSetCarriedItemPacket(0));
             Minecraft.getInstance().execute(() -> Minecraft.getInstance().options.hideGui = false);
+        } else if (VENTANA_MENSULA.equals(v.nombre())) {
+            player.setGameMode(GameType.CREATIVE);
+            player.getAbilities().flying = true;
+            player.onUpdateAbilities();
+            player.getInventory().selected = 0;
+            player.getInventory().setItem(0, new ItemStack(ModBlocks.MENSULA_ITEM.get()));
+            player.connection.send(new ClientboundSetCarriedItemPacket(0));
         } else if (VENTANA_TUNEL.equals(v.nombre()) || OBJETO_TUNEL.equals(v.nombre())) {
             // en espectador el clic derecho no llega a los bloques
             player.setGameMode(GameType.CREATIVE);

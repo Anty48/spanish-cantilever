@@ -10,6 +10,7 @@ import de.mrjulsen.wires.Wire;
 import de.mrjulsen.wires.WireBatch;
 import de.mrjulsen.wires.WireBuilder;
 import de.mrjulsen.wires.WireCreationContext;
+import de.mrjulsen.wires.WirePoints;
 import de.mrjulsen.wires.WiresApi;
 import de.mrjulsen.wires.graph.IWireGraph;
 import de.mrjulsen.wires.graph.WireEdge;
@@ -27,13 +28,11 @@ import net.minecraft.world.level.Level;
 
 /**
  * Catenaria rigida (tunel): para PNW es un cable mas, del mismo grafo que su catenaria (asi el
- * pantografo la toca y se puede mezclar con el cable normal), pero recto y sin colgar. PNW solo dibuja
- * un hilo fino que queda escondido dentro del perfil; el perfil de verdad (la pieza de Blockbench) lo
- * dibuja {@link iberiancantilever.client.PerfilRigidoRenderer}.
+ * pantografo la toca y se puede mezclar con el cable normal), pero recto y sin colgar. A PNW solo se le
+ * da la colision del hilo (la que toca el pantografo y la que se apunta para romperlo), nada que dibujar:
+ * el perfil de verdad (la pieza de Blockbench) lo dibuja {@link iberiancantilever.client.PerfilRigidoRenderer}.
  */
 public class CatenariaRigida extends AbstractWireType {
-    /** El hilo que dibuja PNW: casi nada, para que no asome del perfil cuando este hace curva. */
-    private static final double GROSOR = 0.008;
     /** Nombre del hilo: el mismo que el hilo de contacto de PNW. */
     private static final String NOMBRE = "contact";
     private static final int LARGO_MAXIMO = 24;
@@ -54,9 +53,10 @@ public class CatenariaRigida extends AbstractWireType {
         Vector3d inicio = enganche(a, datos.connectorA());
         Vector3d fin = enganche(b, datos.connectorB());
         int tramos = Math.max(1, (int) (inicio.distance(fin) / 2.0));
-        Wire hilo = WireBuilder.createWire(NOMBRE, context, inicio, fin, WireBuilder.CableType.TIGHT, GROSOR, 0.0,
-                SegmentControl.create(SegmentControl.Config.fixed(tramos), SegmentControl.Config.fixed(2)));
-        return WireBatch.of(hilo);
+        // sin datos de dibujo: un hilo recto, por fino que fuera, asomaba negro en las curvas del perfil
+        WirePoints colision = context.collisionRequired() ? WireBuilder.createWirePoints(inicio, fin, WireBuilder.CableType.TIGHT, 0.0,
+                SegmentControl.create(SegmentControl.Config.fixed(tramos), SegmentControl.Config.fixed(2))) : null;
+        return WireBatch.of(new Wire(NOMBRE, new Vector3d(inicio).add(fin).mul(0.5), colision, null));
     }
 
     @Override
@@ -69,13 +69,20 @@ public class CatenariaRigida extends AbstractWireType {
         return WiresApi.PAW_CATENARY_WIRES;
     }
 
-    /** Al romperlo se recuperan sus metros de perfil en un haz (salvo en creativo). */
+    /**
+     * Al romperlo se recuperan sus metros de perfil (salvo en creativo), como el cable de PNW: vuelven a
+     * los haces que lleva el jugador y lo que no cabe cae en UN haz.
+     */
     @Override
     public void onBreak(Level level, Vector3d donde, Optional<Player> player, IWireGraph graph, WireEdge edge) {
         if (player.map(p -> p.isCreative() || p.isSpectator()).orElse(false)) {
             return;
         }
-        ItemEntity item = new ItemEntity(level, donde.x, donde.y, donde.z, PerfilRigidoItem.conMetros(edge.length()));
+        int sobran = player.map(p -> PerfilRigidoItem.devolver(p, edge.length())).orElse(edge.length());
+        if (sobran <= 0) {
+            return;
+        }
+        ItemEntity item = new ItemEntity(level, donde.x, donde.y, donde.z, PerfilRigidoItem.conMetros(sobran));
         item.setDefaultPickUpDelay();
         level.addFreshEntity(item);
     }

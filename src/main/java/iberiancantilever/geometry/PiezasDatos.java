@@ -43,46 +43,18 @@ public final class PiezasDatos {
         public static final int[] GRUPO_DUPLICATING_SEGMENT = {0, 1, 2, 3, 4, 5, 6};
     }
 
-    /** cable_holder_short.json -> models/block/piezas/brazo_corto.json */
-    public static final class BRAZO_CORTO {
-        public static final String ID = "brazo_corto";
-        public static final int ELEMENTS = 8;
-        public static final float[] MIN = {0f, 0f, 0f};
-        public static final float[] MAX = {16f, 4f, 1f};
+    /** cable_holder_convex.json -> models/block/piezas/brazo_convexo.json */
+    public static final class BRAZO_CONVEXO {
+        public static final String ID = "brazo_convexo";
+        public static final int ELEMENTS = 10;
+        public static final float[] MIN = {0f, 0f, -0.75f};
+        public static final float[] MAX = {16f, 4.1305f, 1.75f};
         /** centro del cubo "cable_joint" (elemento 0) */
-        public static final float[] CABLE_JOINT = {15.0f, 0.5f, 0.5f};
-        /** centro del cubo "wall_joint" (elemento 7) */
+        public static final float[] CABLE_JOINT = {15.25f, 0.5f, 0.5f};
+        /** centro del cubo "wall_joint" (elemento 9) */
         public static final float[] WALL_JOINT = {0.5f, 1.0f, 0.5f};
         /** grupo "brazo_sujetador" */
-        public static final int[] GRUPO_BRAZO_SUJETADOR = {1, 2, 3, 4, 5, 6};
-    }
-
-    /** cable_holder_long.json -> models/block/piezas/brazo_largo.json */
-    public static final class BRAZO_LARGO {
-        public static final String ID = "brazo_largo";
-        public static final int ELEMENTS = 8;
-        public static final float[] MIN = {0f, 0f, 0f};
-        public static final float[] MAX = {22f, 4f, 1f};
-        /** centro del cubo "cable_joint" (elemento 0) */
-        public static final float[] CABLE_JOINT = {21.0f, 0.5f, 0.5f};
-        /** centro del cubo "wall_joint" (elemento 7) */
-        public static final float[] WALL_JOINT = {0.5f, 1.0f, 0.5f};
-        /** grupo "brazo_sujetador" */
-        public static final int[] GRUPO_BRAZO_SUJETADOR = {1, 2, 3, 4, 5, 6};
-    }
-
-    /** cable_holder_inner.json -> models/block/piezas/brazo_interior.json */
-    public static final class BRAZO_INTERIOR {
-        public static final String ID = "brazo_interior";
-        public static final int ELEMENTS = 7;
-        public static final float[] MIN = {0f, 0f, 0f};
-        public static final float[] MAX = {22f, 2f, 1f};
-        /** centro del cubo "cable_joint" (elemento 0) */
-        public static final float[] CABLE_JOINT = {21.0f, 0.5f, 0.5f};
-        /** centro del cubo "wall_joint" (elemento 6) */
-        public static final float[] WALL_JOINT = {0.5f, 1.0f, 0.5f};
-        /** grupo "brazo_sujetador" */
-        public static final int[] GRUPO_BRAZO_SUJETADOR = {1, 2, 3, 4, 5};
+        public static final int[] GRUPO_BRAZO_SUJETADOR = {1, 2, 3, 4, 5, 6, 7, 8};
     }
 
     /** cable_holder_all.json -> models/block/piezas/sujetador.json */
@@ -153,7 +125,7 @@ public final class PiezasDatos {
         public static final float[] CABLE_JOINT = {1.0f, 3.25f, 1.0f};
     }
 
-    /** ../../modelos_pnw/blockbench/postes/Tunnel iberian canteliver left.json -> models/block/piezas/tunel_izquierda.json */
+    /** Tunnel iberian canteliver left.json -> models/block/piezas/tunel_izquierda.json */
     public static final class TUNEL_IZQUIERDA {
         public static final String ID = "tunel_izquierda";
         public static final int ELEMENTS = 8;
@@ -163,7 +135,7 @@ public final class PiezasDatos {
         public static final float[] CEELING_JOINT = {8.0f, 12.5f, 8.0f};
     }
 
-    /** ../../modelos_pnw/blockbench/postes/Tunnel iberian canteliver center.json -> models/block/piezas/tunel_centro.json */
+    /** Tunnel iberian canteliver center.json -> models/block/piezas/tunel_centro.json */
     public static final class TUNEL_CENTRO {
         public static final String ID = "tunel_centro";
         public static final int ELEMENTS = 8;
@@ -173,7 +145,7 @@ public final class PiezasDatos {
         public static final float[] CEELING_JOINT = {8.0f, 12.5f, 8.0f};
     }
 
-    /** ../../modelos_pnw/blockbench/postes/Tunnel iberian canteliver right.json -> models/block/piezas/tunel_derecha.json */
+    /** Tunnel iberian canteliver right.json -> models/block/piezas/tunel_derecha.json */
     public static final class TUNEL_DERECHA {
         public static final String ID = "tunel_derecha";
         public static final int ELEMENTS = 8;
@@ -185,7 +157,91 @@ public final class PiezasDatos {
         public static final float[] CABLE_ATTACH = {8.0f, 3.25f, 6.0f};
     }
 
-    /** ../../modelos_pnw/blockbench/postes/steel catenary tunnel fixed cable segment.json -> models/block/piezas/perfil_rigido.json */
+    /** Tunnel iberian canteliver large left.json -> models/block/piezas/tunel_grande_izquierda.json */
+    public static final class TUNEL_GRANDE_IZQUIERDA {
+        public static final String ID = "tunel_grande_izquierda";
+        public static final int ELEMENTS = 8;
+        public static final float[] MIN = {6.5f, 2f, 0f};
+        public static final float[] MAX = {9.5f, 18f, 16f};
+        /** centro del cubo "ceeling joint" (elemento 0) */
+        public static final float[] CEELING_JOINT = {8.0f, 12.5f, 8.0f};
+        /** centro del cubo "cable_attach" (elemento 3) */
+        public static final float[] CABLE_ATTACH = {8.0f, 3.25f, 12.0f};
+        /** centro del cubo "right_cable_attach" (elemento 4) */
+        public static final float[] RIGHT_CABLE_ATTACH = {8.0f, 2.5f, 10.5f};
+        /** centro del cubo "left_cable_attach" (elemento 5) */
+        public static final float[] LEFT_CABLE_ATTACH = {8.0f, 2.5f, 13.5f};
+        /** grupo "cable_joints" */
+        public static final int[] GRUPO_CABLE_JOINTS = {3, 4, 5};
+    }
+
+    /** Tunnel iberian canteliver large center.json -> models/block/piezas/tunel_grande_centro.json */
+    public static final class TUNEL_GRANDE_CENTRO {
+        public static final String ID = "tunel_grande_centro";
+        public static final int ELEMENTS = 8;
+        public static final float[] MIN = {6.5f, 2f, 0f};
+        public static final float[] MAX = {9.5f, 18f, 16f};
+        /** centro del cubo "ceeling joint" (elemento 0) */
+        public static final float[] CEELING_JOINT = {8.0f, 12.5f, 8.0f};
+        /** centro del cubo "cable_attach" (elemento 3) */
+        public static final float[] CABLE_ATTACH = {8.0f, 3.25f, 8.0f};
+        /** centro del cubo "right_cable_attach" (elemento 4) */
+        public static final float[] RIGHT_CABLE_ATTACH = {8.0f, 2.5f, 6.5f};
+        /** centro del cubo "left_cable_attach" (elemento 5) */
+        public static final float[] LEFT_CABLE_ATTACH = {8.0f, 2.5f, 9.5f};
+        /** grupo "cable_joints" */
+        public static final int[] GRUPO_CABLE_JOINTS = {3, 4, 5};
+    }
+
+    /** Tunnel iberian canteliver large right.bbmodel -> models/block/piezas/tunel_grande_derecha.json */
+    public static final class TUNEL_GRANDE_DERECHA {
+        public static final String ID = "tunel_grande_derecha";
+        public static final int ELEMENTS = 8;
+        public static final float[] MIN = {6.5f, 2f, 0f};
+        public static final float[] MAX = {9.5f, 18f, 16f};
+        /** centro del cubo "ceeling joint" (elemento 0) */
+        public static final float[] CEELING_JOINT = {8.0f, 12.5f, 8.0f};
+        /** centro del cubo "left_cable_attach" (elemento 5) */
+        public static final float[] LEFT_CABLE_ATTACH = {8.0f, 2.5f, 5.5f};
+        /** centro del cubo "right_cable_attach" (elemento 6) */
+        public static final float[] RIGHT_CABLE_ATTACH = {8.0f, 2.5f, 2.5f};
+        /** centro del cubo "cable_attach" (elemento 7) */
+        public static final float[] CABLE_ATTACH = {8.0f, 3.25f, 4.0f};
+        /** grupo "group" */
+        public static final int[] GRUPO_GROUP = {7, 6, 5};
+    }
+
+    /** alternative_tunnel_canteliver_short.json -> models/block/piezas/tunel_pared_corto.json */
+    public static final class TUNEL_PARED_CORTO {
+        public static final String ID = "tunel_pared_corto";
+        public static final int ELEMENTS = 16;
+        public static final float[] MIN = {6.4f, 2f, -2f};
+        public static final float[] MAX = {9.6f, 9f, 16.1f};
+        /** centro del cubo "cable_attach" (elemento 0) */
+        public static final float[] CABLE_ATTACH = {8.0f, 4.25f, 0.0f};
+        /** centro del cubo "wall_joint" (elemento 11) */
+        public static final float[] WALL_JOINT = {8.0f, 5.5f, 15.85f};
+        /** grupo "cable_joints" */
+        public static final int[] GRUPO_CABLE_JOINTS = {0, 1, 2};
+    }
+
+    /** alternative_tunnel_canteliver_long.json -> models/block/piezas/tunel_pared_largo.json */
+    public static final class TUNEL_PARED_LARGO {
+        public static final String ID = "tunel_pared_largo";
+        public static final int ELEMENTS = 16;
+        public static final float[] MIN = {6.4f, 2f, -9f};
+        public static final float[] MAX = {9.6f, 9f, 16.1f};
+        /** centro del cubo "cable_attach_center" (elemento 0) */
+        public static final float[] CABLE_ATTACH_CENTER = {8.0f, 4.25f, -7.0f};
+        /** centro del cubo "cable_attach" (elemento 1) */
+        public static final float[] CABLE_ATTACH = {8.0f, 4.0f, -8.25f};
+        /** centro del cubo "wall_joint" (elemento 11) */
+        public static final float[] WALL_JOINT = {8.0f, 5.5f, 15.85f};
+        /** grupo "cable_joints" */
+        public static final int[] GRUPO_CABLE_JOINTS = {0, 1, 2};
+    }
+
+    /** steel catenary tunnel fixed cable segment.json -> models/block/piezas/perfil_rigido.json */
     public static final class PERFIL_RIGIDO {
         public static final String ID = "perfil_rigido";
         public static final int ELEMENTS = 9;

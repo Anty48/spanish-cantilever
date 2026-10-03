@@ -30,3 +30,11 @@ description='''${mod_description}'''
     versionRange="${pnw_version_range}"
     ordering="AFTER"
     side="BOTH"
+
+# el pantografo iberico usa directamente el renderer de GeckoLib (PNW ya lo pide)
+[[dependencies.${mod_id}]]
+    modId="geckolib"
+    mandatory=true
+    versionRange="[4.4,)"
+    ordering="AFTER"
+    side="BOTH"

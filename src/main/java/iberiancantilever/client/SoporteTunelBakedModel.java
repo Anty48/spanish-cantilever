@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.IntStream;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,41 +17,59 @@ import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.ChunkRenderTypeSet;
 import net.minecraftforge.client.model.data.ModelData;
+import net.minecraftforge.client.model.data.ModelProperty;
 
 /**
- * Modelo del soporte de tunel: la pieza de Blockbench de su posicion, girada con la misma cuenta que
- * PNW usa para los puntos de enganche ({@link SoporteTunelBlock#aBloque}), asi el perfil y el cable
- * caen siempre en la pinza.
+ * Modelo del soporte de tunel: la pieza de Blockbench de su version, tamano y posicion
+ * ({@link SoporteTunelBlock#pieza}), girada con la misma cuenta que PNW usa para los puntos de enganche
+ * ({@link SoporteTunelBlock#aBloque}), asi el perfil y el cable caen siempre en la pinza.
  */
 public class SoporteTunelBakedModel implements BakedModel {
     private static final ChunkRenderTypeSet RENDER_TYPES = ChunkRenderTypeSet.of(RenderType.cutout());
+    /** El de pared se acerca (px) a la cara de un poste fino: depende del poste, se lee del mundo. */
+    private static final ModelProperty<Float> HUECO = new ModelProperty<>();
 
-    /** Cubo de la varilla que sube al techo ("ceeling joint") y el resto de la pieza. */
+    /** Cubo de la varilla que sube al techo ("ceeling joint") en los de techo. */
     private static final int VARILLA = 0;
-    private static final int[] RESTO = {1, 2, 3, 4, 5, 6, 7};
     /** Altura (px) a partir de la cual los vertices de la varilla se quedan en su sitio (la punta del techo). */
     private static final float MITAD_VARILLA = 12f;
 
     private final BakedModel original;
-    private final Map<BlockState, List<BakedQuad>> cache = new ConcurrentHashMap<>();
+    private final Map<Key, List<BakedQuad>> cache = new ConcurrentHashMap<>();
+
+    private record Key(BlockState state, float hueco) {
+    }
 
     public SoporteTunelBakedModel(BakedModel original) {
         this.original = original;
     }
 
     @Override
+    public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state,
+                                           @NotNull ModelData modelData) {
+        if (state.getBlock() instanceof SoporteTunelBlock bloque) {
+            return ModelData.builder().with(HUECO, bloque.hueco(level, pos, state)).build();
+        }
+        return modelData;
+    }
+
+    @Override
     public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand,
                                              @NotNull ModelData data, @Nullable RenderType renderType) {
-        if (side != null || state == null || !(state.getBlock() instanceof SoporteTunelBlock)) {
+        // sin capa es el agrietado de cuando se pica el bloque: las catenarias no lo llevan
+        if (side != null || renderType == null || state == null || !(state.getBlock() instanceof SoporteTunelBlock)) {
             return List.of();
         }
-        return cache.computeIfAbsent(state, SoporteTunelBakedModel::hornear);
+        Float hueco = data.get(HUECO);
+        return cache.computeIfAbsent(new Key(state, hueco == null ? 0f : hueco), k -> hornear(k.state(), k.hueco()));
     }
 
     @Override
@@ -59,21 +78,28 @@ public class SoporteTunelBakedModel implements BakedModel {
     }
 
     /**
-     * La pieza de su posicion en coordenadas del bloque (0..1). Con altura, la varilla del techo se
-     * alarga hacia abajo (su punta de arriba no se mueve) y todo lo demas baja con ella.
+     * La pieza en coordenadas del bloque (0..1). Con altura, en el de techo la varilla se alarga hacia
+     * abajo (su punta de arriba no se mueve) y todo lo demas baja con ella; el de pared baja entero.
+     * {@code hueco}: px que el de pared se acerca a su poste.
      */
-    public static List<BakedQuad> hornear(BlockState state) {
+    public static List<BakedQuad> hornear(BlockState state, float hueco) {
         SoporteTunelBlock bloque = (SoporteTunelBlock) state.getBlock();
         float bajada = SoporteTunelBlock.bajada(state);
-        Pieza pieza = Pieza.get(state.getValue(SoporteTunelBlock.POSICION).pieza());
+        SoporteTunelBlock.PiezaTunel datos = SoporteTunelBlock.pieza(state);
+        Pieza pieza = Pieza.get(datos.id());
         List<BakedQuad> quads = new ArrayList<>();
-        pieza.bake(new int[]{VARILLA}, 0, p -> colocar(bloque, state, p, p.y * 16 >= MITAD_VARILLA ? p.y * 16 : p.y * 16 - bajada), quads);
-        pieza.bake(RESTO, 0, p -> colocar(bloque, state, p, p.y * 16 - bajada), quads);
+        if (!datos.colgada()) {
+            pieza.bake(null, 0, p -> colocar(bloque, state, p, p.y * 16 - bajada, hueco), quads);
+            return quads;
+        }
+        int[] resto = IntStream.range(0, datos.elementos()).filter(i -> i != VARILLA).toArray();
+        pieza.bake(new int[]{VARILLA}, 0, p -> colocar(bloque, state, p, p.y * 16 >= MITAD_VARILLA ? p.y * 16 : p.y * 16 - bajada, hueco), quads);
+        pieza.bake(resto, 0, p -> colocar(bloque, state, p, p.y * 16 - bajada, hueco), quads);
         return quads;
     }
 
-    private static void colocar(SoporteTunelBlock bloque, BlockState state, Vector3f p, float yPx) {
-        Vec3 v = bloque.aBloque(state, p.x * 16, yPx, p.z * 16);
+    private static void colocar(SoporteTunelBlock bloque, BlockState state, Vector3f p, float yPx, float hueco) {
+        Vec3 v = bloque.aBloque(state, p.x * 16, yPx, p.z * 16 + hueco);
         p.set((float) v.x, (float) v.y, (float) v.z);
     }
 

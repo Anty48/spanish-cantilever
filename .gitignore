@@ -22,3 +22,12 @@ tipo 2 aislador de tensión abajo/
 tipo 3 aislador de tensión vertical/
 770x_catenariatrenistock.jpg
 catenaria-rigida-linea-4-tunel-1.webp
+new tunel.jpeg
+
+# LaTeX (docs)
+docs/**/*.aux
+docs/**/*.log
+docs/**/*.out
+docs/**/*.toc
+docs/**/*.fls
+docs/**/*.fdb_latexmk

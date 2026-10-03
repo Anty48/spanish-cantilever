@@ -10,3 +10,4 @@ Jars necesarios para compilar y lanzar el `runClient` (no se suben al repo). Nom
 | `registrate-1.3.3.jar`, `flywheel-1.0.5.jar`, `ponder-1.0.91.jar` | sacados de `META-INF/jarjar/` del jar de Create |
 | `geckolib-4.8.4.jar` | GeckoLib forge 1.20.1 4.8.4 |
 | `architectury-9.2.14.jar` | Architectury API forge 9.2.14 |
+| `jei-15.62.0.217.jar` | JEI 1.20.1 forge 15.62.0.217 (maven.blamejared.com; solo para ver recetas al probar) |
