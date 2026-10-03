@@ -201,6 +201,10 @@ public final class AutoTest {
                 mc.screen.mouseReleased(x, y, 0);
                 LOGGER.info("[autotest] clic ventana ({}, {}) -> {}", x, y, ok);
             }
+            if ((VENTANA_TUNEL.equals(v.nombre()) || OBJETO_TUNEL.equals(v.nombre()) || VENTANA_MENSULA.equals(v.nombre())) && wait == 60) {
+                // el raton fuera de la ventana: si se queda encima de un deslizador, su tooltip tapa la vista previa
+                org.lwjgl.glfw.GLFW.glfwSetCursorPos(mc.getWindow().getWindow(), 0, 0);
+            }
             if (VENTANA_TUNEL.equals(v.nombre()) && wait == 72) {
                 de.mrjulsen.mcdragonlib.client.gui.widgets.base.DLWindow.closeWindow();
             }
