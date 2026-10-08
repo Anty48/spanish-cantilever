@@ -70,5 +70,9 @@
   "item.iberiancantilever.soporte_tunel.ajustes_pared": "Höhe: %s px",
   "gui.iberiancantilever.soporte_tunel.no_cabe": "Hier gibt es keinen Halt: Ausführung nicht geändert",
   "gui.iberiancantilever.soporte_tunel.altura_pared": "Höhe (px)",
-  "block.iberiancantilever.pantografo_iberico": "Iberischer Pantograf"
+  "block.iberiancantilever.pantografo_iberico": "Iberischer Pantograf",
+  "message.iberiancantilever.tirante_diagonal.anchura": "Die schräge Abspannung braucht einen Ausleger mit Breite 3 oder mehr",
+  "message.iberiancantilever.tirante_diagonal.poste": "Klicke auf einen Mastblock %s bis %s Blöcke oberhalb des Auslegers",
+  "gui.iberiancantilever.soporte_tunel.escala": "Gesamtgröße",
+  "item.iberiancantilever.soporte_tunel.escala": "Gesamtgröße: %s %%"
 }

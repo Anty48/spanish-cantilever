@@ -6,6 +6,7 @@ import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import de.mrjulsen.paw.blockentity.PantographInteractionBehaviour;
 import de.mrjulsen.paw.blockentity.PantographMovementBehaviour;
 import iberiancantilever.cable.ModCables;
+import iberiancantilever.cable.TiranteDiagonal;
 import iberiancantilever.client.ClientSetup;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -23,6 +24,7 @@ public class IberianCantilever {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         ModPostes.init();
         ModCables.init();
+        TiranteDiagonal.init();
         ModBlocks.BLOCKS.register(bus);
         ModBlocks.ITEMS.register(bus);
         ModBlocks.BLOCK_ENTITIES.register(bus);

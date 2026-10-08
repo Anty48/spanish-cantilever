@@ -50,7 +50,8 @@ import net.minecraftforge.client.model.data.ModelData;
 /**
  * Ventana del soporte de tunel (el unico menu de todas sus variantes): version (techo / pared),
  * tamano (normal / grande en el de techo, brazo corto / largo en el de pared), donde agarra el perfil
- * (izquierda / centro / derecha, solo el de techo) y su altura (cada version la suya). Los selectores
+ * (izquierda / centro / derecha, solo el de techo), su altura (cada version la suya) y el tamano general
+ * (todo el soporte y el perfil que sale de el, mas grande). Los selectores
  * no se mueven al cambiar de version: en el de pared el hueco de la pinza queda vacio. Misma textura y
  * vista previa que la de la mensula ({@link VentanaMensula}), con un bloque de referencia (el techo o
  * la pared donde va; una linterna de mar, que se distingue bien al girar).
@@ -68,6 +69,9 @@ public class VentanaSoporteTunel extends DLWindow {
     private static final int VISTA_Y = 27;
     private static final int VISTA_ANCHO = 197;
     private static final int VISTA_ALTO = 124;
+    /** X de los dos deslizadores de la fila: la altura (la de la version escogida) y el tamano general. */
+    private static final int X_ALTURA = ANCHO / 2 - 45 - 5;
+    private static final int X_ESCALA = ANCHO / 2 + 5;
     /** Pasos de altura por bloque (el deslizador va en bloques, como los de PNW). */
     private static final float PASOS_POR_BLOQUE = 16f / SoporteTunelBlock.PX_POR_ALTURA;
 
@@ -78,6 +82,7 @@ public class VentanaSoporteTunel extends DLWindow {
     private PosicionTunel posicion;
     private int altura;
     private int alturaPared;
+    private int tamanoGeneral;
     private List<BakedQuad> vista;
     /** Centro (bloques) de lo que se ve en la vista previa y cuanto se amplia. */
     private float centroX;
@@ -91,6 +96,7 @@ public class VentanaSoporteTunel extends DLWindow {
     private final VentanaMensula.SelectorIconos<OpcionPosicion> selectorPosicion;
     private final CreateSlider deslizadorTecho;
     private final CreateSlider deslizadorPared;
+    private final CreateSlider deslizadorEscala;
 
     public VentanaSoporteTunel(DLWindowManager manager, AjustesTunel ajustes, Consumer<AjustesTunel> alCerrar) {
         super(manager);
@@ -99,6 +105,7 @@ public class VentanaSoporteTunel extends DLWindow {
         this.posicion = ajustes.posicion();
         this.altura = ajustes.altura();
         this.alturaPared = ajustes.alturaPared();
+        this.tamanoGeneral = ajustes.escala();
         setSize(ANCHO, ALTO);
         centrar();
         addEventListener(DLGuiStandardEvents.ScreenLayoutUpdatedEvent.class, (s, e) -> {
@@ -117,8 +124,9 @@ public class VentanaSoporteTunel extends DLWindow {
         });
 
         // la altura: el de techo en bloques que cuelga de mas; el de pared en px arriba o abajo del centro
-        // del bloque (sin salirse de el). Los dos en el mismo sitio; se ve el de la version escogida
-        deslizadorTecho = new CreateSlider(ANCHO / 2 - 45 / 2, FILA_DESLIZADORES, 45, 14,
+        // del bloque (sin salirse de el). Los dos en el mismo sitio, a la izquierda; se ve el de la version
+        // escogida. A la derecha, el tamano general (las dos versiones)
+        deslizadorTecho = new CreateSlider(X_ALTURA, FILA_DESLIZADORES, 45, 14,
                 Component.translatable("gui.iberiancantilever.soporte_tunel.altura"));
         deslizadorTecho.min.set(0.0);
         deslizadorTecho.max.set(SoporteTunelBlock.ALTURA_MAX / (double) PASOS_POR_BLOQUE);
@@ -131,7 +139,7 @@ public class VentanaSoporteTunel extends DLWindow {
         });
         addComponent(deslizadorTecho);
         double medioPared = SoporteTunelBlock.ALTURA_PARED_CENTRO * SoporteTunelBlock.PX_POR_ALTURA_PARED;
-        deslizadorPared = new CreateSlider(ANCHO / 2 - 45 / 2, FILA_DESLIZADORES, 45, 14,
+        deslizadorPared = new CreateSlider(X_ALTURA, FILA_DESLIZADORES, 45, 14,
                 Component.translatable("gui.iberiancantilever.soporte_tunel.altura_pared"));
         deslizadorPared.min.set(-medioPared);
         deslizadorPared.max.set(medioPared);
@@ -143,6 +151,18 @@ public class VentanaSoporteTunel extends DLWindow {
             return false;
         });
         addComponent(deslizadorPared);
+        deslizadorEscala = new CreateSlider(X_ESCALA, FILA_DESLIZADORES, 45, 14,
+                Component.translatable("gui.iberiancantilever.soporte_tunel.escala"));
+        deslizadorEscala.min.set(1.0);
+        deslizadorEscala.max.set(1.0 + SoporteTunelBlock.ESCALA_MAX * (double) SoporteTunelBlock.PASO_ESCALA);
+        deslizadorEscala.step.set((double) SoporteTunelBlock.PASO_ESCALA);
+        deslizadorEscala.value.set(1.0 + tamanoGeneral * (double) SoporteTunelBlock.PASO_ESCALA);
+        deslizadorEscala.addEventListener(DLSlider.ValueChangedEvent.class, (s, e) -> {
+            tamanoGeneral = Math.round(((float) e.value() - 1f) / SoporteTunelBlock.PASO_ESCALA);
+            actualizarVista();
+            return false;
+        });
+        addComponent(deslizadorEscala);
 
         selectorVersion = new VentanaMensula.SelectorIconos<>(0, FILA_SELECTORES, OpcionVersion.class, VentanaMensula.ICONO_VERSION_TUNEL);
         selectorVersion.value.set((double) version.ordinal());
@@ -198,7 +218,7 @@ public class VentanaSoporteTunel extends DLWindow {
     }
 
     private AjustesTunel ajustes() {
-        return new AjustesTunel(version, tamano, posicion, altura, alturaPared);
+        return new AjustesTunel(version, tamano, posicion, altura, alturaPared, tamanoGeneral);
     }
 
     private void centrar() {

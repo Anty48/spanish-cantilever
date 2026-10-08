@@ -56,11 +56,19 @@ import iberiancantilever.geometry.Ajustes;
 @Mod.EventBusSubscriber(modid = IberianCantilever.MOD_ID, value = Dist.CLIENT)
 public final class AutoTest {
     private static final Logger LOGGER = LogUtils.getLogger();
+    /**
+     * Si run/autotest.flag trae texto: prefijos de las vistas que se quieren, separados por comas (las
+     * demas no se fotografian). Va antes que ENABLED, que es quien lo lee.
+     */
+    private static String filtro;
     /** Se activa con -Pautotest en gradle o dejando un archivo run/autotest.flag (se borra al usarlo). */
     private static final boolean ENABLED = Boolean.getBoolean("iberiancantilever.autotest") || consumirFlag();
     private static final String WORLD = "mensula_test";
     /** Superficie del mundo plano por defecto (la hierba esta en y = -61). */
     private static final int SUELO = -60;
+    /** Tamano de la ventana (y de las capturas) durante la prueba. */
+    private static final int ANCHO_CAPTURA = 1600;
+    private static final int ALTO_CAPTURA = 900;
     /** Altura del bloque de la mensula sobre el suelo: hilo de contacto a ~5,4 m del carril. */
     private static final int ALTURA_MENSULA = 6;
     private static final int ALTO_POSTE = 8;
@@ -80,10 +88,18 @@ public final class AutoTest {
     private static final int DIAGONAL_X = -200;
     /** X del eje de la via del tunel con las otras variantes del soporte. */
     private static final int TUNEL2_X = -160;
+    /** X de los postes de la escena de los tirantes diagonales (lejos de la fila B, que llega a x = 160). */
+    private static final int TIRANTE_X = 200;
+    /** Origen de las escenas de escaparate ({@link Escaparate}) para las capturas de la documentacion. */
+    private static final int ESCAPARATE_X = 600;
     /** X del pantografo de PNW (el iberico, 3 bloques al este). */
     private static final int PANTOGRAFOS_X = 20;
 
-    private record Vista(String nombre, double x, double y, double z, double mirarX, double mirarY, double mirarZ) {
+    /** Una camara; {@code fov} el campo de vision (las de la documentacion lo cierran para que no se deforme). */
+    private record Vista(String nombre, double x, double y, double z, double mirarX, double mirarY, double mirarZ, int fov) {
+        Vista(String nombre, double x, double y, double z, double mirarX, double mirarY, double mirarZ) {
+            this(nombre, x, y, z, mirarX, mirarY, mirarZ, 70);
+        }
     }
 
     private static final List<Vista> VISTAS = new ArrayList<>();
@@ -98,7 +114,15 @@ public final class AutoTest {
 
     private static boolean consumirFlag() {
         java.io.File flag = new java.io.File("autotest.flag");
-        return flag.isFile() && flag.delete();
+        if (!flag.isFile()) {
+            return false;
+        }
+        try {
+            filtro = java.nio.file.Files.readString(flag.toPath()).trim();
+        } catch (java.io.IOException e) {
+            filtro = "";
+        }
+        return flag.delete();
     }
 
     @SubscribeEvent
@@ -109,6 +133,9 @@ public final class AutoTest {
         }
         started = true;
         Minecraft mc = Minecraft.getInstance();
+        // todas las capturas del mismo tamano (y no el de la ventana maximizada o no)
+        org.lwjgl.glfw.GLFW.glfwRestoreWindow(mc.getWindow().getWindow());
+        org.lwjgl.glfw.GLFW.glfwSetWindowSize(mc.getWindow().getWindow(), ANCHO_CAPTURA, ALTO_CAPTURA);
         // la primera vez sale la pantalla de accesibilidad en vez del menu principal
         mc.options.onboardAccessibility = false;
         // si la ventana pierde el foco (alguien usando el PC) no tiene que salir el menu de pausa en las capturas
@@ -192,18 +219,28 @@ public final class AutoTest {
             }
             if ((VENTANA_TUNEL.equals(v.nombre()) || OBJETO_TUNEL.equals(v.nombre())) && mc.screen != null && (wait == 40 || wait == 50)) {
                 // como un jugador: clic en el extremo derecho de un selector (con el soporte puesto, el de
-                // tamano; con el objeto, el de version: pasa a pared) y del de altura
+                // tamano; con el objeto, el de version: pasa a pared) y del de altura (el de la izquierda)
                 double cx = mc.getWindow().getGuiScaledWidth() / 2.0;
                 double cy = mc.getWindow().getGuiScaledHeight() / 2.0;
-                double x = wait == 40 ? (OBJETO_TUNEL.equals(v.nombre()) ? cx - 36 : cx + 22) : cx + 20;
+                double x = wait == 40 ? (OBJETO_TUNEL.equals(v.nombre()) ? cx - 36 : cx + 22) : cx - 8;
                 double y = wait == 40 ? cy - 115 + 187 : cy - 115 + 162;
                 boolean ok = mc.screen.mouseClicked(x, y, 0);
                 mc.screen.mouseReleased(x, y, 0);
                 LOGGER.info("[autotest] clic ventana ({}, {}) -> {}", x, y, ok);
             }
+            if ((VENTANA_TUNEL.equals(v.nombre()) || OBJETO_TUNEL.equals(v.nombre())) && mc.screen != null && wait == 55) {
+                // y el tamano general (el deslizador de la derecha) hasta arriba
+                double x = mc.getWindow().getGuiScaledWidth() / 2.0 + 47;
+                double y = mc.getWindow().getGuiScaledHeight() / 2.0 - 115 + 162;
+                mc.screen.mouseClicked(x, y, 0);
+                mc.screen.mouseReleased(x, y, 0);
+            }
             if ((VENTANA_TUNEL.equals(v.nombre()) || OBJETO_TUNEL.equals(v.nombre()) || VENTANA_MENSULA.equals(v.nombre())) && wait == 60) {
                 // el raton fuera de la ventana: si se queda encima de un deslizador, su tooltip tapa la vista previa
                 org.lwjgl.glfw.GLFW.glfwSetCursorPos(mc.getWindow().getWindow(), 0, 0);
+                if (mc.screen != null) {
+                    mc.screen.mouseMoved(0, 0);
+                }
             }
             if (VENTANA_TUNEL.equals(v.nombre()) && wait == 72) {
                 de.mrjulsen.mcdragonlib.client.gui.widgets.base.DLWindow.closeWindow();
@@ -252,6 +289,7 @@ public final class AutoTest {
         }
         // Fila C: una linea con cables de PNW tendidos entre las mensulas (zigzag interior / exterior)
         ServerPlayer player = server.getPlayerList().getPlayers().get(0);
+        LineaPrueba.visionNocturna(player);
         int cables = LineaPrueba.tenderCables(player, LineaPrueba.montar(level, new BlockPos(LINEA_X, SUELO, 0), 4));
         // Fila D: los postes ibericos en sus cuatro estados de oxidacion, normal y diagonal
         String[] estados = {"", "_exposed", "_weathered", "_oxidized"};
@@ -281,6 +319,10 @@ public final class AutoTest {
         LOGGER.info("[autotest] linea iberica: {} vanos", cablesIbericos);
         // Fila F: las 16 direcciones de la mensula, con la de PNW debajo para comparar
         int diagonales = LineaPrueba.montarDiagonales(player, new BlockPos(DIAGONAL_X, SUELO, 40));
+        // Fila G: tirantes diagonales (cable de soporte de PNW de la horizontal al poste)
+        int tirantes = LineaPrueba.montarTirantes(player, new BlockPos(TIRANTE_X, SUELO, 0));
+        LOGGER.info("[autotest] tirantes diagonales: {}", tirantes);
+        Escaparate.montar(player, new BlockPos(ESCAPARATE_X, SUELO, 0));
         LOGGER.info("[autotest] escena montada ({} vanos con cable, {} tramos rigidos, {} vanos en diagonales)", cables, tramos, diagonales);
     }
 
@@ -318,6 +360,12 @@ public final class AutoTest {
         // los de pared mirando a lo largo de la via, desde un poco antes: el brazo sale de lado
         VISTAS.add(new Vista("tunel2_pared_corto", TUNEL2_X + 0.6, SUELO + 5.0, -3.6, TUNEL2_X - 0.6, SUELO + 5.3, -6.5));
         VISTAS.add(new Vista("tunel2_pared_largo", TUNEL2_X + 0.6, SUELO + 5.0, -9.6, TUNEL2_X - 1.1, SUELO + 5.3, -12.5));
+        // tamano general: de lado bajo el techo, y cada soporte de frente (mirando a lo largo de la via)
+        VISTAS.add(new Vista("tunel2_escala", TUNEL2_X + 5, SUELO + 3.2, -40, TUNEL2_X - 0.5, SUELO + 5.4, -40));
+        VISTAS.add(new Vista("tunel2_escala_150", TUNEL2_X + 1.3, SUELO + 4.1, -28.8, TUNEL2_X + 0.5, SUELO + 5.5, -31.5));
+        VISTAS.add(new Vista("tunel2_escala_125_grande", TUNEL2_X + 1.3, SUELO + 4.1, -34.8, TUNEL2_X + 0.5, SUELO + 5.5, -37.5));
+        VISTAS.add(new Vista("tunel2_escala_pared_150", TUNEL2_X + 1.4, SUELO + 5.0, -39.8, TUNEL2_X - 0.6, SUELO + 5.3, -43.5));
+        VISTAS.add(new Vista("tunel2_escala_100", TUNEL2_X + 1.3, SUELO + 4.1, -46.8, TUNEL2_X + 0.5, SUELO + 5.5, -49.5));
         VISTAS.add(new Vista("tunel2_grande", TUNEL2_X + 1.5, SUELO + 4.8, 1.2, TUNEL2_X, SUELO + 5.6, -1));
         // las 16 direcciones: cada fila (una cara) vista desde justo encima, nuestra mensula encima de la de PNW
         String[] caras = {"norte", "este", "sur", "oeste"};
@@ -334,15 +382,34 @@ public final class AutoTest {
         VISTAS.add(new Vista(VENTANA_TUNEL, TUNEL_X + 2.3, SUELO + 4.3, -4.5, TUNEL_X + 0.5, SUELO + 5.4, -6.5));
         // el soporte en la mano: clic derecho al aire, escoger, y ponerlo con lo escogido
         VISTAS.add(new Vista(OBJETO_TUNEL, TUNEL2_X + 0.5, SUELO + 4.5, -10.5, TUNEL2_X - 2, SUELO + 3.5, -13));
+        // tirantes diagonales: de lado (el primero y el tercero, bajado), de cerca en la barra y en el poste, y la linea
+        VISTAS.add(new Vista("tirante", TIRANTE_X + 2.5, SUELO + 7.5, 7, TIRANTE_X + 2.5, SUELO + 7.5, 0));
+        VISTAS.add(new Vista("tirante_bajado", TIRANTE_X + 2.5, SUELO + 7.5, -17, TIRANTE_X + 2.5, SUELO + 7.5, -24));
+        VISTAS.add(new Vista("tirante_barra", TIRANTE_X + 4.6, SUELO + 7.6, 2.0, TIRANTE_X + 3.3, SUELO + 6.6, 0.5));
+        VISTAS.add(new Vista("tirante_poste", TIRANTE_X + 2.6, SUELO + 9.6, 2.2, TIRANTE_X + 0.5, SUELO + 9.4, 0.5));
+        VISTAS.add(new Vista("tirante_linea", TIRANTE_X + 7, SUELO + 8, 8, TIRANTE_X + 1, SUELO + 7, -14));
+        // la fila de las anchuras (3,5 a 6,5 y la ensanchada), 20 bloques al sur, de lado y de cerca la ensanchada
+        VISTAS.add(new Vista("tirante_anchuras", TIRANTE_X + 22, SUELO + 9, 52, TIRANTE_X + 22, SUELO + 9, 20));
+        VISTAS.add(new Vista("tirante_ensanchada", TIRANTE_X + 38, SUELO + 8.5, 33, TIRANTE_X + 38, SUELO + 8.5, 20));
+        VISTAS.add(new Vista("tirante_alturas", TIRANTE_X + 89, SUELO + 9, 50, TIRANTE_X + 89, SUELO + 9, 20));
+        // de cerca donde el hilo entra en la horizontal (anchura 3,5) y en el poste (a 2 bloques)
+        VISTAS.add(new Vista("tirante_metido", TIRANTE_X + 3.3, SUELO + 7.0, 21.7, TIRANTE_X + 4.0, SUELO + 6.5, 20.5));
+        VISTAS.add(new Vista("tirante_metido_poste", TIRANTE_X + 2.0, SUELO + 8.6, 21.9, TIRANTE_X + 0.7, SUELO + 8.5, 20.5));
+        VISTAS.add(new Vista("tirante_pnw", TIRANTE_X + 2.5, SUELO + 7.5, -5, TIRANTE_X + 2.5, SUELO + 7.5, -12));
+        vistasDocumentacion();
         // la ultima con la interfaz visible y la mensula en la mano (modelo del objeto)
         VISTAS.add(new Vista(OBJETO, 15, y, 17, 15, y, 0));
+        if (filtro != null && !filtro.isEmpty()) {
+            List<String> prefijos = java.util.Arrays.stream(filtro.split(",")).map(String::trim).filter(p -> !p.isEmpty()).toList();
+            VISTAS.removeIf(v -> prefijos.stream().noneMatch(v.nombre()::startsWith));
+        }
     }
 
     /** Poste de celosia de PNW, mensula en su cara este y una via de Create debajo del sustentador. */
     private static void poner(ServerLevel level, BlockPos base, TipoAislador tipo, ModoZigzag modo, boolean tirante, int alcance) {
         Block poste = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("pantographsandwires", "lattice_mast"));
         for (int dy = 0; dy < ALTO_POSTE; dy++) {
-            level.setBlock(base.above(dy), poste.defaultBlockState(), Block.UPDATE_ALL);
+            level.setBlock(base.above(dy), LineaPrueba.poste(poste, Direction.EAST, 1), Block.UPDATE_ALL);
         }
         BlockState mensula = ModBlocks.MENSULA.get().defaultBlockState()
                 .setValue(AbstractRotatableBlock.FACING, Direction.EAST)
@@ -362,7 +429,65 @@ public final class AutoTest {
         }
     }
 
+    /** Camaras de la documentacion (prefijo doc_), sobre el escaparate y las filas de los tirantes. */
+    private static void vistasDocumentacion() {
+        double s = SUELO;
+        double ex = ESCAPARATE_X;
+        // portada: la linea entera desde un lado de la via, y de cerca la primera mensula con su tirante
+        VISTAS.add(new Vista("doc_portada", ex + 9.5, s + 3.4, 15, ex + 2.5, s + 6.2, -22, 50));
+        VISTAS.add(new Vista("doc_portada_cerca", ex + 6.8, s + 7.6, 3.8, ex + 3.0, s + 6.8, 0.5, 50));
+        // todas las anchuras de lado
+        double az = Escaparate.ANCHURAS_Z;
+        VISTAS.add(new Vista("doc_anchuras", ex + 22, s + 4.8, az + 36, ex + 22, s + 4.8, az, 40));
+        // los postes, de frente
+        double pz = Escaparate.POSTES_Z;
+        VISTAS.add(new Vista("doc_postes", ex + 13.5, s + 3.2, pz + 21, ex + 13.5, s + 2.4, pz, 40));
+        // los pantografos en su anden
+        double px = ex + Escaparate.PANTOGRAFOS_X;
+        double ppz = Escaparate.PANTOGRAFOS_Z;
+        VISTAS.add(new Vista("doc_pantografos", px + 2, s + 3.4, ppz + 4.6, px + 2, s + 1.5, ppz + 0.3, 50));
+        // vitrinas de soportes: desde la via, mirando a lo largo de los perfiles
+        // a la altura de las pinzas, justo bajo la losa, mirando a lo largo de los perfiles
+        double vz = Escaparate.VITRINA_Z;
+        String[] vitrinas = {"doc_vitrina_techo", "doc_vitrina_grande", "doc_vitrina_escala"};
+        for (int i = 0; i < vitrinas.length; i++) {
+            double cx = ex + Escaparate.VITRINA_X + Escaparate.VITRINAS[i] + 0.5;
+            VISTAS.add(new Vista(vitrinas[i], cx + 1.5, s + 4.8, vz + 5.0, cx, s + 5.6, vz - 1.5, 60));
+        }
+        // y cada soporte de techo de cerca, de frente a la altura de la pinza
+        String[] grupos = {"normal", "grande", "escala"};
+        for (int g = 0; g < grupos.length; g++) {
+            for (int i = 0; i < 3; i++) {
+                double via = ex + Escaparate.VITRINA_X + Escaparate.VITRINAS[g] - 4 + i * 4 + 0.5;
+                VISTAS.add(new Vista("doc_soporte_" + grupos[g] + "_" + i, via + 1.5, s + 5.0, vz + 2.2, via, s + 5.6, vz - 0.4, 50));
+            }
+        }
+        String[] paredes = {"doc_vitrina_pared_corto", "doc_vitrina_pared_largo"};
+        for (int i = 0; i < paredes.length; i++) {
+            double via = ex + Escaparate.VITRINA_X + Escaparate.VIAS_PARED[i] + 0.5;
+            VISTAS.add(new Vista(paredes[i], via + 0.3, s + 5.25, vz + 2.0, via - 1.1, s + 5.45, vz + 0.1, 55));
+        }
+        // el tunel: la boca con la transicion, dentro a lo largo y un soporte de cerca
+        double tx = ex + Escaparate.TUNEL_X + 0.5;
+        // la curva del perfil, de lado y desde abajo
+        double cz = Escaparate.CURVA_Z;
+        VISTAS.add(new Vista("doc_curva", ex - 1.0, s + 4.4, cz + 3.5, ex + 3.0, s + 5.6, cz - 20, 55));
+        VISTAS.add(new Vista("doc_tunel_boca", tx + 7, s + 3.8, 22, tx - 0.5, s + 5.0, -1, 55));
+        VISTAS.add(new Vista("doc_transicion", tx + 1.3, s + 4.6, -5.5, tx - 0.6, s + 5.6, 12, 55));
+        VISTAS.add(new Vista("doc_tunel_dentro", tx + 1.2, s + 4.4, -2.5, tx + 0.2, s + 5.3, -30, 55));
+        VISTAS.add(new Vista("doc_tunel_soporte", tx + 1.3, s + 4.8, -5.0, tx, s + 5.9, -7.0, 50));
+        // tirantes diagonales: las anchuras, las alturas y de cerca donde entra en la barra y en el poste
+        double ty = s + 7.6;
+        double tz = Escaparate.TIRANTES_Z;
+        double taz = Escaparate.TIRANTES_ALTURAS_Z;
+        VISTAS.add(new Vista("doc_tirante_anchuras", ex + 17.5, ty, tz + 30, ex + 17.5, ty, tz, 40));
+        VISTAS.add(new Vista("doc_tirante_alturas", ex + 17.5, ty, taz + 30, ex + 17.5, ty, taz, 40));
+        VISTAS.add(new Vista("doc_tirante_metido", ex + 8 + 3.9, s + 7.1, tz + 2.0, ex + 8 + 4.9, s + 6.5, tz + 0.5, 50));
+        VISTAS.add(new Vista("doc_tirante_poste", ex + 8 + 2.3, s + 8.5, tz + 2.4, ex + 8 + 0.6, s + 9.5, tz + 0.5, 50));
+    }
+
     private static void mover(MinecraftServer server, Vista v) {
+        Minecraft.getInstance().execute(() -> Minecraft.getInstance().options.fov().set(v.fov()));
         ServerPlayer player = server.getPlayerList().getPlayers().get(0);
         if (OBJETO.equals(v.nombre())) {
             player.setGameMode(GameType.CREATIVE);

@@ -70,5 +70,9 @@
   "item.iberiancantilever.soporte_tunel.ajustes_pared": "Altura: %s px",
   "gui.iberiancantilever.soporte_tunel.no_cabe": "Aquí no tiene dónde agarrarse: no se cambia la versión",
   "gui.iberiancantilever.soporte_tunel.altura_pared": "Altura (px)",
-  "block.iberiancantilever.pantografo_iberico": "Pantógrafo ibérico"
+  "block.iberiancantilever.pantografo_iberico": "Pantógrafo ibérico",
+  "message.iberiancantilever.tirante_diagonal.anchura": "El tirante diagonal necesita una ménsula de anchura 3 o más",
+  "message.iberiancantilever.tirante_diagonal.poste": "Haz clic en un bloque del poste de %s a %s bloques por encima de la ménsula",
+  "gui.iberiancantilever.soporte_tunel.escala": "Tamaño general",
+  "item.iberiancantilever.soporte_tunel.escala": "Tamaño general: %s %%"
 }

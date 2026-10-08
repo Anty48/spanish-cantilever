@@ -1,6 +1,7 @@
 package iberiancantilever.block;
 
 import org.joml.Vector3d;
+import org.joml.Vector3f;
 
 import de.mrjulsen.paw.block.abstractions.AbstractRotatableBlock;
 import de.mrjulsen.paw.block.abstractions.AbstractSupportedRotatableWireConnectorBlock;
@@ -79,6 +80,16 @@ public class SoporteTunelBlock extends AbstractSupportedRotatableWireConnectorBl
     public static final int ALTURA_PARED_CENTRO = ALTURA_PARED_MAX / 2;
     public static final IntegerProperty ALTURA_PARED = IntegerProperty.create("altura_pared", 0, ALTURA_PARED_MAX);
     public static final float PX_POR_ALTURA_PARED = 0.5f;
+    /**
+     * Tamano general (en pasos de {@link #PASO_ESCALA} sobre 1): todo el soporte, y el perfil que se tiende
+     * desde el, mas grande. Crece alrededor de la pinza (de techo: el hilo de contacto queda donde estaba y
+     * la varilla sigue llegando al techo) o de la placa contra la pared (de pared: el brazo se alarga).
+     */
+    public static final int ESCALA_MAX = 2;
+    public static final IntegerProperty ESCALA = IntegerProperty.create("escala", 0, ESCALA_MAX);
+    public static final float PASO_ESCALA = 0.25f;
+    /** Z (px) de la cara de la placa del de pared que va contra la pared o el poste. */
+    private static final float PLACA_PARED = 16f;
     /** Lo que sube la pieza de pared (px) para quedar centrada en el bloque. */
     private static final float CENTRAR_PARED = 8f - (PiezasDatos.TUNEL_PARED_CORTO.MIN[1] + PiezasDatos.TUNEL_PARED_CORTO.MAX[1]) / 2f;
     /**
@@ -115,13 +126,14 @@ public class SoporteTunelBlock extends AbstractSupportedRotatableWireConnectorBl
     public SoporteTunelBlock(Properties properties) {
         super(properties.noCollission());
         registerDefaultState(defaultBlockState().setValue(VERSION, VersionTunel.TECHO).setValue(TAMANO, TamanoTunel.NORMAL)
-                .setValue(POSICION, PosicionTunel.CENTRO).setValue(ALTURA, 0).setValue(ALTURA_PARED, ALTURA_PARED_CENTRO));
+                .setValue(POSICION, PosicionTunel.CENTRO).setValue(ALTURA, 0).setValue(ALTURA_PARED, ALTURA_PARED_CENTRO)
+                .setValue(ESCALA, 0));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(VERSION, TAMANO, POSICION, ALTURA, ALTURA_PARED);
+        builder.add(VERSION, TAMANO, POSICION, ALTURA, ALTURA_PARED, ESCALA);
     }
 
     public static PiezaTunel pieza(BlockState state) {
@@ -134,6 +146,22 @@ public class SoporteTunelBlock extends AbstractSupportedRotatableWireConnectorBl
 
     public static boolean pared(BlockState state) {
         return state.getValue(VERSION) == VersionTunel.PARED;
+    }
+
+    /** Factor del tamano general: 1, 1,25 o 1,5. */
+    public static float escala(BlockState state) {
+        return 1f + state.getValue(ESCALA) * PASO_ESCALA;
+    }
+
+    /**
+     * Un punto de la pieza (px, sin girar ni bajar) con el tamano general aplicado: se aleja del punto fijo
+     * (la pinza del de techo, la placa del de pared a la altura de la pinza) en proporcion.
+     */
+    public static Vector3f escalar(BlockState state, float x, float y, float z) {
+        float s = escala(state);
+        PiezaTunel p = pieza(state);
+        float fijoZ = pared(state) ? PLACA_PARED : p.z();
+        return new Vector3f(8f + (x - 8f) * s, p.y() + (y - p.y()) * s, fijoZ + (z - fijoZ) * s);
     }
 
     // ------------------------------------------------------------------ colocacion
@@ -205,7 +233,8 @@ public class SoporteTunelBlock extends AbstractSupportedRotatableWireConnectorBl
             return state.getValue(TAMANO) == TamanoTunel.GRANDE ? Block.box(0, 2 - b, 0, 16, 16, 16) : Block.box(3, 2 - b, 3, 13, 16, 13);
         }
         // el brazo, de la pared (detras) hacia delante; el largo se sale del bloque
-        double z0 = pieza(state) == PARED_LARGO ? PiezasDatos.TUNEL_PARED_LARGO.MIN[2] : PiezasDatos.TUNEL_PARED_CORTO.MIN[2];
+        double z0 = PLACA_PARED - (PLACA_PARED - (pieza(state) == PARED_LARGO ? PiezasDatos.TUNEL_PARED_LARGO.MIN[2]
+                : PiezasDatos.TUNEL_PARED_CORTO.MIN[2])) * escala(state);
         double y0 = 2 - b, y1 = 9 - b;
         return switch (state.getValue(FACING)) {
             case SOUTH -> Block.box(6, y0, 0, 10, y1, 16 - z0);
@@ -278,14 +307,14 @@ public class SoporteTunelBlock extends AbstractSupportedRotatableWireConnectorBl
 
     @Override
     protected Vec3 defaultWireAttachPoint(Level level, BlockPos pos, BlockState state, CustomData customData, int index) {
-        PiezaTunel p = pieza(state);
-        return local(8, p.y() - bajada(state), p.z() + hueco(level, pos, state));
+        Vector3f pinza = escalar(state, 8, pieza(state).y(), pieza(state).z());
+        return local(pinza.x, pinza.y - bajada(state), pinza.z + hueco(level, pos, state));
     }
 
     @Override
     public Vec3 tensionWireAttachPoint(Level level, BlockPos pos, BlockState state, CustomData customData, int index) {
-        PiezaTunel p = pieza(state);
-        return local(8, p.y() + SUSTENTADOR_SOBRE_CONTACTO - bajada(state), p.z() + hueco(level, pos, state));
+        Vector3f encima = escalar(state, 8, pieza(state).y() + SUSTENTADOR_SOBRE_CONTACTO, pieza(state).z());
+        return local(encima.x, encima.y - bajada(state), encima.z + hueco(level, pos, state));
     }
 
     @Override

@@ -23,13 +23,13 @@ import net.minecraftforge.fml.DistExecutor;
 
 /**
  * Objeto del soporte de tunel: como la mensula, clic derecho al aire abre su ventana y lo escogido
- * (version, tamano, posicion de la pinza y altura) se guarda en el objeto y se aplica al ponerlo. Se
+ * (version, tamano, posicion de la pinza, altura y tamano general) se guarda en el objeto y se aplica al ponerlo. Se
  * guarda en el "BlockStateTag" de vanilla, que BlockItem ya aplica al colocar el bloque.
  */
 public class SoporteTunelItem extends BlockItem {
     private static final String NBT_ESTADO = "BlockStateTag";
     private static final List<Property<?>> AJUSTES = List.of(SoporteTunelBlock.VERSION, SoporteTunelBlock.TAMANO,
-            SoporteTunelBlock.POSICION, SoporteTunelBlock.ALTURA, SoporteTunelBlock.ALTURA_PARED);
+            SoporteTunelBlock.POSICION, SoporteTunelBlock.ALTURA, SoporteTunelBlock.ALTURA_PARED, SoporteTunelBlock.ESCALA);
 
     public SoporteTunelItem(SoporteTunelBlock block, Properties properties) {
         super(block, properties);
@@ -70,6 +70,7 @@ public class SoporteTunelItem extends BlockItem {
         tag.putString(SoporteTunelBlock.POSICION.getName(), ajustes.posicion().getSerializedName());
         tag.putString(SoporteTunelBlock.ALTURA.getName(), String.valueOf(ajustes.altura()));
         tag.putString(SoporteTunelBlock.ALTURA_PARED.getName(), String.valueOf(ajustes.alturaPared()));
+        tag.putString(SoporteTunelBlock.ESCALA.getName(), String.valueOf(ajustes.escala()));
     }
 
     /** Altura del de pared tal como la muestra su ventana: px arriba (+) o abajo (-) del centro del bloque. */
@@ -91,5 +92,7 @@ public class SoporteTunelItem extends BlockItem {
                 : Component.translatable("item.iberiancantilever.soporte_tunel.ajustes",
                 Component.translatable("enum.iberiancantilever.posicion_tunel." + state.getValue(SoporteTunelBlock.POSICION).getSerializedName()),
                 altura));
+        tooltip.add(Component.translatable("item.iberiancantilever.soporte_tunel.escala",
+                Math.round(SoporteTunelBlock.escala(state) * 100)));
     }
 }

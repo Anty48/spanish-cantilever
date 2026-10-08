@@ -70,5 +70,9 @@
   "item.iberiancantilever.soporte_tunel.ajustes_pared": "Height: %s px",
   "gui.iberiancantilever.soporte_tunel.no_cabe": "Nothing to hold on to here: version not changed",
   "gui.iberiancantilever.soporte_tunel.altura_pared": "Height (px)",
-  "block.iberiancantilever.pantografo_iberico": "Iberian Pantograph"
+  "block.iberiancantilever.pantografo_iberico": "Iberian Pantograph",
+  "message.iberiancantilever.tirante_diagonal.anchura": "The diagonal stay needs a cantilever width of 3 or more",
+  "message.iberiancantilever.tirante_diagonal.poste": "Click a mast block %s to %s blocks above the cantilever",
+  "gui.iberiancantilever.soporte_tunel.escala": "Overall size",
+  "item.iberiancantilever.soporte_tunel.escala": "Overall size: %s %%"
 }

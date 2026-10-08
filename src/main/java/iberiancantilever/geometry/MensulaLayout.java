@@ -63,6 +63,13 @@ public final class MensulaLayout {
     public static final float AGUJERO_DESDE_FINAL = 1.5f;
     /** En los postes gruesos la placa abarca su cara menos esto (px). */
     public static final float MARGEN_PLACA = 2f;
+    /** Anchura minima para poder colgar la barra horizontal de un poste con el tirante diagonal. */
+    public static final float ANCHURA_TIRANTE_DIAGONAL = 3f;
+    /**
+     * El tirante diagonal se engancha en la horizontal, estos px antes del sustentador (deja sitio al
+     * aislador): su punta acaba en el eje del tubo, asi entra en el hierro en vez de quedarse encima.
+     */
+    public static final float TIRANTE_DIAGONAL_ANTES_SUSTENTADOR = 8f;
     /** Grosor de la placa atornillada al poste (la del tirante): el tubo arranca en su cara. */
     public static final float GROSOR_PLACA = 2f * (PiezasDatos.TIRANTE.JOINT_WALL_POINT[0] - PiezasDatos.TIRANTE.MIN[0]);
     /** Largo del tubo a 45 grados entre la horizontal y la perforada. */
@@ -128,7 +135,11 @@ public final class MensulaLayout {
         return s == SUJETADOR_CORTO ? SUJETADOR_NUEVO_CORTO : SUJETADOR_NUEVO;
     }
 
-    public record Resultado(List<Colocacion> piezas, Vector3f contacto, Vector3f sustentador) {
+    /**
+     * @param tiranteDiagonal donde se engancha el tirante diagonal (el cable de soporte de PNW que va de la
+     *                        barra horizontal a un poste mas arriba; solo con anchura >= ANCHURA_TIRANTE_DIAGONAL)
+     */
+    public record Resultado(List<Colocacion> piezas, Vector3f contacto, Vector3f sustentador, Vector3f tiranteDiagonal) {
     }
 
     /** Modo interior: como queda la diagonal larga y de donde cuelga el sujetador. */
@@ -211,10 +222,14 @@ public final class MensulaLayout {
             varilla(out, new Vector2f(inicioTubo, BARRA_Y), codo);
         }
 
+        // tirante diagonal: metido en la horizontal, entre el codo y el aislador del sustentador
+        float xTirante = Math.max(r - TIRANTE_DIAGONAL_ANTES_SUSTENTADOR, codo.x + 3f);
+
         // el "YOffset" de PNW: toda la mensula baja
         float dy = -16f * ajustes.desplazamientoY();
         List<Colocacion> piezas = dy == 0f ? out : out.stream().map(c -> c.desplazada(dy)).toList();
-        return new Resultado(piezas, new Vector3f(cable.x, cable.y + dy, Z), sustentador.add(0, dy, 0));
+        return new Resultado(piezas, new Vector3f(cable.x, cable.y + dy, Z), sustentador.add(0, dy, 0),
+                new Vector3f(xTirante, BARRA_Y + dy, Z));
     }
 
     // ------------------------------------------------------------------ brazos de atirantado

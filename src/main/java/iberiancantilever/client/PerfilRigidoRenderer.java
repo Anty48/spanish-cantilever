@@ -21,7 +21,9 @@ import de.mrjulsen.wires.graph.WireEdge;
 import de.mrjulsen.wires.graph.WireGraphClient;
 import de.mrjulsen.wires.graph.WireGraphManager;
 import de.mrjulsen.wires.graph.WireNode;
+import de.mrjulsen.wires.graph.data.node.BlockConnectorNodeData;
 import iberiancantilever.IberianCantilever;
+import iberiancantilever.block.SoporteTunelBlock;
 import iberiancantilever.cable.CatenariaRigida;
 import iberiancantilever.cable.ModCables;
 import iberiancantilever.geometry.PiezasDatos;
@@ -33,6 +35,7 @@ import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
@@ -62,8 +65,11 @@ public final class PerfilRigidoRenderer {
     /** Si en un soporte el perfil gira mas que esto, es una esquina: no se curva. */
     private static final double GIRO_MAX = 60;
 
-    /** Un tramo y, si los hay, el punto anterior y el siguiente de la linea (para curvarlo). */
-    private record Tramo(@Nullable Vector3d antes, Vector3d a, Vector3d b, @Nullable Vector3d despues) {
+    /**
+     * Un tramo y, si los hay, el punto anterior y el siguiente de la linea (para curvarlo). {@code escala}: el
+     * tamano general del soporte del primer clic (el nodo A), que es el que manda en todo el tramo.
+     */
+    private record Tramo(@Nullable Vector3d antes, Vector3d a, Vector3d b, @Nullable Vector3d despues, float escala) {
     }
 
     /** Un tramo rigido del grafo: sus dos nodos y donde engancha en cada uno. */
@@ -104,6 +110,7 @@ public final class PerfilRigidoRenderer {
         // catenarias normales, que no se dibujan aqui pero guian la punta del perfil en las transiciones)
         List<Extremos> tramos = new ArrayList<>();
         Map<UUID, List<Extremos>> porNodo = new HashMap<>();
+        Map<UUID, Float> escalas = new HashMap<>();
         for (WireEdge edge : grafo.getEdges()) {
             boolean rigido = edge.getType() == ModCables.RIGIDA;
             if (!rigido && !(edge.getType() instanceof CatenaryWireType)) {
@@ -118,6 +125,7 @@ public final class PerfilRigidoRenderer {
                     nb.getId(), CatenariaRigida.enganche(nb, edge.getWireConnectionData().connectorB()));
             if (rigido) {
                 tramos.add(e);
+                escalas.put(na.getId(), escala(level, na));
             }
             porNodo.computeIfAbsent(e.nodoA(), k -> new ArrayList<>()).add(e);
             porNodo.computeIfAbsent(e.nodoB(), k -> new ArrayList<>()).add(e);
@@ -136,7 +144,7 @@ public final class PerfilRigidoRenderer {
             if (camara.distanceTo(new Vec3(a.x, a.y, a.z)) > DISTANCIA && camara.distanceTo(new Vec3(b.x, b.y, b.z)) > DISTANCIA) {
                 continue;
             }
-            Tramo t = new Tramo(vecino(porNodo, e, e.nodoA()), a, b, vecino(porNodo, e, e.nodoB()));
+            Tramo t = new Tramo(vecino(porNodo, e, e.nodoA()), a, b, vecino(porNodo, e, e.nodoB()), escalas.getOrDefault(e.nodoA(), 1f));
             List<BakedQuad> quads = CACHE.computeIfAbsent(t, PerfilRigidoRenderer::montar);
             Vector3d medio = new Vector3d(a).add(b).mul(0.5);
             int luz = LevelRenderer.getLightColor(level, BlockPos.containing(medio.x, medio.y, medio.z));
@@ -151,6 +159,17 @@ public final class PerfilRigidoRenderer {
         if (algo) {
             buffer.endBatch(Sheets.cutoutBlockSheet());
         }
+    }
+
+    /** Tamano general del soporte de tunel de un nodo (1 si no es uno de ellos o no esta cargado). */
+    private static float escala(ClientLevel level, WireNode nodo) {
+        if (nodo.getData() instanceof BlockConnectorNodeData datos) {
+            BlockState state = level.getBlockState(datos.getPos());
+            if (state.getBlock() instanceof SoporteTunelBlock) {
+                return SoporteTunelBlock.escala(state);
+            }
+        }
+        return 1f;
     }
 
     /**
@@ -198,19 +217,20 @@ public final class PerfilRigidoRenderer {
         Pieza pieza = Pieza.get(PiezasDatos.PERFIL_RIGIDO.ID);
         int[] semilla = {1};
         for (int i = 0; i < trozos; i++) {
-            trozo(pieza, puntos.get(i), puntos.get(i + 1), i == 0, i == trozos - 1, semilla, quads);
+            trozo(pieza, puntos.get(i), puntos.get(i + 1), i == 0, i == trozos - 1, t.escala(), semilla, quads);
         }
         return quads;
     }
 
     /**
      * Un trozo recto del perfil de {@code desde} a {@code hasta} (bloques): tramos repetidos y, si toca
-     * una pinza, su remate. El eje del perfil pasa por los dos puntos.
+     * una pinza, su remate. El eje del perfil pasa por los dos puntos. Con {@code escala} la pieza entera es
+     * mas grande (seccion, tramos y remates): en px de la pieza el trozo mide menos.
      */
     private static void trozo(Pieza pieza, Vector3f desde, Vector3f hasta, boolean remate1, boolean remate2,
-                              int[] semilla, List<BakedQuad> quads) {
+                              float escala, int[] semilla, List<BakedQuad> quads) {
         Vector3f x = new Vector3f(hasta).sub(desde);
-        float largo = x.length() * 16f;
+        float largo = x.length() * 16f / escala;
         if (largo < 1e-3f) {
             return;
         }
@@ -226,7 +246,7 @@ public final class PerfilRigidoRenderer {
                 x.x, x.y, x.z, 0,
                 y.x, y.y, y.z, 0,
                 z.x, z.y, z.z, 0,
-                0, 0, 0, 1).scaleLocal(1f / 16f).translateLocal(desde);
+                0, 0, 0, 1).scaleLocal(escala / 16f).translateLocal(desde);
         float[] min = PiezasDatos.PERFIL_RIGIDO.MIN;
         float[] max = PiezasDatos.PERFIL_RIGIDO.MAX;
         Matrix4f centrado = new Matrix4f(base).translate(0, -(min[1] + max[1]) / 2f, -(min[2] + max[2]) / 2f);

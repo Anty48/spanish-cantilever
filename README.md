@@ -24,6 +24,13 @@ Una ménsula ya puesta se cambia con **clic derecho con la mano vacía**.
 | Hilo de contacto (zigzag) | interior / medio / exterior |
 | Cable de soporte | sí / no |
 
+**Tirante diagonal** (anchura 3 o más): con la bobina de PNW en modo *cable de soporte*, clic en la ménsula y
+luego en un bloque del poste de 2 a 5 bloques por encima de ella (o al revés): cada altura da un triángulo
+distinto. Es un solo hilo recto que entra en la barra horizontal, justo antes del aislador del sustentador
+(así se aleja del poste cuanto más ancha es la ménsula), y en la cara del poste que mira a la ménsula. Si la ménsula se
+reconfigura el tirante la sigue (y si baja de anchura 3 se quita); al romper la ménsula o ese bloque del poste
+el cable vuelve a la bobina. `/mensula tirante` (operador) monta una prueba.
+
 ## Postes y materiales
 
 - **Postes ibéricos de celosía** (plano, plano diagonal y cuadrado): los de PNW con acero ibérico. Se oxidan solos
@@ -41,6 +48,10 @@ Una ménsula ya puesta se cambia con **clic derecho con la mano vacía**.
   el zigzag) y cuánto cuelga (altura, de 0 a 1 bloque). Como la ménsula: **clic derecho al aire con el
   objeto** lo configura antes de ponerlo, y **clic derecho con la mano vacía** cambia uno ya puesto (los
   cables ya tendidos se recolocan solos).
+- **Tamaño general** (100 %, 125 % o 150 %): hace más grande todo el soporte y el perfil rígido que sale de él.
+  El de techo crece alrededor de la pinza (el hilo de contacto no se mueve y la varilla sigue llegando al
+  techo); el de pared, desde la pared (el brazo se alarga). El perfil de cada tramo toma el tamaño del soporte
+  donde se hizo el primer clic; se pueden mezclar tamaños.
 - **Haz de perfiles de catenaria rígida**: se tiende de soporte a soporte como la bobina de PNW y se va
   gastando por metros (64 m por haz; al romper un tramo se recuperan sus metros en otro haz). Para PNW es un
   cable más de su catenaria, así que el pantógrafo lo toca. Si en un soporte se juntan dos tramos que no van
@@ -59,6 +70,8 @@ Una ménsula ya puesta se cambia con **clic derecho con la mano vacía**.
 - `geometry/MensulaLayout` coloca las piezas y estira las barras; `client/MensulaBakedModel` las dibuja.
 - `tools/generar_postes.py` genera los postes ibéricos (modelos, texturas, recetas, etiquetas y nombres).
 - `/mensula linea [postes]` (operador): monta una línea de prueba con postes, ménsulas en zigzag y cable.
+- `/mensula escaparate` (operador): monta las escenas de escaparate de la documentación (todas las variantes a la
+  vista: línea con tirantes, anchuras, postes, vitrinas de soportes de túnel, curva, túnel con transición y pantógrafos).
 - `Guia_piezas_Blockbench.pdf`: guía de modelado de las piezas.
 
 ## Compilar y probar
@@ -66,7 +79,8 @@ Una ménsula ya puesta se cambia con **clic derecho con la mano vacía**.
 1. Poner los jars de dependencias en `libs/` (ver [libs/README.md](libs/README.md)).
 2. `.\gradlew build` compila; `.\gradlew runClient` abre el juego.
 3. Prueba automática: crear el archivo `run/autotest.flag` y lanzar `runClient`. Monta un mundo plano con todas las
-   variantes, guarda capturas en `run/screenshots/autotest_*.png` y cierra el juego.
+   variantes, guarda capturas en `run/screenshots/autotest_*.png` y cierra el juego. Si el archivo trae texto
+   (prefijos separados por comas, p. ej. `tirante,diagonal_`) solo se hacen esas capturas.
 
 ## Licencia y créditos
 

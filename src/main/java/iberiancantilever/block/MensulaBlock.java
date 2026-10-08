@@ -1,6 +1,7 @@
 package iberiancantilever.block;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -29,6 +30,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import iberiancantilever.ModBlocks;
+import iberiancantilever.cable.TiranteDiagonal;
 import iberiancantilever.client.ClienteMensula;
 import iberiancantilever.geometry.Ajustes;
 import iberiancantilever.geometry.MensulaLayout;
@@ -144,6 +146,23 @@ public class MensulaBlock extends AbstractSupportedRotatableWireConnectorBlock<M
     @Override
     public Vec3 tensionWireAttachPoint(Level level, BlockPos pos, BlockState state, CustomData customData, int index) {
         return aEnganche(layout(level, pos, state).sustentador());
+    }
+
+    /** Donde se engancha el tirante diagonal, en coordenadas del mundo (ver {@link TiranteDiagonal}). */
+    public Vec3 puntoTiranteDiagonal(Level level, BlockPos pos, BlockState state) {
+        Vec3 enBloque = transformWireAttachPoint(level, pos, state, null, 0,
+                (l, p, s, c, i) -> aEnganche(layout(l, p, s).tiranteDiagonal()));
+        return Vec3.atLowerCornerOf(pos).add(enBloque);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean moving) {
+        if (!level.isClientSide && !state.is(newState.getBlock())) {
+            // si la quita un jugador ya lo ha hecho el evento de romper (y le devuelve el cable)
+            TiranteDiagonal.quitar(level, pos, Optional.empty());
+        }
+        super.onRemove(state, level, pos, newState, moving);
     }
 
     @Override

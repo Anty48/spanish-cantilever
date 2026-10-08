@@ -29,7 +29,7 @@ import net.minecraftforge.client.model.data.ModelProperty;
 
 /**
  * Modelo del soporte de tunel: la pieza de Blockbench de su version, tamano y posicion
- * ({@link SoporteTunelBlock#pieza}), girada con la misma cuenta que PNW usa para los puntos de enganche
+ * ({@link SoporteTunelBlock#pieza}), con su tamano general, girada con la misma cuenta que PNW usa para los puntos de enganche
  * ({@link SoporteTunelBlock#aBloque}), asi el perfil y el cable caen siempre en la pinza.
  */
 public class SoporteTunelBakedModel implements BakedModel {
@@ -89,17 +89,24 @@ public class SoporteTunelBakedModel implements BakedModel {
         Pieza pieza = Pieza.get(datos.id());
         List<BakedQuad> quads = new ArrayList<>();
         if (!datos.colgada()) {
-            pieza.bake(null, 0, p -> colocar(bloque, state, p, p.y * 16 - bajada, hueco), quads);
+            pieza.bake(null, 0, p -> colocar(bloque, state, p, false, bajada, hueco), quads);
             return quads;
         }
         int[] resto = IntStream.range(0, datos.elementos()).filter(i -> i != VARILLA).toArray();
-        pieza.bake(new int[]{VARILLA}, 0, p -> colocar(bloque, state, p, p.y * 16 >= MITAD_VARILLA ? p.y * 16 : p.y * 16 - bajada, hueco), quads);
-        pieza.bake(resto, 0, p -> colocar(bloque, state, p, p.y * 16 - bajada, hueco), quads);
+        pieza.bake(new int[]{VARILLA}, 0, p -> colocar(bloque, state, p, p.y * 16 >= MITAD_VARILLA, bajada, hueco), quads);
+        pieza.bake(resto, 0, p -> colocar(bloque, state, p, false, bajada, hueco), quads);
         return quads;
     }
 
-    private static void colocar(SoporteTunelBlock bloque, BlockState state, Vector3f p, float yPx, float hueco) {
-        Vec3 v = bloque.aBloque(state, p.x * 16, yPx, p.z * 16 + hueco);
+    /**
+     * Un vertice de la pieza a su sitio: con el tamano general ({@link SoporteTunelBlock#escalar}) y bajado;
+     * {@code enTecho}: la punta de arriba de la varilla, que no baja ni crece hacia arriba (se queda en el
+     * techo), solo engorda.
+     */
+    private static void colocar(SoporteTunelBlock bloque, BlockState state, Vector3f p, boolean enTecho, float bajada, float hueco) {
+        Vector3f q = SoporteTunelBlock.escalar(state, p.x * 16, p.y * 16, p.z * 16);
+        float y = enTecho ? p.y * 16 : q.y - bajada;
+        Vec3 v = bloque.aBloque(state, q.x, y, q.z + hueco);
         p.set((float) v.x, (float) v.y, (float) v.z);
     }
 
