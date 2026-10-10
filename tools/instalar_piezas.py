@@ -3,11 +3,11 @@
 Uso:  python tools/instalar_piezas.py
 
 - Copia los .json de `new stuff/new json/` a assets/<mod>/models/block/piezas/<id>.json,
-  arreglando las rutas de textura (`iberian_metal` -> `iberiancantilever:block/iberian_metal`).
+  arreglando las rutas de textura (`spanish_metal` -> `spanishcantilevers:block/spanish_metal`).
   Tambien acepta el .bbmodel (lo pasa a .json como hace Blockbench) por si el .json exportado
   no es el bueno.
 - Copia los .png de `new stuff/new textures/` a assets/<mod>/textures/block/.
-- Genera src/main/java/iberiancantilever/geometry/PiezasDatos.java con los centros de los cubos
+- Genera src/main/java/spanishcantilevers/geometry/PiezasDatos.java con los centros de los cubos
   con nombre y los grupos de cada pieza (con los giros de cada cubo ya aplicados: Blockbench guarda
   los cubos girados sin girar, junto a su pivote, y pueden salir en coordenadas raras como -13). El codigo de la mensula (cliente Y servidor) usa esas
   constantes; por eso hay que volver a ejecutar este script si cambias una pieza.
@@ -18,7 +18,7 @@ import os
 import re
 import shutil
 
-MOD = 'iberiancantilever'
+MOD = 'spanishcantilevers'
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_MODELS = os.path.join(ROOT, 'new stuff', 'new json')
 SRC_TEXTURES = os.path.join(ROOT, 'new stuff', 'new textures')
@@ -40,13 +40,13 @@ PIEZAS = {
     'horizontal_insulator.json': 'aislador_horizontal',
     'vertical_insulator.json': 'aislador_vertical',
     # catenaria rigida de tunel: soportes de techo (normal y grande), de pared (corto y largo) y el perfil
-    'Tunnel iberian canteliver left.json': 'tunel_izquierda',
-    'Tunnel iberian canteliver center.json': 'tunel_centro',
-    'Tunnel iberian canteliver right.json': 'tunel_derecha',
-    'Tunnel iberian canteliver large left.json': 'tunel_grande_izquierda',
-    'Tunnel iberian canteliver large center.json': 'tunel_grande_centro',
+    'Tunnel spanish canteliver left.json': 'tunel_izquierda',
+    'Tunnel spanish canteliver center.json': 'tunel_centro',
+    'Tunnel spanish canteliver right.json': 'tunel_derecha',
+    'Tunnel spanish canteliver large left.json': 'tunel_grande_izquierda',
+    'Tunnel spanish canteliver large center.json': 'tunel_grande_centro',
     # el .json de este se exporto mal (le falta la mitad): se usa el .bbmodel
-    'Tunnel iberian canteliver large right.bbmodel': 'tunel_grande_derecha',
+    'Tunnel spanish canteliver large right.bbmodel': 'tunel_grande_derecha',
     'alternative_tunnel_canteliver_short.json': 'tunel_pared_corto',
     'alternative_tunnel_canteliver_long.json': 'tunel_pared_largo',
     'steel catenary tunnel fixed cable segment.json': 'perfil_rigido',
@@ -56,7 +56,7 @@ PIEZAS = {
 def fix_texture(ref):
     if ref.startswith('#') or ':' in ref:
         return ref
-    return f'{MOD}:block/{os.path.basename(ref).replace("spanish_", "iberian_")}'
+    return f'{MOD}:block/{os.path.basename(ref).replace("spanish_", "spanish_")}'
 
 
 def desde_bbmodel(bb):
@@ -148,7 +148,7 @@ def main():
     os.makedirs(OUT_TEXTURES, exist_ok=True)
     for f in os.listdir(SRC_TEXTURES):
         if f.endswith('.png'):
-            shutil.copy(os.path.join(SRC_TEXTURES, f), os.path.join(OUT_TEXTURES, f.replace('spanish_', 'iberian_')))
+            shutil.copy(os.path.join(SRC_TEXTURES, f), os.path.join(OUT_TEXTURES, f.replace('spanish_', 'spanish_')))
             print('textura', f)
 
     java = []
@@ -198,7 +198,7 @@ def main():
 
     os.makedirs(os.path.dirname(OUT_JAVA), exist_ok=True)
     with open(OUT_JAVA, 'w', encoding='utf-8') as fh:
-        fh.write('package iberiancantilever.geometry;\n\n')
+        fh.write('package spanishcantilevers.geometry;\n\n')
         fh.write('// GENERADO por tools/instalar_piezas.py a partir de las piezas de Blockbench. No editar a mano.\n')
         fh.write('// Coordenadas en pixeles de Blockbench, en el sistema de cada pieza.\n')
         fh.write('public final class PiezasDatos {\n')

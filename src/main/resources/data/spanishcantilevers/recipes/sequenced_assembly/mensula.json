@@ -1,0 +1,66 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "pantographsandwires:iron_rod_bundle"
+  },
+  "transitionalItem": {
+    "item": "spanishcantilevers:mensula_incompleta"
+  },
+  "loops": 2,
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "spanishcantilevers:mensula_incompleta"
+        },
+        [
+          {
+            "item": "spanishcantilevers:iberian_steel_ingot"
+          }
+        ]
+      ],
+      "results": [
+        {
+          "item": "spanishcantilevers:mensula_incompleta"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "spanishcantilevers:mensula_incompleta"
+        },
+        [
+          {
+            "item": "pantographsandwires:insulator_brown"
+          }
+        ]
+      ],
+      "results": [
+        {
+          "item": "spanishcantilevers:mensula_incompleta"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        {
+          "item": "spanishcantilevers:mensula_incompleta"
+        }
+      ],
+      "results": [
+        {
+          "item": "spanishcantilevers:mensula_incompleta"
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "item": "spanishcantilevers:mensula"
+    }
+  ]
+}

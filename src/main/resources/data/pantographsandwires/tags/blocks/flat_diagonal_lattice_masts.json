@@ -1,13 +1,7 @@
 {
   "replace": false,
   "values": [
-    "iberiancantilever:iberian_flat_lattice_mast_diagonal",
-    "iberiancantilever:waxed_iberian_flat_lattice_mast_diagonal",
-    "iberiancantilever:iberian_flat_lattice_mast_diagonal_exposed",
-    "iberiancantilever:waxed_iberian_flat_lattice_mast_diagonal_exposed",
-    "iberiancantilever:iberian_flat_lattice_mast_diagonal_weathered",
-    "iberiancantilever:waxed_iberian_flat_lattice_mast_diagonal_weathered",
-    "iberiancantilever:iberian_flat_lattice_mast_diagonal_oxidized",
-    "iberiancantilever:waxed_iberian_flat_lattice_mast_diagonal_oxidized"
+    "spanishcantilevers:iberian_flat_lattice_mast_diagonal",
+    "spanishcantilevers:waxed_iberian_flat_lattice_mast_diagonal"
   ]
 }

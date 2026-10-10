@@ -1,13 +1,7 @@
 {
   "replace": false,
   "values": [
-    "iberiancantilever:iberian_lattice_mast",
-    "iberiancantilever:waxed_iberian_lattice_mast",
-    "iberiancantilever:iberian_lattice_mast_exposed",
-    "iberiancantilever:waxed_iberian_lattice_mast_exposed",
-    "iberiancantilever:iberian_lattice_mast_weathered",
-    "iberiancantilever:waxed_iberian_lattice_mast_weathered",
-    "iberiancantilever:iberian_lattice_mast_oxidized",
-    "iberiancantilever:waxed_iberian_lattice_mast_oxidized"
+    "spanishcantilevers:iberian_lattice_mast",
+    "spanishcantilevers:waxed_iberian_lattice_mast"
   ]
 }

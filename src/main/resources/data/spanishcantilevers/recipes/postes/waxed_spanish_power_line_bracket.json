@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 2,
+  "ingredient": {
+    "item": "spanishcantilevers:waxed_iberian_h_beam_mast"
+  },
+  "result": "spanishcantilevers:waxed_spanish_power_line_bracket"
+}

@@ -18,7 +18,7 @@ import os
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ICONOS = os.path.join(ROOT, 'src', 'main', 'resources', 'assets', 'iberiancantilever', 'textures', 'gui', 'iconos.png')
+ICONOS = os.path.join(ROOT, 'src', 'main', 'resources', 'assets', 'spanishcantilevers', 'textures', 'gui', 'iconos.png')
 COLOR = (68, 32, 0, 255)
 MIN, MAX = 1, 14  # margen de 1 px
 

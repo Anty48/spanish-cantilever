@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AA",
+    "AB",
+    "AA"
+  ],
+  "key": {
+    "A": {
+      "item": "pantographsandwires:iron_strip"
+    },
+    "B": {
+      "item": "spanishcantilevers:iberian_steel_ingot"
+    }
+  },
+  "result": {
+    "item": "spanishcantilevers:iberian_flat_lattice_mast",
+    "count": 6
+  }
+}

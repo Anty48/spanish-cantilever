@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "spanishcantilevers:iberian_h_beam_mast"
+    },
+    {
+      "item": "minecraft:honeycomb"
+    }
+  ],
+  "result": {
+    "item": "spanishcantilevers:waxed_iberian_h_beam_mast",
+    "count": 1
+  }
+}

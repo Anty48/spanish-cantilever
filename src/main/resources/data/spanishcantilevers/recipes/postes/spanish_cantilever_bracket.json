@@ -1,0 +1,21 @@
+{
+  "type": "create:compacting",
+  "heatRequirement": "heated",
+  "ingredients": [
+    {
+      "item": "spanishcantilevers:iberian_steel_ingot"
+    },
+    {
+      "item": "spanishcantilevers:iberian_steel_ingot"
+    },
+    {
+      "item": "spanishcantilevers:iberian_steel_ingot"
+    }
+  ],
+  "results": [
+    {
+      "item": "spanishcantilevers:spanish_cantilever_bracket",
+      "count": 3
+    }
+  ]
+}

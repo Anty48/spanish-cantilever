@@ -1,6 +1,6 @@
-# Iberian Cantilevers for Pantographs & Wires
+# Spanish Cantilevers for Pantographs & Wires
 
-Addon para **Minecraft 1.20.1 (Forge)** que añade **ménsulas de catenaria ibéricas** (estilo Renfe/ADIF CR-160)
+Addon para **Minecraft 1.20.1 (Forge)** que añade **ménsulas de catenaria españolas** (estilo Renfe/ADIF CR-160)
 a [Create: Pantographs & Wires](https://www.curseforge.com/minecraft/mc-mods/create-pantographs-and-wires) de MrJulsen.
 PNW es dependencia obligatoria: se usan sus postes, sus cables y su sistema de colocación.
 
@@ -18,7 +18,7 @@ Una ménsula ya puesta se cambia con **clic derecho con la mano vacía**.
 |---|---|
 | Anchura | distancia del poste al centro de la vía, de 1,5 a 6,5 bloques (como en PNW) |
 | Altura del soporte *(avanzado)* | cuánto baja la diagonal bajo la barra (en interior con anchura 1,5 no se usa) |
-| Altura catenaria *(avanzado)* | hilo de contacto por debajo del bloque, hasta 0,75 (como en PNW) |
+| Altura catenaria *(avanzado)* | hilo de contacto por debajo del bloque, de 0,25 a 0,75 (por defecto 0,5). El aislador tipo 2 la sube a 0,75 mientras está puesto; al cambiar a otro aislador vuelve la que tenías |
 | Desplazamiento Y *(avanzado)* | baja toda la ménsula medio bloque (como en PNW) |
 | Aislador del sustentador | tipo 1 (cable encima), 2 (cable colgando), 3 (vertical) |
 | Hilo de contacto (zigzag) | interior / medio / exterior |
@@ -33,17 +33,21 @@ el cable vuelve a la bobina. `/mensula tirante` (operador) monta una prueba.
 
 ## Postes y materiales
 
-- **Postes ibéricos de celosía** (plano, plano diagonal y cuadrado): los de PNW con acero ibérico. Se oxidan solos
-  (normal → expuesto → erosionado → oxidado), un panal los encera y un hacha los rasca, como en PNW.
-  No tienen versión galvanizada. Recetas: plano = 5 tiras de hierro de PNW + 1 acero ibérico (6 postes);
-  cuadrado = 6 tiras + 2 varillas de hierro + 1 acero ibérico (6 postes).
-- **Acero ibérico**: lingote de hierro + tinte negro.
+- **Postes ibéricos y piezas de poste españolas**, en el mismo gris: postes de celosía (plano, plano diagonal y
+  cuadrado) y poste en H ibéricos; soporte de línea eléctrica y soporte de ménsula españoles (que, como el de PNW, se convierte en
+  su versión junto a poste o vertical según dónde se ponga). Son las piezas de PNW con otro metal. Solo existen
+  nuevas (y enceradas, con un panal): al oxidarse pasan a la versión expuesta de PNW y siguen su cadena
+  (expuesto → erosionado → oxidado); un hacha devuelve a la de PNW. Recetas: plano = 5 tiras de hierro de PNW
+  + 1 acero ibérico (6 postes); cuadrado = 6 tiras + 2 varillas de hierro + 1 acero ibérico (6 postes);
+  poste en H = 2 tiras + 1 acero ibérico compactados en caliente (2); soporte de ménsula = 3 aceros ibéricos
+  compactados en caliente (3); soporte de línea eléctrica = poste en H en el cortapiedras (2).
+- **Lingote de acero ibérico**: lingote de hierro + tinte negro.
 - **Ménsula**: montaje secuenciado de Create, como la de PNW pero con acero ibérico: haz de varillas de
   hierro y, dos veces, acero ibérico + aislador marrón + prensa.
 
 ## Catenaria rígida de túnel
 
-- **Soporte de túnel ibérico**: se cuelga del techo y gira en 16 direcciones (se pone mirando a lo largo de
+- **Soporte de túnel español**: se cuelga del techo y gira en 16 direcciones (se pone mirando a lo largo de
   la vía y queda cruzado sobre ella). Su ventana escoge dónde agarra el perfil (inner / center / outer, para
   el zigzag) y cuánto cuelga (altura, de 0 a 1 bloque). Como la ménsula: **clic derecho al aire con el
   objeto** lo configura antes de ponerlo, y **clic derecho con la mano vacía** cambia uno ya puesto (los
@@ -53,12 +57,16 @@ el cable vuelve a la bobina. `/mensula tirante` (operador) monta una prueba.
   techo); el de pared, desde la pared (el brazo se alarga). El perfil de cada tramo toma el tamaño del soporte
   donde se hizo el primer clic; se pueden mezclar tamaños.
 - **Haz de perfiles de catenaria rígida**: se tiende de soporte a soporte como la bobina de PNW y se va
-  gastando por metros (64 m por haz; al romper un tramo se recuperan sus metros en otro haz). Para PNW es un
+  gastando por metros (200 m por haz; al romper un tramo se recuperan sus metros en otro haz). Para PNW es un
   cable más de su catenaria, así que el pantógrafo lo toca. Si en un soporte se juntan dos tramos que no van
   rectos, el perfil se dibuja en trozos rectos un poco girados que hacen la curva (el hilo que toca el
   pantógrafo sigue yendo recto de soporte a soporte).
 - **Transición**: la catenaria normal de PNW también se engancha al soporte de túnel (el hilo de contacto en
   la pinza y el sustentador en el techo).
+- **Mezclas no previstas** (se permiten, pero sale un aviso en rojo): el perfil rígido enganchado a algo que no
+  es un soporte de túnel (una ménsula...), y el cable normal de PNW tendido entre dos soportes de túnel.
+- Con el haz de perfiles en la mano, **Mayús + clic derecho al aire** cancela el tramo empezado (como la bobina
+  de PNW).
 - Recetas: soporte = 2 aceros ibéricos + 1 aislador marrón (2 soportes); haz de perfiles = 6 aceros ibéricos.
 - `/mensula tunel [soportes]` (operador): monta un túnel de prueba (con curva al fondo) y la transición desde
   una ménsula.
@@ -68,7 +76,8 @@ el cable vuelve a la bobina. `/mensula tirante` (operador) monta una prueba.
 - Las piezas se modelan en Blockbench (`new stuff/new json/`) y `tools/instalar_piezas.py` las instala en el mod
   y genera `geometry/PiezasDatos.java` con los puntos de enganche (cubos con nombre).
 - `geometry/MensulaLayout` coloca las piezas y estira las barras; `client/MensulaBakedModel` las dibuja.
-- `tools/generar_postes.py` genera los postes ibéricos (modelos, texturas, recetas, etiquetas y nombres).
+- `tools/generar_postes.py <PNW extraído> [lingote de hierro.png]` genera los postes ibéricos y las piezas de poste españolas
+  (blockstates y modelos a partir de los de PNW, botín, etiquetas copiadas de PNW, recetas y nombres).
 - `/mensula linea [postes]` (operador): monta una línea de prueba con postes, ménsulas en zigzag y cable.
 - `/mensula escaparate` (operador): monta las escenas de escaparate de la documentación (todas las variantes a la
   vista: línea con tirantes, anchuras, postes, vitrinas de soportes de túnel, curva, túnel con transición y pantógrafos).

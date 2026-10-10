@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "spanishcantilevers:iberian_flat_lattice_mast_diagonal"
+    },
+    {
+      "item": "minecraft:honeycomb"
+    }
+  ],
+  "result": {
+    "item": "spanishcantilevers:waxed_iberian_flat_lattice_mast_diagonal",
+    "count": 1
+  }
+}
