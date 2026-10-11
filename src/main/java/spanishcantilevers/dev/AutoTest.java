@@ -96,6 +96,11 @@ public final class AutoTest {
     private static final int ESCAPARATE_X = 600;
     /** X del pantografo de PNW (el espanol, 3 bloques al este). */
     private static final int PANTOGRAFOS_X = 20;
+    /** Vistas con la receta de un objeto en JEI (para la wiki): "receta_" + id del objeto. */
+    private static final String RECETA = "receta_";
+    private static final String[] RECETAS = {"mensula", "iberian_steel_ingot", "soporte_tunel", "perfil_rigido",
+            "pantografo_espanol", "iberian_flat_lattice_mast", "iberian_flat_lattice_mast_diagonal", "iberian_lattice_mast",
+            "iberian_h_beam_mast", "spanish_cantilever_bracket", "spanish_power_line_bracket", "waxed_iberian_lattice_mast"};
 
     /** Una camara; {@code fov} el campo de vision (las de la documentacion lo cierran para que no se deforme). */
     private record Vista(String nombre, double x, double y, double z, double mirarX, double mirarY, double mirarZ, int fov) {
@@ -255,6 +260,19 @@ public final class AutoTest {
                 LOGGER.info("[autotest] tras cerrar: servidor {} / cliente {}", server.overworld().getBlockState(soporte), mc.level.getBlockState(soporte));
                 mc.setScreen(null);
             }
+            if (v.nombre().startsWith(RECETA) && wait == 20) {
+                mostrarReceta(v.nombre().substring(RECETA.length()));
+            }
+            if (v.nombre().startsWith(RECETA) && wait == 30) {
+                // el raton fuera: si queda encima de un objeto de la receta sale su tooltip
+                org.lwjgl.glfw.GLFW.glfwSetCursorPos(mc.getWindow().getWindow(), 0, 0);
+                if (mc.screen != null) {
+                    mc.screen.mouseMoved(0, 0);
+                }
+            }
+            if (v.nombre().startsWith(RECETA) && wait == 72) {
+                mc.setScreen(null);
+            }
             if (wait == (step == 0 ? 160 : 70)) {
                 Screenshot.grab(mc.gameDirectory, "autotest_" + v.nombre() + ".png", mc.getMainRenderTarget(),
                         msg -> LOGGER.info("[autotest] {}", msg.getString()));
@@ -409,11 +427,41 @@ public final class AutoTest {
         VISTAS.add(new Vista("tirante_metido_poste", TIRANTE_X + 2.0, SUELO + 8.6, 21.9, TIRANTE_X + 0.7, SUELO + 8.5, 20.5));
         VISTAS.add(new Vista("tirante_pnw", TIRANTE_X + 2.5, SUELO + 7.5, -5, TIRANTE_X + 2.5, SUELO + 7.5, -12));
         vistasDocumentacion();
+        // las recetas en JEI, mirando al cielo (la ventana de JEI tapa casi todo)
+        for (String id : RECETAS) {
+            VISTAS.add(new Vista(RECETA + id, 0, SUELO + 30, 0, 0, SUELO + 60, -1));
+        }
         // la ultima con la interfaz visible y la mensula en la mano (modelo del objeto)
         VISTAS.add(new Vista(OBJETO, 15, y, 17, 15, y, 0));
         if (filtro != null && !filtro.isEmpty()) {
             List<String> prefijos = java.util.Arrays.stream(filtro.split(",")).map(String::trim).filter(p -> !p.isEmpty()).toList();
             VISTAS.removeIf(v -> prefijos.stream().noneMatch(v.nombre()::startsWith));
+        }
+    }
+
+    /**
+     * Abre la ventana de recetas de JEI con el objeto como resultado. Por reflexion: JEI solo esta al probar
+     * (runtimeOnly) y el mod no depende de el.
+     */
+    private static void mostrarReceta(String id) {
+        try {
+            ItemStack stack = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(SpanishCantilevers.MOD_ID, id)));
+            Class<?> runtimeC = Class.forName("mezz.jei.api.runtime.IJeiRuntime");
+            Object runtime = Class.forName("mezz.jei.common.Internal").getMethod("getJeiRuntime").invoke(null);
+            Object helpers = runtimeC.getMethod("getJeiHelpers").invoke(runtime);
+            Object focos = Class.forName("mezz.jei.api.helpers.IJeiHelpers").getMethod("getFocusFactory").invoke(helpers);
+            Class<?> papelC = Class.forName("mezz.jei.api.recipe.RecipeIngredientRole");
+            Class<?> tipoC = Class.forName("mezz.jei.api.ingredients.IIngredientType");
+            Object resultado = papelC.getField("OUTPUT").get(null);
+            Object tipoObjeto = Class.forName("mezz.jei.api.constants.VanillaTypes").getField("ITEM_STACK").get(null);
+            Object foco = Class.forName("mezz.jei.api.recipe.IFocusFactory").getMethod("createFocus", papelC, tipoC, Object.class)
+                    .invoke(focos, resultado, tipoObjeto, stack);
+            Object gui = runtimeC.getMethod("getRecipesGui").invoke(runtime);
+            Class.forName("mezz.jei.api.runtime.IRecipesGui").getMethod("show", Class.forName("mezz.jei.api.recipe.IFocus"))
+                    .invoke(gui, foco);
+            LOGGER.info("[autotest] receta de {} en JEI", id);
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            LOGGER.warn("[autotest] no se pudo abrir la receta de {} en JEI", id, e);
         }
     }
 

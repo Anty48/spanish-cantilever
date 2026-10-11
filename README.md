@@ -4,6 +4,8 @@ Addon para **Minecraft 1.20.1 (Forge)** que añade **ménsulas de catenaria espa
 a [Create: Pantographs & Wires](https://www.curseforge.com/minecraft/mc-mods/create-pantographs-and-wires) de MrJulsen.
 PNW es dependencia obligatoria: se usan sus postes, sus cables y su sistema de colocación.
 
+**Wiki (inglés, español, catalán y alemán):** https://github.com/Anty48/spanish-cantilever/wiki
+
 > Estado: **en desarrollo** (v0.1). Ménsula, postes ibéricos, acero ibérico y recetas funcionando; los cables de PNW se enganchan.
 
 ## La ménsula
@@ -17,8 +19,8 @@ Una ménsula ya puesta se cambia con **clic derecho con la mano vacía**.
 | Opción | Valores |
 |---|---|
 | Anchura | distancia del poste al centro de la vía, de 1,5 a 6,5 bloques (como en PNW) |
-| Altura del soporte *(avanzado)* | cuánto baja la diagonal bajo la barra (en interior con anchura 1,5 no se usa) |
-| Altura catenaria *(avanzado)* | hilo de contacto por debajo del bloque, de 0,25 a 0,75 (por defecto 0,5). El aislador tipo 2 la sube a 0,75 mientras está puesto; al cambiar a otro aislador vuelve la que tenías |
+| Altura del soporte *(avanzado)* | cuánto baja la diagonal bajo la barra, de 0,25 a 1,5 (por defecto 1,25; en interior con anchura 1,5 queda fija en 1 y al salir vuelve la que tenías) |
+| Altura catenaria *(avanzado)* | hilo de contacto por debajo del bloque, de 0,25 a 0,75 (por defecto 0,75). El aislador tipo 2 la sube a 0,75 mientras está puesto; al cambiar a otro aislador vuelve la que tenías |
 | Desplazamiento Y *(avanzado)* | baja toda la ménsula medio bloque (como en PNW) |
 | Aislador del sustentador | tipo 1 (cable encima), 2 (cable colgando), 3 (vertical) |
 | Hilo de contacto (zigzag) | interior / medio / exterior |
@@ -89,7 +91,8 @@ el cable vuelve a la bobina. `/mensula tirante` (operador) monta una prueba.
 2. `.\gradlew build` compila; `.\gradlew runClient` abre el juego.
 3. Prueba automática: crear el archivo `run/autotest.flag` y lanzar `runClient`. Monta un mundo plano con todas las
    variantes, guarda capturas en `run/screenshots/autotest_*.png` y cierra el juego. Si el archivo trae texto
-   (prefijos separados por comas, p. ej. `tirante,diagonal_`) solo se hacen esas capturas.
+   (prefijos separados por comas, p. ej. `tirante,diagonal_`) solo se hacen esas capturas. Las vistas `receta_*`
+   abren la receta de cada objeto en JEI (las capturas de la wiki).
 
 ## Licencia y créditos
 
