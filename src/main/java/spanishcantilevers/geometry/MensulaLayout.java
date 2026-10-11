@@ -44,8 +44,30 @@ public final class MensulaLayout {
     public static final float ANCHURA_INTERIOR_PUNTAL = 3f;
     /** Modo interior con alcance largo: el puntal se inclina esto desde la vertical hacia el poste. */
     public static final float ANGULO_PUNTAL = 20f;
-    /** Modo medio: el brazo en arco (alargado) baja estos grados desde la perforada hasta el hilo. */
-    public static final float INCLINACION_BRAZO_MEDIO = 10f;
+    /**
+     * Modo interior con la anchura minima y catenaria 0,75: el codo queda esto antes del sustentador
+     * (margen para el aislador), la diagonal arranca CAIDA_INTERIOR_MINIMO px por debajo de la barra (unos 43
+     * grados en un poste de 8 px; en cualquier poste el sujetador queda igual) y el sujetador cuelga de
+     * ella GANCHO_DESDE_ANCLA px (por la diagonal) por encima de la placa.
+     */
+    public static final float CODO_MINIMO_ANTES_SUSTENTADOR = 10f;
+    public static final float CAIDA_INTERIOR_MINIMO = 16.5f;
+    public static final float GANCHO_DESDE_ANCLA = 7f;
+    /**
+     * Modo medio: el sujetador recto baja estos grados desde la punta de la perforada hasta el hilo (como
+     * mucho); con la anchura minima, mas inclinado (sale mas corto).
+     */
+    public static final float INCLINACION_SUJETADOR_MEDIO = 19f;
+    public static final float INCLINACION_SUJETADOR_MEDIO_ESTRECHA = 23f;
+    /**
+     * Modo medio: el gancho del sujetador cuelga de la cara de abajo de la perforada, en su ultimo
+     * travesano, a esto de su punta (sin tapar agujeros ni pasar por encima de ella).
+     */
+    public static final float GANCHO_MEDIO_DESDE_PUNTA = 0.5f;
+    /** Modo medio: si no hay mas remedio el sujetador baja menos inclinado, pero no menos que esto. */
+    public static final float INCLINACION_SUJETADOR_MEDIO_MIN = 8f;
+    /** Modo medio: tubo a 45 grados antes de la perforada, si cabe (60 % tubo, 40 % perforada). */
+    public static final float BAJADA_MEDIO = 10.5f;
     /** Modo exterior: el brazo en arco baja estos grados desde la perforada vertical hasta el hilo. */
     public static final float INCLINACION_BRAZO_EXTERIOR = 10f;
     /** Cuanto se mete el wall_joint del brazo dentro de la pieza de la que cuelga, para que nunca quede hueco. */
@@ -89,7 +111,12 @@ public final class MensulaLayout {
     private record Sujetador(String id, float[] gancho, float[] cable, int tubo, float tuboDesde, float tuboHasta,
                              int[] parteGancho, int[] parteCable) {
         float largo() {
-            return (float) Math.hypot(cable[0] - gancho[0], cable[1] - gancho[1]);
+            return largo(0f);
+        }
+
+        /** De gancho a cable con el tubo {@code alargar} px mas largo. */
+        float largo(float alargar) {
+            return (float) Math.hypot(cable[0] - gancho[0] + alargar, cable[1] - gancho[1]);
         }
 
         /** Cuanto hay que alargar el tubo para que mida {@code distancia} de gancho a cable. */
@@ -102,14 +129,14 @@ public final class MensulaLayout {
 
     /**
      * cable_holder_convex: el brazo en arco (sube en diagonal con su aislador, sigue recto y baja en
-     * diagonal hasta la pinza). Es el del exterior y, alargado {@link #ALARGAR_MEDIO}, el del medio; en
-     * el interior solo sirve de medida. Su tubo recto de arriba es el cubo 1 (x 5,3..12,3).
+     * diagonal hasta la pinza). Alargado {@link #ALARGAR_EXTERIOR}, es el del exterior; en el interior
+     * solo sirve de medida. Su tubo recto de arriba es el cubo 1 (x 5,3..12,3).
      */
     private static final Sujetador SUJETADOR_CORTO = new Sujetador(PiezasDatos.BRAZO_CONVEXO.ID,
             PiezasDatos.BRAZO_CONVEXO.WALL_JOINT, PiezasDatos.BRAZO_CONVEXO.CABLE_JOINT, 1, 5.3f, 12.3f,
             new int[]{2, 4, 5, 6, 7, 8, 9}, new int[]{0, 3});
-    /** Lo que se alarga el brazo en arco en el modo medio (el brazo largo de antes media 6 px mas). */
-    private static final float ALARGAR_MEDIO = 6f;
+    /** Lo que se alarga el brazo en arco en el modo exterior (el brazo largo de antes media 6 px mas). */
+    private static final float ALARGAR_EXTERIOR = 6f;
     /**
      * Medidas del sujetador recto que tenia antes el modo interior (cable_holder_inner, ya retirado):
      * no se dibuja, pero la geometria del interior se sigue calculando con el, como se acordo al poner
@@ -119,7 +146,7 @@ public final class MensulaLayout {
             new float[]{0.5f, 1.0f, 0.5f}, new float[]{21.0f, 0.5f, 0.5f}, 2, 12f, 19f,
             new int[]{3, 4, 5, 6}, new int[]{0, 1});
 
-    /** cable_holder_all y cable_holder_all_short: los sujetadores nuevos (con aislador) del modo interior. */
+    /** cable_holder_all y cable_holder_all_short: los sujetadores rectos (con aislador) del interior y del medio. */
     private static final Sujetador SUJETADOR_NUEVO = new Sujetador(PiezasDatos.SUJETADOR.ID,
             PiezasDatos.SUJETADOR.WALL_JOINT, PiezasDatos.SUJETADOR.CABLE_JOINT, 2, 14f, 21f,
             new int[]{3, 4, 5, 6, 7, 8, 9}, new int[]{0, 1});
@@ -132,7 +159,7 @@ public final class MensulaLayout {
      * sitio y con el mismo angulo (el nuevo es un poco mas largo: el hilo queda un pelin mas fuera).
      */
     private static Sujetador nuevo(Sujetador s) {
-        return s == SUJETADOR_CORTO ? SUJETADOR_NUEVO_CORTO : SUJETADOR_NUEVO;
+        return s == SUJETADOR_CORTO ? SUJETADOR_NUEVO_CORTO : s == SUJETADOR_INTERIOR ? SUJETADOR_NUEVO : s;
     }
 
     /**
@@ -142,8 +169,12 @@ public final class MensulaLayout {
     public record Resultado(List<Colocacion> piezas, Vector3f contacto, Vector3f sustentador, Vector3f tiranteDiagonal) {
     }
 
-    /** Modo interior: como queda la diagonal larga y de donde cuelga el sujetador. */
-    private record PlanInterior(Vector2f ancla, Vector2f codo, Sujetador sujetador, Vector2f gancho, float alargar) {
+    /**
+     * Modo interior: como queda la diagonal larga, de donde cuelga el sujetador y a donde apunta su pinza
+     * ({@code objetivo}: el hilo de contacto).
+     */
+    private record PlanInterior(Vector2f ancla, Vector2f codo, Sujetador sujetador, Vector2f gancho, float alargar,
+                                Vector2f objetivo) {
     }
 
     private static final float SEN45 = 0.7071068f;
@@ -180,6 +211,9 @@ public final class MensulaLayout {
             }
             if (plan == null) {
                 plan = planInteriorTriangulo(contacto, inicioTubo, r);
+                if (ajustes.alturaCatenaria() >= 0.75f) {
+                    plan = interiorMinimoLargo(plan, inicioTubo, r);
+                }
             }
         }
         if (plan != null) {
@@ -207,7 +241,7 @@ public final class MensulaLayout {
             case INTERIOR -> {
                 if (plan != null) {
                     barra(out, codo, new Vector2f(r + FIN_INTERIOR, BARRA_Y), ingleteCodo[1], 0f);
-                    yield brazo(out, plan.sujetador(), nuevo(plan.sujetador()), plan.gancho(), contacto, false, plan.alargar());
+                    yield brazo(out, plan.sujetador(), nuevo(plan.sujetador()), plan.gancho(), plan.objetivo(), false, plan.alargar());
                 }
                 barra(out, codo, new Vector2f(r + FIN_INTERIOR_PUNTAL, BARRA_Y), ingleteCodo[1], 0f);
                 yield brazoPuntal(out, contacto);
@@ -271,7 +305,7 @@ public final class MensulaLayout {
                 float cara = ancla.dot(bajo) + MEDIA_BARRA - HUNDIMIENTO_GANCHO;
                 gancho = tocar(g, giroBrazo(g, contacto, sujetador, false, alargar), bajo, cara);
             }
-            return new PlanInterior(ancla, codo, sujetador, gancho, alargar);
+            return new PlanInterior(ancla, codo, sujetador, gancho, alargar, contacto);
         }
         // no cabe el triangulo (alcance minimo con el hilo bajo): diagonal a ANGULO_INTERIOR hasta justo
         // antes del aislador y el sujetador corto colgado donde llegue, bajando hacia el hilo
@@ -281,7 +315,33 @@ public final class MensulaLayout {
         Vector2f codo = new Vector2f(r - CODO_ANTES_SUSTENTADOR, BARRA_Y);
         float t = resolver(largoDiagonal, 0f,
                 d -> ganchoTriangulo(x0, u, bajo, largoDiagonal, d, caida, contacto, corto).distance(contacto) - corto.largo());
-        return new PlanInterior(ancla, codo, corto, ganchoTriangulo(x0, u, bajo, largoDiagonal, t, caida, contacto, corto), 0f);
+        return new PlanInterior(ancla, codo, corto, ganchoTriangulo(x0, u, bajo, largoDiagonal, t, caida, contacto, corto), 0f, contacto);
+    }
+
+    /**
+     * Interior con la anchura minima y el hilo bajo (catenaria 0,75): la pinza agarra el hilo donde lo
+     * agarraba {@code viejo}, pero el codo se acerca al poste (deja margen al aislador de arriba), la
+     * diagonal sale mas larga y empinada desde mas abajo, y el sujetador largo cuelga mas abajo en ella.
+     */
+    private static PlanInterior interiorMinimoLargo(PlanInterior viejo, float x0, float r) {
+        Vector2f hilo = brazo(new ArrayList<>(), viejo.sujetador(), nuevo(viejo.sujetador()), viejo.gancho(),
+                viejo.objetivo(), false, viejo.alargar());
+        float codoX = r - CODO_MINIMO_ANTES_SUSTENTADOR;
+        Vector2f u = new Vector2f(codoX - x0, CAIDA_INTERIOR_MINIMO).normalize();
+        Vector2f bajo = new Vector2f(u.y, -u.x);
+        float largoDiagonal = (codoX - x0) / u.x;
+        Vector2f ancla = new Vector2f(x0, BARRA_Y - largoDiagonal * u.y);
+        Vector2f codo = new Vector2f(codoX, BARRA_Y);
+        float caida = caidaGancho(u.y / u.x) - HUNDIMIENTO_GANCHO;
+        // el gancho, abajo en la diagonal; el sujetador (el largo si cabe, si no el corto) se estira hasta el hilo
+        float lado = largoDiagonal - GANCHO_DESDE_ANCLA;
+        Vector2f gancho = ganchoTriangulo(x0, u, bajo, largoDiagonal, lado, caida, hilo, SUJETADOR_NUEVO_CORTO);
+        Sujetador s = gancho.distance(hilo) >= SUJETADOR_NUEVO.largo() ? SUJETADOR_NUEVO : SUJETADOR_NUEVO_CORTO;
+        gancho = ganchoTriangulo(x0, u, bajo, largoDiagonal, lado, caida, hilo, s);
+        if (gancho.distance(hilo) < s.largo() - 0.05f) {
+            return viejo;
+        }
+        return new PlanInterior(ancla, codo, s, gancho, s.alargar(gancho.distance(hilo)), hilo);
     }
 
     /**
@@ -322,7 +382,7 @@ public final class MensulaLayout {
         Vector2f bajo = new Vector2f(u.y, -u.x);
         float cara = ancla.dot(bajo) + MEDIA_BARRA - HUNDIMIENTO_GANCHO;
         Vector2f g = new Vector2f(codo).sub(new Vector2f(u).mul(lado)).sub(0, caidaGancho(u.y / u.x) - HUNDIMIENTO_GANCHO);
-        return new PlanInterior(ancla, codo, sujetador, tocar(g, giroBrazo(g, contacto, sujetador, false, 0f), bajo, cara), 0f);
+        return new PlanInterior(ancla, codo, sujetador, tocar(g, giroBrazo(g, contacto, sujetador, false, 0f), bajo, cara), 0f, contacto);
     }
 
     /** Gancho del triangulo: a {@code lado} px del codo bajando por una diagonal de {@code largoDiagonal}. */
@@ -355,59 +415,80 @@ public final class MensulaLayout {
 
 
     /**
-     * Medio: la horizontal sigue, baja a 45 grados y acaba en UNA perforada diagonal. El brazo en arco
-     * alargado cuelga metido en la cara de abajo de la perforada, cerca de su final, y BAJA hacia el hilo
-     * (nunca sube). Si el hilo queda muy abajo para el alcance, baja mas inclinado (hasta 45 grados).
+     * Medio: la horizontal sigue, baja a 45 grados y acaba en UNA perforada diagonal (60 % tubo, 40 %
+     * perforada). El sujetador recto, girado hacia el poste, va agarrado en la punta de la perforada y baja
+     * INCLINACION_SUJETADOR_MEDIO (_ESTRECHA con la anchura minima) hasta el hilo; la horizontal se alarga lo que haga falta para ello. Si el
+     * hilo queda alto, el tubo a 45 grados se acorta (sube el gancho) y, si aun no basta, el sujetador baja
+     * menos inclinado.
      */
     private static Vector2f brazoMedio(List<Colocacion> out, Vector2f contacto, Vector2f codo, float tanCodo, float r) {
-        Sujetador s = SUJETADOR_CORTO;
-        float largo = (float) Math.hypot(s.cable()[0] - s.gancho()[0] + ALARGAR_MEDIO, s.cable()[1] - s.gancho()[1]);
-        // cara de abajo de la perforada: su normal hacia fuera (abajo a la izquierda)
-        Vector2f bajo = new Vector2f(-SEN45, -SEN45);
-        Vector2f gancho = new Vector2f();
-        float fin = 0f;
-        for (float grados = INCLINACION_BRAZO_MEDIO; grados <= 45f; grados += 1f) {
-            double inc = Math.toRadians(grados);
-            gancho.set(contacto.x + largo * (float) Math.cos(inc), contacto.y + largo * (float) Math.sin(inc));
-            float eje = minimoGancho(gancho, giroBrazo(gancho, contacto, s, true, ALARGAR_MEDIO), bajo)
-                    - MEDIA_PERFORADA + HUNDIMIENTO_GANCHO;
-            // el eje de la perforada pasa por el final de la horizontal: fin * bajo.x + BARRA_Y * bajo.y = eje
-            fin = (eje - BARRA_Y * bajo.y) / bajo.x;
-            if (fin >= r + FIN_MIN) {
+        Sujetador corto = SUJETADOR_NUEVO_CORTO;
+        float senoMax = (float) Math.sin(Math.toRadians(r <= 16f * Ajustes.ANCHURA.min()
+                ? INCLINACION_SUJETADOR_MEDIO_ESTRECHA : INCLINACION_SUJETADOR_MEDIO));
+        float senoMin = (float) Math.sin(Math.toRadians(INCLINACION_SUJETADOR_MEDIO_MIN));
+        float bajada = BAJADA_MEDIO;
+        // el gancho va en el eje de la perforada, a GANCHO_MEDIO_DESDE_PUNTA de su punta: "avance" en X y en Y
+        // desde el final de la horizontal, y "alto" por encima del hilo
+        float avance;
+        float alto;
+        float seno;
+        while (true) {
+            avance = (bajada + LARGO_PERFORADA - GANCHO_MEDIO_DESDE_PUNTA) * SEN45;
+            alto = BARRA_Y - avance - contacto.y;
+            seno = Math.min(senoMax, alto / corto.largo());
+            if (seno >= senoMin || bajada <= BAJADA_MIN) {
                 break;
             }
+            bajada = Math.max(BAJADA_MIN, bajada - 0.5f);
         }
-        if (fin < r + FIN_MIN) {
-            // la horizontal no puede acabar antes del aislador: el gancho se mete en la perforada que queda
-            fin = r + FIN_MIN;
-            float cara = new Vector2f(fin, BARRA_Y).dot(bajo) + MEDIA_PERFORADA - HUNDIMIENTO_GANCHO;
-            gancho = tocar(gancho, giroBrazo(gancho, contacto, s, true, ALARGAR_MEDIO), bajo, cara);
+        float largo = Math.max(corto.largo(), alto / Math.max(seno, 0.05f));
+        float dx = (float) Math.sqrt(Math.max(0f, largo * largo - alto * alto));
+        // la horizontal acaba donde haga falta para que el gancho quede ahi, nunca antes del aislador
+        float fin = Math.max(r + FIN_MIN, contacto.x + dx - avance);
+        // el gancho cuelga del eje de la perforada a su cara de abajo (la que mira al hilo), metido
+        // HUNDIMIENTO_GANCHO; si asi el sujetador corto ya no llega a su largo, la horizontal sigue un poco
+        Vector2f bajo = new Vector2f(-SEN45, -SEN45);
+        Vector2f gancho = new Vector2f();
+        Sujetador s = corto;
+        float distancia = 0f;
+        for (int intento = 0; intento < 6; intento++) {
+            Vector2f eje = new Vector2f(fin + avance, BARRA_Y - avance);
+            float cara = eje.dot(bajo) + MEDIA_PERFORADA - HUNDIMIENTO_GANCHO;
+            gancho.set(eje);
+            for (int k = 0; k < 3; k++) {
+                distancia = gancho.distance(contacto);
+                s = distancia >= SUJETADOR_NUEVO.largo() ? SUJETADOR_NUEVO : corto;
+                gancho = tocar(eje, giroBrazo(gancho, contacto, s, true, s.alargar(distancia)), bajo, cara);
+            }
+            distancia = gancho.distance(contacto);
+            if (distancia >= corto.largo() - 0.005f) {
+                break;
+            }
+            fin += corto.largo() - distancia + 0.05f;
         }
+        s = distancia >= SUJETADOR_NUEVO.largo() ? SUJETADOR_NUEVO : corto;
         Vector2f inicio = new Vector2f(fin, BARRA_Y);
-        // el gancho cae en un agujero cerca del final de la perforada; el tubo a 45 grados pone el resto
-        float t = new Vector2f(gancho).sub(inicio).dot(DIR45);
-        float bajada = Math.max(BAJADA_MIN, t - (LARGO_PERFORADA - AGUJERO_DESDE_FINAL));
         Vector2f finBajada = new Vector2f(DIR45).mul(bajada).add(inicio);
 
         barra(out, codo, inicio, tanCodo, inglete(HORIZONTAL, DIR45)[0]);
         bajada(out, inicio, finBajada, DIR45);
         perforadaDiagonal(out, finBajada, -45f, 1, 0f);
-        return brazo(out, s, gancho, contacto, true, ALARGAR_MEDIO);
+        return brazo(out, s, gancho, contacto, true, s.alargar(distancia));
     }
 
     /**
      * Exterior: la horizontal sigue, baja a 45 grados, perforada diagonal y perforada vertical. El
-     * brazo en arco, girado hacia el poste, va metido en el lado de la vertical, cerca de su final, y
+     * brazo en arco alargado, girado hacia el poste, va metido en el lado de la vertical, cerca de su final, y
      * baja un poco hacia el hilo. El tubo a 45 grados se alarga para que sobre la menor vertical posible.
      */
     private static Vector2f brazoExterior(List<Colocacion> out, Vector2f contacto, Vector2f codo, float tanCodo, float r) {
-        float largo = SUJETADOR_CORTO.largo();
+        float largo = SUJETADOR_CORTO.largo(ALARGAR_EXTERIOR);
         double inc = Math.toRadians(INCLINACION_BRAZO_EXTERIOR);
         Vector2f gancho = new Vector2f(contacto.x + largo * (float) Math.cos(inc), contacto.y + largo * (float) Math.sin(inc));
         // cara de la vertical que mira al poste: el wall_joint se mete un poco en ella
         Vector2f haciaPoste = new Vector2f(-1f, 0f);
         float vertX = MEDIA_PERFORADA - HUNDIMIENTO_GANCHO
-                - minimoGancho(gancho, giroBrazo(gancho, contacto, SUJETADOR_CORTO, true, 0f), haciaPoste);
+                - minimoGancho(gancho, giroBrazo(gancho, contacto, SUJETADOR_CORTO, true, ALARGAR_EXTERIOR), haciaPoste);
         // UNA sola perforada vertical, que acaba AGUJERO_DESDE_FINAL bajo el gancho; el tubo a 45 grados
         // pone todo lo que falte
         float bajada = Math.max(BAJADA_MIN,
@@ -420,7 +501,7 @@ public final class MensulaLayout {
             float dx = gancho.x - contacto.x;
             gancho.y = contacto.y + (float) Math.sqrt(Math.max(0f, largo * largo - dx * dx));
             float cara = -(fin + avance - MEDIA_PERFORADA) - HUNDIMIENTO_GANCHO;
-            gancho = tocar(gancho, giroBrazo(gancho, contacto, SUJETADOR_CORTO, true, 0f), haciaPoste, cara);
+            gancho = tocar(gancho, giroBrazo(gancho, contacto, SUJETADOR_CORTO, true, ALARGAR_EXTERIOR), haciaPoste, cara);
         }
         Vector2f inicio = new Vector2f(fin, BARRA_Y);
         Vector2f finBajada = new Vector2f(DIR45).mul(bajada).add(inicio);
@@ -430,7 +511,7 @@ public final class MensulaLayout {
         float[] ingleteVertical = inglete(DIR45, new Vector2f(0, -1));
         Vector2f finPerforada = perforadaDiagonal(out, finBajada, -45f, 1, ingleteVertical[0]);
         perforadaVertical(out, finPerforada, 1, ingleteVertical[1]);
-        return brazo(out, SUJETADOR_CORTO, gancho, contacto, true, 0f);
+        return brazo(out, SUJETADOR_CORTO, gancho, contacto, true, ALARGAR_EXTERIOR);
     }
 
     // ------------------------------------------------------------------ contacto del gancho

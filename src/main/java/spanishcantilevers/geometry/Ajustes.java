@@ -19,34 +19,31 @@ public record Ajustes(TipoAislador tipo, ModoZigzag modo, boolean tirante,
                       float anchura, float altura, float alturaCatenaria, float desplazamientoY) {
 
     public static final Medida ANCHURA = new Medida(1.5f, 6.5f, 1f, 2.5f);
-    public static final Medida ALTURA = new Medida(0.25f, 1.5f, 0.25f, 0.5f);
+    public static final Medida ALTURA = new Medida(0.25f, 1.5f, 0.25f, 1.25f);
     /** Mas de 0,75 bloques de catenaria queda mal en todos los modos (y no hay ejemplos reales). */
-    public static final Medida ALTURA_CATENARIA = new Medida(0.25f, 0.75f, 0.25f, 0.5f);
+    public static final Medida ALTURA_CATENARIA = new Medida(0.25f, 0.75f, 0.25f, 0.75f);
     public static final Medida DESPLAZAMIENTO_Y = new Medida(0f, 0.5f, 0.5f, 0f);
 
     /**
-     * Lo que sale si no se ha tocado nada: interior, anchura 2,5, altura del soporte 1, catenaria 0,5,
+     * Lo que sale si no se ha tocado nada: interior, anchura 2,5, altura del soporte 1,25, catenaria 0,75,
      * sin desplazamiento, cable encima del aislador y con cable de soporte. Cada jugador puede guardar
      * otra con el boton de la ventana (eso solo cambia lo que la ventana propone).
      */
     public static final Ajustes DEFECTO = new Ajustes(TipoAislador.TIPO1, ModoZigzag.INTERIOR, true,
-            2.5f, 1f, 0.5f, 0f);
+            2.5f, 1.25f, 0.75f, 0f);
 
-    /**
-     * Altura del soporte que se usa sin opciones avanzadas: 1 en el medio y el exterior. En el interior,
-     * con alcance corto la diagonal quedaria muy plana, asi que baja un poco mas; con anchura 2..3 manda
-     * en el triangulo de la foto de referencia.
-     */
+    /** Altura del soporte que se usa sin opciones avanzadas: la de por defecto (1,25), o la fija si la hay. */
     public static float alturaAutomatica(float anchura, ModoZigzag modo) {
-        if (modo != ModoZigzag.INTERIOR || anchura >= 2f && anchura < 3f) {
-            return 1f;
-        }
-        return anchura < 2f ? 0.75f : ALTURA.defecto();
+        float fija = alturaFija(anchura, modo);
+        return Float.isNaN(fija) ? ALTURA.defecto() : fija;
     }
 
-    /** En el modo interior con anchura minima la diagonal la manda el sujetador: la altura no cuenta. */
-    public static boolean usaAltura(float anchura, ModoZigzag modo) {
-        return modo != ModoZigzag.INTERIOR || anchura >= 2f;
+    /**
+     * En el interior con la anchura minima la diagonal no depende de la altura del soporte: la ventana la
+     * deja fija en 1 (lo que baja la diagonal, mas o menos). NaN = se puede escoger.
+     */
+    public static float alturaFija(float anchura, ModoZigzag modo) {
+        return modo == ModoZigzag.INTERIOR && anchura < 2f ? 1f : Float.NaN;
     }
 
     /**

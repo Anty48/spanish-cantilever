@@ -12,7 +12,6 @@ import de.mrjulsen.wires.graph.data.provider.ConnectorDataProvider;
 import de.mrjulsen.wires.item.CustomData;
 import spanishcantilevers.ModBlocks;
 import spanishcantilevers.client.ClienteMensula;
-import spanishcantilevers.geometry.Ajustes;
 import spanishcantilevers.geometry.PiezasDatos;
 import spanishcantilevers.item.SoporteTunelItem;
 import net.createmod.catnip.math.VecHelper;
@@ -69,9 +68,9 @@ public class SoporteTunelBlock extends AbstractSupportedRotatableWireConnectorBl
     public static final float PX_POR_ALTURA = 4f;
     /**
      * Donde queda la pinza del de techo con altura 0 (px desde el suelo de su bloque): un bloque por
-     * encima del hilo de la mensula por defecto (que queda bajo su bloque).
+     * encima del hilo de una mensula con catenaria 0,5 (que queda bajo su bloque).
      */
-    public static final float PINZA_TECHO = 16f - 16f * Ajustes.ALTURA_CATENARIA.defecto();
+    public static final float PINZA_TECHO = 16f - 16f * 0.5f;
     /**
      * De pared: altura en pasos de {@link #PX_POR_ALTURA_PARED} desde abajo del todo; en el medio
      * ({@link #ALTURA_PARED_CENTRO}) la pieza queda centrada en el bloque, y nunca se sale de el.

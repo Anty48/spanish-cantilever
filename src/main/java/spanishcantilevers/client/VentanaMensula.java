@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -113,7 +114,16 @@ public class VentanaMensula extends DLWindow {
             ajustes = ajustes.conAnchura(v);
             recolocar[0].run();
         });
-        CreateSlider altura = deslizador(Ajustes.ALTURA, "altura", ajustes.altura(), v -> ajustes = ajustes.conAltura(v));
+        // la altura del soporte que ha escogido el jugador: el interior con la anchura minima la deja fija solo
+        // mientras dura, y al salir de el se recupera (como la catenaria con el aislador tipo 2)
+        float[] alturaElegida = {ajustes.altura()};
+        boolean[] alturaAutomatica = {false};
+        CreateSlider altura = deslizador(Ajustes.ALTURA, "altura", ajustes.altura(), v -> {
+            ajustes = ajustes.conAltura(v);
+            if (!alturaAutomatica[0]) {
+                alturaElegida[0] = v;
+            }
+        });
         // la altura de catenaria que ha escogido el jugador: el tipo 2 la sube a su minimo solo mientras esta
         // puesto, y al volver a otro aislador se recupera
         float[] catenariaElegida = {ajustes.alturaCatenaria()};
@@ -198,8 +208,8 @@ public class VentanaMensula extends DLWindow {
 
         recolocar[0] = () -> {
             boolean av = casilla.checked.get();
-            // la altura del soporte no pinta nada en el interior con la anchura minima
-            altura.visible.set(av && Ajustes.usaAltura(ajustes.anchura(), ajustes.modo()));
+            // siempre a la vista (si aparece y desaparece, los deslizadores se recolocan al tocar otras cosas)
+            altura.visible.set(av);
             catenaria.visible.set(av);
             desplazamiento.visible.set(av);
             if (!av) {
@@ -211,6 +221,15 @@ public class VentanaMensula extends DLWindow {
                 catenariaAutomatica[0] = false;
                 desplazamiento.value.set((double) Ajustes.DESPLAZAMIENTO_Y.defecto());
             }
+            // donde no cuenta, el deslizador va de la fija a la fija (como la catenaria con el tipo 2); al salir
+            // de ahi, la que tenia escogida
+            float fija = Ajustes.alturaFija(ajustes.anchura(), ajustes.modo());
+            alturaAutomatica[0] = true;
+            altura.min.set((double) (Float.isNaN(fija) ? Ajustes.ALTURA.min() : fija));
+            altura.max.set((double) (Float.isNaN(fija) ? Ajustes.ALTURA.max() : fija));
+            altura.value.set((double) (Float.isNaN(fija) ? alturaElegida[0] : fija));
+            alturaAutomatica[0] = false;
+            ajustes = ajustes.conAltura(altura.value.get().floatValue());
             repartir(new DLGuiComponent[]{anchura, altura, catenaria, desplazamiento}, ANCHO / 2);
             repartir(new DLGuiComponent[]{aislador, zigzag, tirante}, ANCHO / 2);
         };
@@ -268,6 +287,19 @@ public class VentanaMensula extends DLWindow {
         }
     }
 
+    /** X mas alejada del poste (px de la mensula) de los vertices de la vista previa, que va en bloques. */
+    private static float xMaxima(List<BakedQuad> quads) {
+        float max = 0f;
+        int paso = DefaultVertexFormat.BLOCK.getIntegerSize();
+        for (BakedQuad quad : quads) {
+            int[] v = quad.getVertices();
+            for (int i = 0; i < v.length; i += paso) {
+                max = Math.max(max, Float.intBitsToFloat(v[i]) * 16f);
+            }
+        }
+        return max;
+    }
+
     /** Vuelve a montar la mensula de la vista previa y calcula como encuadrarla. */
     private void actualizarVista() {
         if (ajustes == null) {
@@ -278,7 +310,8 @@ public class VentanaMensula extends DLWindow {
         MensulaLayout.Resultado r = MensulaLayout.calcular(a, 0f);
         float minY = Math.min(r.contacto().y(), 0f) - 2f;
         float maxY = Math.max(r.sustentador().y(), MensulaLayout.BARRA_Y) + 3f;
-        float maxX = r.contacto().x() + 20f;
+        // el medio y el exterior pueden llegar mas alla del hilo: que quepa todo lo que se dibuja
+        float maxX = Math.max(r.contacto().x() + 20f, xMaxima(vista) + 4f);
         centroX = maxX / 2f;
         centroY = (minY + maxY) / 2f;
         // px de la mensula -> px de la pantalla, sin pasarse de la zona azul
