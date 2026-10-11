@@ -298,7 +298,7 @@ public final class AutoTest {
         int cables = LineaPrueba.tenderCables(player, LineaPrueba.montar(level, new BlockPos(LINEA_X, SUELO, 0), 4));
         // Fila D: los postes ibericos (plano, plano diagonal, cuadrado y H) y las piezas espanolas puestas
         // como las pondria un jugador: soporte de mensula en el cuadrado (pasa a su version junto a poste) con
-        // otro encima (vertical), y soporte de linea electrica en el H
+        // otro colgado debajo (vertical), y soporte de linea electrica en el H
         String[] formas = {"iberian_flat_lattice_mast", "iberian_flat_lattice_mast_diagonal", "iberian_lattice_mast", "iberian_h_beam_mast"};
         for (int i = 0; i < formas.length; i++) {
             Block poste = ModPostes.POSTES.get(formas[i]).get();
@@ -308,9 +308,9 @@ public final class AutoTest {
         }
         BlockPos cuadrado = new BlockPos(POSTES_X + 6, SUELO + 2, 0);
         colocar(player, ModPostes.POSTES.get("spanish_cantilever_bracket").get(), cuadrado, Direction.SOUTH);
-        colocar(player, ModPostes.POSTES.get("spanish_cantilever_bracket").get(), cuadrado.south(), Direction.UP);
+        colocar(player, ModPostes.POSTES.get("spanish_cantilever_bracket").get(), cuadrado.south(), Direction.DOWN);
         colocar(player, ModPostes.POSTES.get("spanish_power_line_bracket").get(), new BlockPos(POSTES_X + 9, SUELO + 3, 0), Direction.SOUTH);
-        LOGGER.info("[autotest] piezas: {} / {} / {}", level.getBlockState(cuadrado.south()), level.getBlockState(cuadrado.south().above()),
+        LOGGER.info("[autotest] piezas: {} / {} / {}", level.getBlockState(cuadrado.south()), level.getBlockState(cuadrado.south().below()),
                 level.getBlockState(new BlockPos(POSTES_X + 9, SUELO + 3, 1)));
         // Fila E: tunel con catenaria rigida y transicion desde una mensula
         int tramos = LineaPrueba.montarTunel(player, new BlockPos(TUNEL_X, SUELO, 0), 5);
@@ -501,6 +501,11 @@ public final class AutoTest {
     /** Pone {@code bloque} como un jugador: con su objeto, clic en la cara {@code cara} de {@code contra}. */
     private static void colocar(ServerPlayer player, Block bloque, BlockPos contra, Direction cara) {
         ItemStack antes = player.getMainHandItem();
+        // mirando de frente a la cara, como haria el jugador (el giro del bloque sale de la mirada)
+        if (cara.getAxis().isHorizontal()) {
+            player.setYRot(cara.getOpposite().toYRot());
+            player.setYHeadRot(player.getYRot());
+        }
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(bloque));
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(contra).relative(cara, 0.5), cara, contra, false);
         player.getMainHandItem().useOn(new net.minecraft.world.item.context.UseOnContext(player, InteractionHand.MAIN_HAND, hit));
