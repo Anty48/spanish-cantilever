@@ -2,6 +2,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'com.hypherionmc.modutils.modpublisher' version '2.2.4'
 }
 
 version = mod_version
@@ -108,4 +109,39 @@ tasks.named('jar', Jar).configure {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+// --- Publicacion en CurseForge y Modrinth (modpublisher) ---
+// Tokens por variables de entorno: CURSE_TOKEN y MODRINTH_TOKEN. Notas de la version: release-notes.md.
+// Tareas: publishMod (todo) o publishCurseforge / publishModrinth. -PpublishDryRun simula sin subir.
+// El port NeoForge 1.21.1 vive en la rama neoforge-1.21.1 (proyecto aparte) y publica en los mismos proyectos.
+publisher {
+    apiKeys {
+        curseforge System.getenv('CURSE_TOKEN')
+        modrinth System.getenv('MODRINTH_TOKEN')
+    }
+
+    setCurseID(curseforge_id)
+    setModrinthID(modrinth_id)
+    setDebug(project.hasProperty('publishDryRun'))
+    setVersionType('beta')
+    setChangelog(file('release-notes.md'))
+    setProjectVersion(project.version.toString())
+    setDisplayName("Spanish Cantilevers ${project.version} (Forge 1.20.1)")
+    setGameVersions(*publish_game_versions.split(',').collect { it.trim() })
+    setLoaders('forge')
+    setCurseEnvironment('both')
+    javaVersions.set([JavaVersion.VERSION_17])
+    setArtifact("build/libs/${mod_id}-${project.version}.jar")
+
+    curseDepends {
+        required 'create-pantographs-and-wires', 'create', 'dragonlib', 'geckolib'
+    }
+    modrinthDepends {
+        required 'create-pantographs-and-wires', 'create', 'dragonlib', 'geckolib'
+    }
+}
+
+['publishMod', 'publishCurseforge', 'publishModrinth'].each { name ->
+    tasks.matching { it.name == name }.configureEach { dependsOn 'build' }
 }
