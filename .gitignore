@@ -1,0 +1,33 @@
+# Gradle / IDE
+.gradle/
+build/
+out/
+run/
+run-data/
+.idea/
+*.iml
+.vscode/
+bin/
+*.log
+
+# Jars de terceros: no se redistribuyen (ver libs/README.md)
+libs/*.jar
+/*.jar
+
+# Material de consulta extraido de PNW y fotos de referencia (no son nuestros)
+texturas_pnw/
+modelos_pnw/
+tipo 1 aislador de tension arriba/
+tipo 2 aislador de tensión abajo/
+tipo 3 aislador de tensión vertical/
+770x_catenariatrenistock.jpg
+catenaria-rigida-linea-4-tunel-1.webp
+new tunel.jpeg
+
+# LaTeX (docs)
+docs/**/*.aux
+docs/**/*.log
+docs/**/*.out
+docs/**/*.toc
+docs/**/*.fls
+docs/**/*.fdb_latexmk

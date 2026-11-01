@@ -1,0 +1,128 @@
+plugins {
+    id 'java-library'
+    id 'eclipse'
+    id 'idea'
+    id 'net.neoforged.moddev' version '2.0.146'
+    id 'com.hypherionmc.modutils.modpublisher' version '2.2.4'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    // Sufijo -neoforge para distinguirlo del jar de Forge 1.20.1 (spanishcantilevers-<version>.jar).
+    archivesName = "${mod_id}-neoforge"
+}
+
+// Minecraft 1.21.1 corre sobre Java 21.
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = project.neo_version
+
+    runs {
+        configureEach {
+            gameDirectory = project.file('run')
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.INFO
+        }
+        client {
+            client()
+            programArguments.addAll '--width', '1280', '--height', '720'
+        }
+        // Igual que client, pero crea un mundo plano de prueba, monta las mensulas, hace capturas
+        // en run/screenshots/ y cierra el juego (ver dev/AutoTest.java).
+        autotest {
+            client()
+            systemProperty 'spanishcantilevers.autotest', 'true'
+            programArguments.addAll '--width', '1280', '--height', '720'
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+repositories {
+    // Jars de P&W y sus dependencias PARA NeoForge 1.21.1 en ./libs (nombre: artefacto-version.jar).
+    // Ver libs/README.md: se les quita el jar-in-jar y las librerias internas van sueltas.
+    flatDir {
+        dir 'libs'
+    }
+}
+
+dependencies {
+    implementation 'local:pantographsandwires:0.2.3'
+    implementation 'local:dragonlib:3.0.28'
+    implementation 'local:create:6.0.8'
+    implementation 'local:flywheel:1.0.5'
+    implementation 'local:ponder:1.0.64'
+    implementation 'local:registrate:1.3.0'
+    implementation 'local:geckolib:4.8.4'  // el pantografo espanol usa su renderer
+    implementation 'local:architectury:13.0.6'  // P&W expone RegistrySupplier de Architectury en su API
+    runtimeOnly 'local:forgeconfigapiport:21.1.1'
+    // Libreria (no mod) que usa P&W: tiene que ir tambien en el classpath del juego.
+    runtimeOnly 'local:mclib:20'
+    additionalRuntimeClasspath 'local:mclib:20'
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
+            neo_version: neo_version, neo_version_range: neo_version_range,
+            loader_version_range: loader_version_range,
+            mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_authors: mod_authors, mod_description: mod_description,
+            pnw_version_range: pnw_version_range,
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+// --- Publicacion en CurseForge y Modrinth (modpublisher) ---
+// Tokens por variables de entorno: CURSE_TOKEN y MODRINTH_TOKEN. Notas de la version: release-notes.md.
+// Tareas: publishMod (todo) o publishCurseforge / publishModrinth. -PpublishDryRun simula sin subir.
+publisher {
+    apiKeys {
+        curseforge System.getenv('CURSE_TOKEN')
+        modrinth System.getenv('MODRINTH_TOKEN')
+    }
+
+    setCurseID(curseforge_id)
+    setModrinthID(modrinth_id)
+    setDebug(project.hasProperty('publishDryRun'))
+    setVersionType('beta')
+    setChangelog(file('release-notes.md'))
+    setProjectVersion("${project.version}+neoforge-1.21.1")
+    setDisplayName("Spanish Cantilevers ${project.version} (NeoForge 1.21.1)")
+    setGameVersions(*publish_game_versions.split(',').collect { it.trim() })
+    setLoaders('neoforge')
+    setCurseEnvironment('both')
+    javaVersions.set([JavaVersion.VERSION_21])
+    setArtifact("build/libs/${base.archivesName.get()}-${project.version}.jar")
+
+    curseDepends {
+        required 'create-pantographs-and-wires', 'create', 'dragonlib', 'geckolib'
+    }
+    modrinthDepends {
+        required 'create-pantographs-and-wires', 'create', 'dragonlib', 'geckolib'
+    }
+}
+
+['publishMod', 'publishCurseforge', 'publishModrinth'].each { name ->
+    tasks.matching { it.name == name }.configureEach { dependsOn 'build' }
+}

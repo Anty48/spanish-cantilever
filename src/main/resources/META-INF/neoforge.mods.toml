@@ -1,0 +1,41 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+logoFile="logo.png"
+authors="${mod_authors}"
+credits="Usa Create: Pantographs & Wires de MrJulsen (GPL-3.0): sus postes, cables y su sistema de colocacion."
+description='''${mod_description}'''
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="${neo_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="pantographsandwires"
+    type="required"
+    versionRange="${pnw_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+
+# el pantografo espanol usa directamente el renderer de GeckoLib (PNW ya lo pide)
+[[dependencies.${mod_id}]]
+    modId="geckolib"
+    type="required"
+    versionRange="[4.4,)"
+    ordering="AFTER"
+    side="BOTH"

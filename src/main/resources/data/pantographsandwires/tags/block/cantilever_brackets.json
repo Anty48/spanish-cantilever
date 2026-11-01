@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "spanishcantilevers:spanish_cantilever_bracket",
+    "spanishcantilevers:waxed_spanish_cantilever_bracket",
+    "spanishcantilevers:spanish_cantilever_bracket_at_post",
+    "spanishcantilevers:waxed_spanish_cantilever_bracket_at_post",
+    "spanishcantilevers:spanish_cantilever_bracket_vertical",
+    "spanishcantilevers:waxed_spanish_cantilever_bracket_vertical"
+  ]
+}
