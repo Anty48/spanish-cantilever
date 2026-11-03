@@ -94,6 +94,10 @@ el cable vuelve a la bobina. `/mensula tirante` (operador) monta una prueba.
    (prefijos separados por comas, p. ej. `tirante,diagonal_`) solo se hacen esas capturas. Las vistas `receta_*`
    abren la receta de cada objeto en JEI (las capturas de la wiki).
 
+## Discord
+
+Dudas, bugs, sugerencias y avisos de versiones nuevas en el **[servidor de Discord](https://discord.gg/EZN8XGdhhD)**.
+
 ## Licencia y créditos
 
 GPL-3.0, igual que Pantographs & Wires. Gracias a **MrJulsen** por P&W y DragonLib.
