@@ -1,0 +1,184 @@
+{
+  "variants": {
+    "facing=north,part=bottom,rotation=0": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator"
+    },
+    "facing=north,part=bottom,rotation=1": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator"
+    },
+    "facing=north,part=bottom,rotation=2": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator"
+    },
+    "facing=north,part=bottom,rotation=3": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator"
+    },
+    "facing=north,part=in_between,rotation=0": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator"
+    },
+    "facing=north,part=in_between,rotation=1": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator"
+    },
+    "facing=north,part=in_between,rotation=2": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator"
+    },
+    "facing=north,part=in_between,rotation=3": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator"
+    },
+    "facing=north,part=top,rotation=0": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator"
+    },
+    "facing=north,part=top,rotation=1": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator"
+    },
+    "facing=north,part=top,rotation=2": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator"
+    },
+    "facing=north,part=top,rotation=3": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator"
+    },
+    "facing=east,part=bottom,rotation=0": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 90
+    },
+    "facing=east,part=bottom,rotation=1": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 90
+    },
+    "facing=east,part=bottom,rotation=2": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 90
+    },
+    "facing=east,part=bottom,rotation=3": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 90
+    },
+    "facing=east,part=in_between,rotation=0": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 90
+    },
+    "facing=east,part=in_between,rotation=1": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 90
+    },
+    "facing=east,part=in_between,rotation=2": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 90
+    },
+    "facing=east,part=in_between,rotation=3": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 90
+    },
+    "facing=east,part=top,rotation=0": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 90
+    },
+    "facing=east,part=top,rotation=1": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 90
+    },
+    "facing=east,part=top,rotation=2": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 90
+    },
+    "facing=east,part=top,rotation=3": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 90
+    },
+    "facing=south,part=bottom,rotation=0": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 180
+    },
+    "facing=south,part=bottom,rotation=1": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 180
+    },
+    "facing=south,part=bottom,rotation=2": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 180
+    },
+    "facing=south,part=bottom,rotation=3": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 180
+    },
+    "facing=south,part=in_between,rotation=0": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 180
+    },
+    "facing=south,part=in_between,rotation=1": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 180
+    },
+    "facing=south,part=in_between,rotation=2": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 180
+    },
+    "facing=south,part=in_between,rotation=3": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 180
+    },
+    "facing=south,part=top,rotation=0": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 180
+    },
+    "facing=south,part=top,rotation=1": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 180
+    },
+    "facing=south,part=top,rotation=2": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 180
+    },
+    "facing=south,part=top,rotation=3": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 180
+    },
+    "facing=west,part=bottom,rotation=0": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 270
+    },
+    "facing=west,part=bottom,rotation=1": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 270
+    },
+    "facing=west,part=bottom,rotation=2": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 270
+    },
+    "facing=west,part=bottom,rotation=3": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 270
+    },
+    "facing=west,part=in_between,rotation=0": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 270
+    },
+    "facing=west,part=in_between,rotation=1": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 270
+    },
+    "facing=west,part=in_between,rotation=2": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 270
+    },
+    "facing=west,part=in_between,rotation=3": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 270
+    },
+    "facing=west,part=top,rotation=0": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 270
+    },
+    "facing=west,part=top,rotation=1": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 270
+    },
+    "facing=west,part=top,rotation=2": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 270
+    },
+    "facing=west,part=top,rotation=3": {
+      "model": "spanishcantilevers:block/lav/remates/blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+      "y": 270
+    }
+  }
+}

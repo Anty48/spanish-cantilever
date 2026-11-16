@@ -14,7 +14,6 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -31,8 +30,13 @@ public final class ClientSetup {
      * se registra en DragonLib al construir el mod, como hace PNW.
      */
     public static void registrarModelos(IEventBus bus) {
-        for (DeferredHolder<Block, ? extends Block> poste : ModPostes.POSTES.values()) {
-            DLBlockModelRegistry.registerForBlock(() -> poste.get(), BasicRotatableBlockModel::new, BasicRotatableBlockModel::new);
+        for (Map.Entry<String, DeferredHolder<Block, ? extends Block>> poste : ModPostes.POSTES.entrySet()) {
+            // los remates con aisladores, con su cristal translucido
+            if (ModPostes.REMATES.containsKey(poste.getKey())) {
+                DLBlockModelRegistry.registerForBlock(() -> poste.getValue().get(), ModeloRemate::new, ModeloRemate::new);
+            } else {
+                DLBlockModelRegistry.registerForBlock(() -> poste.getValue().get(), BasicRotatableBlockModel::new, BasicRotatableBlockModel::new);
+            }
         }
     }
 

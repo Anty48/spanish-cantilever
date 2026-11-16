@@ -1,0 +1,7 @@
+{
+  "parent": "pantographsandwires:block/lattice_mast/base",
+  "textures": {
+    "base": "spanishcantilevers:block/blue_lav_spanish_metal",
+    "particle": "spanishcantilevers:block/blue_lav_spanish_metal"
+  }
+}

@@ -50,6 +50,7 @@
   "gui.spanishcantilevers.soporte_tunel.escala": "Mida general",
   "aviso.spanishcantilevers.perfil_fuera_de_tunel": "No és la manera prevista: el perfil rígid va en suports de túnel (catenària rígida de túnel)",
   "aviso.spanishcantilevers.cable_entre_tuneles": "No és la manera prevista: entre suports de túnel, fes servir la catenària rígida (feix de perfils de catenària rígida)",
+  "item.spanishcantilevers.blue_iberian_steel_ingot": "Lingot d'acer ibèric blau",
   "block.spanishcantilevers.iberian_flat_lattice_mast": "Pal de gelosia plana ibèric",
   "block.spanishcantilevers.waxed_iberian_flat_lattice_mast": "Pal de gelosia plana ibèric encerat",
   "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal": "Pal de gelosia plana diagonal ibèric",
@@ -65,5 +66,17 @@
   "block.spanishcantilevers.spanish_cantilever_bracket_at_post": "Suport de mènsula espanyol",
   "block.spanishcantilevers.waxed_spanish_cantilever_bracket_at_post": "Suport de mènsula espanyol encerat",
   "block.spanishcantilevers.spanish_cantilever_bracket_vertical": "Suport de mènsula espanyol",
-  "block.spanishcantilevers.waxed_spanish_cantilever_bracket_vertical": "Suport de mènsula espanyol encerat"
+  "block.spanishcantilevers.waxed_spanish_cantilever_bracket_vertical": "Suport de mènsula espanyol encerat",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast": "Pal de gelosia plana ibèric blau",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_diagonal": "Pal de gelosia plana diagonal ibèric blau",
+  "block.spanishcantilevers.blue_iberian_lattice_mast": "Pal de gelosia ibèric blau",
+  "block.spanishcantilevers.blue_iberian_h_beam_mast": "Pal en H ibèric blau",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_insulator": "Pal LAV amb aïllador superior",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_insulator": "Pal ibèric amb aïllador superior",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_double_insulator": "Pal LAV amb aïllador superior doble",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_double_insulator": "Pal ibèric amb aïllador superior doble",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_diagonal_insulator": "Pal LAV diagonal amb aïllador superior",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal_insulator": "Pal ibèric diagonal amb aïllador superior",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_diagonal_double_insulator": "Pal LAV diagonal amb aïllador superior doble",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal_double_insulator": "Pal ibèric diagonal amb aïllador superior doble"
 }

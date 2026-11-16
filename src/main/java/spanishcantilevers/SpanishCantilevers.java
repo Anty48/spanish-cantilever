@@ -5,6 +5,7 @@ import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 
 import de.mrjulsen.paw.blockentity.PantographInteractionBehaviour;
 import de.mrjulsen.paw.blockentity.PantographMovementBehaviour;
+import spanishcantilevers.cable.ConectorAisladores;
 import spanishcantilevers.cable.ModCables;
 import spanishcantilevers.cable.TiranteDiagonal;
 import spanishcantilevers.client.ClientSetup;
@@ -21,6 +22,7 @@ public class SpanishCantilevers {
     public SpanishCantilevers(IEventBus bus) {
         ModPostes.init();
         ModCables.init();
+        ConectorAisladores.init();
         TiranteDiagonal.init();
         ModBlocks.BLOCKS.register(bus);
         ModBlocks.ITEMS.register(bus);

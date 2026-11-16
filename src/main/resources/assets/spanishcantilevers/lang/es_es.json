@@ -50,6 +50,7 @@
   "gui.spanishcantilevers.soporte_tunel.escala": "Tamaño general",
   "aviso.spanishcantilevers.perfil_fuera_de_tunel": "No es la forma prevista: el perfil rígido va en soportes de túnel (catenaria rígida de túnel)",
   "aviso.spanishcantilevers.cable_entre_tuneles": "No es la forma prevista: entre soportes de túnel, usa la catenaria rígida (haz de perfiles de catenaria rígida)",
+  "item.spanishcantilevers.blue_iberian_steel_ingot": "Lingote de acero ibérico azul",
   "block.spanishcantilevers.iberian_flat_lattice_mast": "Poste de celosía plana ibérico",
   "block.spanishcantilevers.waxed_iberian_flat_lattice_mast": "Poste de celosía plana ibérico encerado",
   "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal": "Poste de celosía plana diagonal ibérico",
@@ -65,5 +66,17 @@
   "block.spanishcantilevers.spanish_cantilever_bracket_at_post": "Soporte de ménsula español",
   "block.spanishcantilevers.waxed_spanish_cantilever_bracket_at_post": "Soporte de ménsula español encerado",
   "block.spanishcantilevers.spanish_cantilever_bracket_vertical": "Soporte de ménsula español",
-  "block.spanishcantilevers.waxed_spanish_cantilever_bracket_vertical": "Soporte de ménsula español encerado"
+  "block.spanishcantilevers.waxed_spanish_cantilever_bracket_vertical": "Soporte de ménsula español encerado",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast": "Poste de celosía plana ibérico azul",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_diagonal": "Poste de celosía plana diagonal ibérico azul",
+  "block.spanishcantilevers.blue_iberian_lattice_mast": "Poste de celosía ibérico azul",
+  "block.spanishcantilevers.blue_iberian_h_beam_mast": "Poste en H ibérico azul",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_insulator": "Poste LAV con aislador superior",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_insulator": "Poste ibérico con aislador superior",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_double_insulator": "Poste LAV con aislador superior doble",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_double_insulator": "Poste ibérico con aislador superior doble",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_diagonal_insulator": "Poste LAV diagonal con aislador superior",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal_insulator": "Poste ibérico diagonal con aislador superior",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_diagonal_double_insulator": "Poste LAV diagonal con aislador superior doble",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal_double_insulator": "Poste ibérico diagonal con aislador superior doble"
 }
