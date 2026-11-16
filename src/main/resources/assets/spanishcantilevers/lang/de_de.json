@@ -50,6 +50,7 @@
   "gui.spanishcantilevers.soporte_tunel.escala": "Gesamtgröße",
   "aviso.spanishcantilevers.perfil_fuera_de_tunel": "Nicht so vorgesehen: Die Deckenstromschiene gehört an Spanische Tunnelhalterungen",
   "aviso.spanishcantilevers.cable_entre_tuneles": "Nicht so vorgesehen: Zwischen Tunnelhalterungen die Deckenstromschiene (Bündel Deckenstromschienen) verwenden",
+  "item.spanishcantilevers.blue_iberian_steel_ingot": "Blauer Iberischer Stahlbarren",
   "block.spanishcantilevers.iberian_flat_lattice_mast": "Iberischer Rahmenflachmast",
   "block.spanishcantilevers.waxed_iberian_flat_lattice_mast": "Gewachster Iberischer Rahmenflachmast",
   "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal": "Iberischer Rahmenflachmast (diagonal)",
@@ -65,5 +66,17 @@
   "block.spanishcantilevers.spanish_cantilever_bracket_at_post": "Spanischer Querträger",
   "block.spanishcantilevers.waxed_spanish_cantilever_bracket_at_post": "Gewachster Spanischer Querträger",
   "block.spanishcantilevers.spanish_cantilever_bracket_vertical": "Spanischer Querträger",
-  "block.spanishcantilevers.waxed_spanish_cantilever_bracket_vertical": "Gewachster Spanischer Querträger"
+  "block.spanishcantilevers.waxed_spanish_cantilever_bracket_vertical": "Gewachster Spanischer Querträger",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast": "Blauer Iberischer Rahmenflachmast",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_diagonal": "Blauer Iberischer Rahmenflachmast (diagonal)",
+  "block.spanishcantilevers.blue_iberian_lattice_mast": "Blauer Iberischer Gittermast",
+  "block.spanishcantilevers.blue_iberian_h_beam_mast": "Blauer Iberischer Peiner Mast",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_insulator": "LAV-Mast mit Kopfisolator",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_insulator": "Iberischer Mast mit Kopfisolator",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_double_insulator": "LAV-Mast mit doppeltem Kopfisolator",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_double_insulator": "Iberischer Mast mit doppeltem Kopfisolator",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_diagonal_insulator": "LAV-Mast (diagonal) mit Kopfisolator",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal_insulator": "Iberischer Mast (diagonal) mit Kopfisolator",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_diagonal_double_insulator": "LAV-Mast (diagonal) mit doppeltem Kopfisolator",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal_double_insulator": "Iberischer Mast (diagonal) mit doppeltem Kopfisolator"
 }

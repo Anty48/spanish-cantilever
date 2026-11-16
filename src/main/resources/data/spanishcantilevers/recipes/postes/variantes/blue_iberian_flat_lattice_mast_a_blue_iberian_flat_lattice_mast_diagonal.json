@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "spanishcantilevers:blue_iberian_flat_lattice_mast"
+    }
+  ],
+  "result": {
+    "item": "spanishcantilevers:blue_iberian_flat_lattice_mast_diagonal",
+    "count": 1
+  }
+}

@@ -48,6 +48,9 @@ public final class ModBlocks {
     /** Acero espanol: hierro y tinte negro. Material de los postes y de la mensula. */
     public static final RegistryObject<Item> ACERO_IBERICO = ITEMS.register("iberian_steel_ingot", () -> new Item(new Item.Properties()));
 
+    /** Acero espanol azul (8 lingotes con un tinte azul): material de los postes azules de la alta velocidad. */
+    public static final RegistryObject<Item> ACERO_IBERICO_AZUL = ITEMS.register("blue_iberian_steel_ingot", () -> new Item(new Item.Properties()));
+
     /** La mensula a medio montar (paso intermedio del montaje secuenciado de Create, como la de PNW). */
     public static final RegistryObject<Item> MENSULA_INCOMPLETA = ITEMS.register("mensula_incompleta",
             () -> new SequencedAssemblyItem(new Item.Properties()));
@@ -97,6 +100,7 @@ public final class ModBlocks {
                     .displayItems((params, output) -> {
                         output.accept(MENSULA_ITEM.get());
                         output.accept(ACERO_IBERICO.get());
+                        output.accept(ACERO_IBERICO_AZUL.get());
                         output.accept(SOPORTE_TUNEL_ITEM.get());
                         output.accept(PERFIL_RIGIDO.get());
                         output.accept(PANTOGRAFO_ITEM.get());

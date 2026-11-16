@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "spanishcantilevers:iberian_flat_lattice_mast"
+    },
+    {
+      "item": "spanishcantilevers:iberian_steel_ingot"
+    },
+    {
+      "tag": "pantographsandwires:insulators"
+    }
+  ],
+  "result": {
+    "item": "spanishcantilevers:iberian_flat_lattice_mast_insulator",
+    "count": 1
+  }
+}

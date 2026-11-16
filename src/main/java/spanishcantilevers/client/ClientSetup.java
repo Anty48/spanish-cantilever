@@ -29,8 +29,13 @@ public final class ClientSetup {
      * se registra en DragonLib al construir el mod, como hace PNW.
      */
     public static void registrarModelos() {
-        for (RegistryObject<? extends Block> poste : ModPostes.POSTES.values()) {
-            DLBlockModelRegistry.registerForBlock(() -> poste.get(), BasicRotatableBlockModel::new, BasicRotatableBlockModel::new);
+        for (Map.Entry<String, RegistryObject<? extends Block>> poste : ModPostes.POSTES.entrySet()) {
+            // los remates con aisladores, con su cristal translucido
+            if (ModPostes.REMATES.containsKey(poste.getKey())) {
+                DLBlockModelRegistry.registerForBlock(() -> poste.getValue().get(), ModeloRemate::new, ModeloRemate::new);
+            } else {
+                DLBlockModelRegistry.registerForBlock(() -> poste.getValue().get(), BasicRotatableBlockModel::new, BasicRotatableBlockModel::new);
+            }
         }
     }
 

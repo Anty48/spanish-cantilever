@@ -50,6 +50,7 @@
   "gui.spanishcantilevers.soporte_tunel.escala": "Overall size",
   "aviso.spanishcantilevers.perfil_fuera_de_tunel": "Not the intended way: the rigid profile is meant for Spanish Tunnel Supports (rigid tunnel catenary)",
   "aviso.spanishcantilevers.cable_entre_tuneles": "Not the intended way: between tunnel supports, use the rigid tunnel catenary (Rigid Catenary Profile Bundle)",
+  "item.spanishcantilevers.blue_iberian_steel_ingot": "Blue Iberian Steel Ingot",
   "block.spanishcantilevers.iberian_flat_lattice_mast": "Iberian Flat Lattice Mast",
   "block.spanishcantilevers.waxed_iberian_flat_lattice_mast": "Waxed Iberian Flat Lattice Mast",
   "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal": "Iberian Flat Diagonal Lattice Mast",
@@ -65,5 +66,17 @@
   "block.spanishcantilevers.spanish_cantilever_bracket_at_post": "Spanish Cantilever Bracket",
   "block.spanishcantilevers.waxed_spanish_cantilever_bracket_at_post": "Waxed Spanish Cantilever Bracket",
   "block.spanishcantilevers.spanish_cantilever_bracket_vertical": "Spanish Cantilever Bracket",
-  "block.spanishcantilevers.waxed_spanish_cantilever_bracket_vertical": "Waxed Spanish Cantilever Bracket"
+  "block.spanishcantilevers.waxed_spanish_cantilever_bracket_vertical": "Waxed Spanish Cantilever Bracket",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast": "Blue Iberian Flat Lattice Mast",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_diagonal": "Blue Iberian Flat Diagonal Lattice Mast",
+  "block.spanishcantilevers.blue_iberian_lattice_mast": "Blue Iberian Lattice Mast",
+  "block.spanishcantilevers.blue_iberian_h_beam_mast": "Blue Iberian H-Beam Mast",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_insulator": "LAV Mast Top Insulator",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_insulator": "Iberian Mast Top Insulator",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_double_insulator": "LAV Mast Top Double Insulator",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_double_insulator": "Iberian Mast Top Double Insulator",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_diagonal_insulator": "LAV Diagonal Mast Top Insulator",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal_insulator": "Iberian Diagonal Mast Top Insulator",
+  "block.spanishcantilevers.blue_iberian_flat_lattice_mast_diagonal_double_insulator": "LAV Diagonal Mast Top Double Insulator",
+  "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal_double_insulator": "Iberian Diagonal Mast Top Double Insulator"
 }

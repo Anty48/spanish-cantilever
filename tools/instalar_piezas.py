@@ -56,7 +56,8 @@ PIEZAS = {
 def fix_texture(ref):
     if ref.startswith('#') or ':' in ref:
         return ref
-    return f'{MOD}:block/{os.path.basename(ref).replace("spanish_", "spanish_")}'
+    # Minecraft no admite mayusculas en las rutas (p. ej. blue_LAV_spanish_metal)
+    return f'{MOD}:block/{os.path.basename(ref).lower()}'
 
 
 def desde_bbmodel(bb):
@@ -148,7 +149,7 @@ def main():
     os.makedirs(OUT_TEXTURES, exist_ok=True)
     for f in os.listdir(SRC_TEXTURES):
         if f.endswith('.png'):
-            shutil.copy(os.path.join(SRC_TEXTURES, f), os.path.join(OUT_TEXTURES, f.replace('spanish_', 'spanish_')))
+            shutil.copy(os.path.join(SRC_TEXTURES, f), os.path.join(OUT_TEXTURES, f.lower()))
             print('textura', f)
 
     java = []

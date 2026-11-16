@@ -1,0 +1,21 @@
+{
+  "type": "create:compacting",
+  "heatRequirement": "heated",
+  "ingredients": [
+    {
+      "item": "pantographsandwires:iron_strip"
+    },
+    {
+      "item": "pantographsandwires:iron_strip"
+    },
+    {
+      "item": "spanishcantilevers:blue_iberian_steel_ingot"
+    }
+  ],
+  "results": [
+    {
+      "item": "spanishcantilevers:blue_iberian_h_beam_mast",
+      "count": 2
+    }
+  ]
+}
