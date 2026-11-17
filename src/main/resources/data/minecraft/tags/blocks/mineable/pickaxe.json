@@ -23,13 +23,23 @@
     "spanishcantilevers:blue_iberian_flat_lattice_mast_diagonal",
     "spanishcantilevers:blue_iberian_lattice_mast",
     "spanishcantilevers:blue_iberian_h_beam_mast",
+    "spanishcantilevers:green_iberian_flat_lattice_mast",
+    "spanishcantilevers:green_iberian_flat_lattice_mast_diagonal",
+    "spanishcantilevers:green_iberian_lattice_mast",
+    "spanishcantilevers:green_iberian_h_beam_mast",
     "spanishcantilevers:blue_iberian_flat_lattice_mast_insulator",
+    "spanishcantilevers:green_iberian_flat_lattice_mast_insulator",
     "spanishcantilevers:iberian_flat_lattice_mast_insulator",
     "spanishcantilevers:blue_iberian_flat_lattice_mast_double_insulator",
+    "spanishcantilevers:green_iberian_flat_lattice_mast_double_insulator",
     "spanishcantilevers:iberian_flat_lattice_mast_double_insulator",
     "spanishcantilevers:blue_iberian_flat_lattice_mast_diagonal_insulator",
+    "spanishcantilevers:green_iberian_flat_lattice_mast_diagonal_insulator",
     "spanishcantilevers:iberian_flat_lattice_mast_diagonal_insulator",
     "spanishcantilevers:blue_iberian_flat_lattice_mast_diagonal_double_insulator",
-    "spanishcantilevers:iberian_flat_lattice_mast_diagonal_double_insulator"
+    "spanishcantilevers:green_iberian_flat_lattice_mast_diagonal_double_insulator",
+    "spanishcantilevers:iberian_flat_lattice_mast_diagonal_double_insulator",
+    "spanishcantilevers:iberian_concrete_column_mast",
+    "spanishcantilevers:iberian_concrete_column_mast_insulator"
   ]
 }

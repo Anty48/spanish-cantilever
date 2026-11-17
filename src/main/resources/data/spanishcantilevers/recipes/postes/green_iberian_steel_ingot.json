@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AAA",
+    "ABA",
+    "AAA"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "minecraft:green_dye"
+    }
+  },
+  "result": {
+    "item": "spanishcantilevers:green_iberian_steel_ingot",
+    "count": 8
+  }
+}

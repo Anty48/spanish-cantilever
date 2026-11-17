@@ -1,0 +1,148 @@
+{
+  "variants": {
+    "facing=north,part=bottom,rotation=0": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=north,part=bottom,rotation=1": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=north,part=bottom,rotation=2": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=north,part=bottom,rotation=3": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=north,part=in_between,rotation=0": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=north,part=in_between,rotation=1": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=north,part=in_between,rotation=2": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=north,part=in_between,rotation=3": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=north,part=top,rotation=0": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=north,part=top,rotation=1": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=north,part=top,rotation=2": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=north,part=top,rotation=3": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=east,part=bottom,rotation=0": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=east,part=bottom,rotation=1": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=east,part=bottom,rotation=2": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=east,part=bottom,rotation=3": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=east,part=in_between,rotation=0": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=east,part=in_between,rotation=1": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=east,part=in_between,rotation=2": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=east,part=in_between,rotation=3": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=east,part=top,rotation=0": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=east,part=top,rotation=1": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=east,part=top,rotation=2": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=east,part=top,rotation=3": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=south,part=bottom,rotation=0": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=south,part=bottom,rotation=1": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=south,part=bottom,rotation=2": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=south,part=bottom,rotation=3": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=south,part=in_between,rotation=0": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=south,part=in_between,rotation=1": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=south,part=in_between,rotation=2": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=south,part=in_between,rotation=3": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=south,part=top,rotation=0": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=south,part=top,rotation=1": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=south,part=top,rotation=2": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=south,part=top,rotation=3": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=west,part=bottom,rotation=0": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=west,part=bottom,rotation=1": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=west,part=bottom,rotation=2": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=west,part=bottom,rotation=3": {
+      "model": "spanishcantilevers:block/columna/base"
+    },
+    "facing=west,part=in_between,rotation=0": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=west,part=in_between,rotation=1": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=west,part=in_between,rotation=2": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=west,part=in_between,rotation=3": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=west,part=top,rotation=0": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=west,part=top,rotation=1": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=west,part=top,rotation=2": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    },
+    "facing=west,part=top,rotation=3": {
+      "model": "spanishcantilevers:block/columna/fuste"
+    }
+  }
+}

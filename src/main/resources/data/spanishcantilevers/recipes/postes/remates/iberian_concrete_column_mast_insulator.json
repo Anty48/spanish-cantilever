@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "spanishcantilevers:iberian_concrete_column_mast"
+    },
+    {
+      "item": "spanishcantilevers:iberian_steel_ingot"
+    },
+    {
+      "tag": "pantographsandwires:insulators"
+    },
+    {
+      "tag": "pantographsandwires:insulators"
+    }
+  ],
+  "result": {
+    "item": "spanishcantilevers:iberian_concrete_column_mast_insulator",
+    "count": 1
+  }
+}

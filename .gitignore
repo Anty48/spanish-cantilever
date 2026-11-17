@@ -32,3 +32,6 @@ docs/**/*.toc
 docs/**/*.fls
 docs/**/*.fdb_latexmk
 LAV_reference_top.jpg
+
+# fotos de terceros sacadas del foro de sugerencias de Discord (solo para consulta)
+sugerencias-discord/

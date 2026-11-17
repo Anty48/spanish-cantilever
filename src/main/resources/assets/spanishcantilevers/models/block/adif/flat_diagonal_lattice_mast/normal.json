@@ -1,0 +1,7 @@
+{
+  "parent": "pantographsandwires:block/flat_diagonal_lattice_mast/base",
+  "textures": {
+    "base": "spanishcantilevers:block/adif_lav_metal",
+    "particle": "spanishcantilevers:block/adif_lav_metal"
+  }
+}
