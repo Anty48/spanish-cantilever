@@ -4,9 +4,12 @@
     "spanishcantilevers:iberian_flat_lattice_mast_diagonal",
     "spanishcantilevers:waxed_iberian_flat_lattice_mast_diagonal",
     "spanishcantilevers:blue_iberian_flat_lattice_mast_diagonal",
+    "spanishcantilevers:green_iberian_flat_lattice_mast_diagonal",
     "spanishcantilevers:blue_iberian_flat_lattice_mast_diagonal_insulator",
+    "spanishcantilevers:green_iberian_flat_lattice_mast_diagonal_insulator",
     "spanishcantilevers:iberian_flat_lattice_mast_diagonal_insulator",
     "spanishcantilevers:blue_iberian_flat_lattice_mast_diagonal_double_insulator",
+    "spanishcantilevers:green_iberian_flat_lattice_mast_diagonal_double_insulator",
     "spanishcantilevers:iberian_flat_lattice_mast_diagonal_double_insulator"
   ]
 }

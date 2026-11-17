@@ -36,7 +36,7 @@ import spanishcantilevers.ModPostes;
 import spanishcantilevers.cable.ConectorAisladores;
 
 /**
- * Remate con aisladores (azul de la alta velocidad o gris espanol): el poste plano (o plano diagonal) de
+ * Remate con aisladores (azul GIF o verde ADIF de la alta velocidad, o gris espanol): el poste plano (o plano diagonal) de
  * PNW con una barra arriba, a lo largo del plano del poste, de la que cuelgan uno o dos aisladores. Se pone
  * y se gira como los postes planos (16 direcciones; encima de un poste sigue su linea, con el aislador
  * hacia donde mira el jugador). Los aisladores son conectores de los cables de corriente de PNW (bobina en
@@ -87,7 +87,7 @@ public class RemateAisladoresBlock extends FlatLatticeMastBlock implements IBE<W
     }
 
     /** Una caja (px, modelo mirando al norte) girada como el modelo de esa cara (el "y" del blockstate). */
-    private static VoxelShape caja(Direction cara, float x1, float y1, float z1, float x2, float y2, float z2) {
+    static VoxelShape caja(Direction cara, float x1, float y1, float z1, float x2, float y2, float z2) {
         float[] a = girarPx(cara, x1, z1);
         float[] b = girarPx(cara, x2, z2);
         return Block.box(Math.min(a[0], b[0]), y1, Math.min(a[1], b[1]), Math.max(a[0], b[0]), y2, Math.max(a[1], b[1]));

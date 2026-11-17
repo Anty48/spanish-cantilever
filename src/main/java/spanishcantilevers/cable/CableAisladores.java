@@ -2,6 +2,7 @@ package spanishcantilevers.cable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import org.joml.Vector3d;
 
@@ -33,6 +34,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import spanishcantilevers.SpanishCantilevers;
+import spanishcantilevers.block.ColumnaAisladorBlock;
 import spanishcantilevers.block.RemateAisladoresBlock;
 
 /**
@@ -44,6 +46,9 @@ import spanishcantilevers.block.RemateAisladoresBlock;
  * <p>La bobina de PNW tenderia su propio cable (un solo hilo), asi que si se clica un remate doble, o se
  * viene de uno, el clic se intercepta y se hace con {@link #ACTOR}: la bobina de PNW en modo corriente,
  * pero con este cable.
+ *
+ * <p>Tambien se intercepta el clic en una columna con aislador ({@link ColumnaAisladorBlock}), para guardar
+ * en el punto de la bobina el lado clicado (cada cable va a una punta de su varilla).
  */
 @EventBusSubscriber(modid = SpanishCantilevers.MOD_ID)
 public class CableAisladores extends PowerWireType {
@@ -113,13 +118,17 @@ public class CableAisladores extends PowerWireType {
             return;
         }
         Level level = event.getLevel();
-        if (!esDoble(level, event.getPos()) && !vieneDeDoble(level, stack)) {
+        boolean doble = esDoble(level, event.getPos()) || vieneDeDoble(level, stack);
+        BiConsumer<CompoundTag, CompoundTag> lado = ColumnaAisladorBlock.datosClic(level, event.getPos(), event.getHitVec().getLocation());
+        if (!doble && lado == null) {
             return;
         }
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide));
         if (!level.isClientSide) {
-            ACTOR.placeWire(level, event.getEntity(), event.getHand(), event.getHitVec(), null);
+            // con un remate doble, este cable; si no, el de corriente de PNW tal cual (con el lado de la columna)
+            FeederWireItem actor = doble ? ACTOR : (FeederWireItem) bobina.getSubType(stack);
+            actor.placeWire(level, event.getEntity(), event.getHand(), event.getHitVec(), lado);
         }
     }
 

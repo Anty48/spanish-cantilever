@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ABA",
+    "ACA",
+    "ABA"
+  ],
+  "key": {
+    "A": {
+      "item": "pantographsandwires:iron_strip"
+    },
+    "B": {
+      "tag": "forge:rods/iron"
+    },
+    "C": {
+      "item": "spanishcantilevers:green_iberian_steel_ingot"
+    }
+  },
+  "result": {
+    "count": 6,
+    "id": "spanishcantilevers:green_iberian_lattice_mast"
+  }
+}
