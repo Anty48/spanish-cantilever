@@ -46,9 +46,11 @@ public class CatenariaRigida extends AbstractWireType {
      * perfil se dibuja centrado en las pinzas, asi que con la colision en el eje el pantografo se metia
      * media seccion dentro. Con la colision en el fondo del perfil aun se hundia (el cabezal de PNW sube
      * algo mas que la colision; con su hilo de 1 px no se nota), asi que baja 1/4 de px mas (ajustado
-     * mirandolo en el juego: con 3/4 ya no llegaba a tocar).
+     * mirandolo en el juego: con 3/4 ya no llegaba a tocar). En NeoForge 1.21 el pantografo de PNW se queda
+     * medio pixel por debajo de la colision (en Forge no), asi que aqui la colision va 1/4 de px por encima del
+     * fondo del perfil (en Forge, 1/4 por debajo). Mas bajada = el pantografo se para mas abajo.
      */
-    private static final float BAJADA_COLISION = (PiezasDatos.PERFIL_RIGIDO.MAX[1] - PiezasDatos.PERFIL_RIGIDO.MIN[1]) / 2f + 0.25f;
+    private static final float BAJADA_COLISION = (PiezasDatos.PERFIL_RIGIDO.MAX[1] - PiezasDatos.PERFIL_RIGIDO.MIN[1]) / 2f - 0.25f;
 
     public CatenariaRigida(net.minecraft.resources.ResourceLocation id) {
         super(id);
