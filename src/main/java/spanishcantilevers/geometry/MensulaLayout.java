@@ -8,6 +8,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import spanishcantilevers.block.FormaColgante;
 import spanishcantilevers.block.ModoZigzag;
 import spanishcantilevers.block.TipoAislador;
 
@@ -165,8 +166,27 @@ public final class MensulaLayout {
     /**
      * @param tiranteDiagonal donde se engancha el tirante diagonal (el cable de soporte de PNW que va de la
      *                        barra horizontal a un poste mas arriba; solo con anchura >= ANCHURA_TIRANTE_DIAGONAL)
+     * @param placas          alturas (px) de las placas atornilladas al poste
      */
-    public record Resultado(List<Colocacion> piezas, Vector3f contacto, Vector3f sustentador, Vector3f tiranteDiagonal) {
+    public record Resultado(List<Colocacion> piezas, Vector3f contacto, Vector3f sustentador, Vector3f tiranteDiagonal,
+                            List<Float> placas) {
+        /** Todo movido {@code dz} px a lo largo de la via. */
+        Resultado enZ(float dz) {
+            return new Resultado(piezas.stream().map(c -> c.desplazada(0f, 0f, dz)).toList(),
+                    new Vector3f(contacto).add(0, 0, dz), new Vector3f(sustentador).add(0, 0, dz),
+                    new Vector3f(tiranteDiagonal).add(0, 0, dz), placas);
+        }
+    }
+
+    /**
+     * Mensula doble (ver {@link MensulaDoble}): cada una con sus puntos de enganche y todas las piezas juntas
+     * (las placas, una por altura, abarcan las dos).
+     */
+    public record Doble(Resultado primera, Resultado segunda, List<Colocacion> piezas) {
+        /** 0 = la que ya estaba, 1 = la que se anadio. */
+        public Resultado de(int cual) {
+            return cual == 1 ? segunda : primera;
+        }
     }
 
     /**
@@ -188,12 +208,48 @@ public final class MensulaLayout {
      * @param hueco distancia en px entre la cara del bloque y la cara del poste (postes finos dejan hueco)
      */
     public static Resultado calcular(Ajustes ajustes, float hueco) {
+        return calcular(ajustes, hueco, 0f, false);
+    }
+
+    /**
+     * Las dos mensulas de una doble, cada una a {@link MensulaDoble#SEPARACION} px del centro: la primera
+     * (la que ya estaba) hacia -{@code lado} y la segunda hacia +{@code lado} (a lo largo de la via). Las
+     * placas se dibujan una vez por altura y abarcan las dos.
+     */
+    public static Doble calcularDoble(Ajustes primera, Ajustes segunda, int lado, float hueco) {
+        Resultado a = calcular(primera, hueco, MensulaDoble.extra(primera), true).enZ(-lado * MensulaDoble.SEPARACION);
+        Resultado b = calcular(segunda, hueco, MensulaDoble.extra(segunda), true).enZ(lado * MensulaDoble.SEPARACION);
+        List<Colocacion> piezas = new ArrayList<>(a.piezas());
+        piezas.addAll(b.piezas());
+        List<Float> alturas = new ArrayList<>();
+        for (List<Float> placas : List.of(a.placas(), b.placas())) {
+            for (float y : placas) {
+                if (alturas.stream().noneMatch(h -> Math.abs(h - y) < 0.01f)) {
+                    alturas.add(y);
+                }
+            }
+        }
+        float ancho = 2f * MensulaDoble.SEPARACION + (PiezasDatos.TIRANTE.MAX[2] - PiezasDatos.TIRANTE.MIN[2]);
+        for (float y : alturas) {
+            placa(piezas, -hueco, y, ancho);
+        }
+        return new Doble(a, b, piezas);
+    }
+
+    /**
+     * @param extraContacto lo que se aleja de mas el hilo (px; en una doble, ver {@link MensulaDoble#extra})
+     * @param doble         si es una de una doble: las placas las pone {@link #calcularDoble}, el aislador de la
+     *                      del medio o la exterior se aparta hacia fuera y la interior lleva la diagonal corta de
+     *                      las otras con el sujetador colgado abajo en ella
+     */
+    private static Resultado calcular(Ajustes ajustes, float hueco, float extraContacto, boolean doble) {
         List<Colocacion> out = new ArrayList<>();
+        List<Float> placas = new ArrayList<>();
         float r = 16f * ajustes.anchura();
         float mastil = -hueco;
         ModoZigzag modo = ajustes.modo();
         // el hilo de contacto, mas o menos bajo el aislador de arriba (solo lo mueve el zigzag)
-        Vector2f contacto = new Vector2f(r + modo.offsetPx(), -16f * ajustes.alturaCatenaria());
+        Vector2f contacto = new Vector2f(r + modo.offsetPx() + extraContacto, -16f * ajustes.alturaCatenaria());
         float inicioTubo = mastil + GROSOR_PLACA;
 
         // --- tubo principal: diagonal desde el poste hasta el codo, luego horizontal ---
@@ -201,7 +257,7 @@ public final class MensulaLayout {
         Vector2f codo;
         // interior con alcance corto: el triangulo de la foto; con alcance largo, puntal en L
         PlanInterior plan = null;
-        if (modo == ModoZigzag.INTERIOR && ajustes.anchura() < ANCHURA_INTERIOR_PUNTAL) {
+        if (!doble && modo == ModoZigzag.INTERIOR && ajustes.anchura() < ANCHURA_INTERIOR_PUNTAL) {
             // con anchura 2..3 la altura dice cuanto baja la diagonal; con la minima, la de la foto
             if (ajustes.anchura() >= ANCHURA_INTERIOR_ALTURA) {
                 // si con esa altura el sujetador no llega bien, la diagonal baja un poco mas hasta que llegue
@@ -233,12 +289,18 @@ public final class MensulaLayout {
         float[] ingleteCodo = inglete(dirDiagonal, HORIZONTAL);
         // arranca cortada en vertical contra la placa del poste y a inglete en el codo
         barra(out, ancla, codo, tan, ingleteCodo[0]);
-        placa(out, mastil, ancla.y);
+        placas.add(ancla.y);
 
-        Vector3f sustentador = aislador(out, ajustes.tipo(), r);
+        // en una doble los aisladores no quedan alineados: el de la del medio o la exterior, un poco mas fuera
+        float xAislador = doble && modo != ModoZigzag.INTERIOR ? r + MensulaDoble.DESALINEAR_AISLADOR : r;
+        Vector3f sustentador = aislador(out, ajustes.tipo(), xAislador);
 
         Vector2f cable = switch (modo) {
             case INTERIOR -> {
+                if (doble) {
+                    barra(out, codo, new Vector2f(r + FIN_INTERIOR_PUNTAL, BARRA_Y), ingleteCodo[1], 0f);
+                    yield brazoInteriorDoble(out, contacto, ancla, codo);
+                }
                 if (plan != null) {
                     barra(out, codo, new Vector2f(r + FIN_INTERIOR, BARRA_Y), ingleteCodo[1], 0f);
                     yield brazo(out, plan.sujetador(), nuevo(plan.sujetador()), plan.gancho(), plan.objetivo(), false, plan.alargar());
@@ -246,14 +308,19 @@ public final class MensulaLayout {
                 barra(out, codo, new Vector2f(r + FIN_INTERIOR_PUNTAL, BARRA_Y), ingleteCodo[1], 0f);
                 yield brazoPuntal(out, contacto);
             }
-            case MEDIO -> brazoMedio(out, contacto, codo, ingleteCodo[1], r);
-            case EXTERIOR -> brazoExterior(out, contacto, codo, ingleteCodo[1], r);
+            case MEDIO -> brazoMedio(out, contacto, codo, ingleteCodo[1], r, xAislador);
+            case EXTERIOR -> brazoExterior(out, contacto, codo, ingleteCodo[1], xAislador);
         };
 
         if (ajustes.tirante()) {
             // siempre horizontal, a la altura del eje de la barra: del poste al codo, donde acaba dentro del tubo
-            placa(out, mastil, BARRA_Y);
+            placas.add(BARRA_Y);
             varilla(out, new Vector2f(inicioTubo, BARRA_Y), codo);
+        }
+        if (!doble) {
+            for (float y : placas) {
+                placa(out, mastil, y, 0f);
+            }
         }
 
         // tirante diagonal: metido en la horizontal, entre el codo y el aislador del sustentador
@@ -263,7 +330,89 @@ public final class MensulaLayout {
         float dy = -16f * ajustes.desplazamientoY();
         List<Colocacion> piezas = dy == 0f ? out : out.stream().map(c -> c.desplazada(dy)).toList();
         return new Resultado(piezas, new Vector3f(cable.x, cable.y + dy, Z), sustentador.add(0, dy, 0),
-                new Vector3f(xTirante, BARRA_Y + dy, Z));
+                new Vector3f(xTirante, BARRA_Y + dy, Z), placas.stream().map(y -> y + dy).toList());
+    }
+
+    // ------------------------------------------------------------------ mensula colgante
+
+    /** Mensula colgante: el hilo (y el aislador) quedan en el centro del bloque. */
+    public static final float CENTRO_COLGANTE = 8f;
+    /** Mensula colgante curvada: lo que mide (en X y en Y) el tramo a 45 grados bajo la viga. */
+    public static final float CODO_COLGANTE = 4f;
+
+    /**
+     * Mensula colgante (la del puntal de la interior ancha, colgada de una viga). Sistema como el de la
+     * mensula, pero con X hacia el hilo: el hilo y el aislador en X = {@link #CENTRO_COLGANTE} y el tubo
+     * colgado de la viga {@code anchura} bloques antes. El tubo baja inclinado hacia fuera (su punta de
+     * arriba queda mas cerca del hilo) o, curvado, a 45 grados y luego vertical; de su pie sale el
+     * sujetador horizontal hasta el hilo, alargado lo que haga falta.
+     *
+     * @param vigaAbajo  altura (px) de la cara de abajo de la viga, desde la base del bloque
+     * @param vigaArriba altura de su cara de arriba (donde va el aislador si va encima)
+     */
+    public static Resultado calcularColgante(AjustesColgante ajustes, float vigaAbajo, float vigaArriba) {
+        List<Colocacion> out = new ArrayList<>();
+        Vector2f contacto = new Vector2f(CENTRO_COLGANTE, vigaAbajo - 16f * ajustes.alturaCatenaria());
+        float cuelga = CENTRO_COLGANTE - 16f * ajustes.anchura();
+        // sujetador horizontal: su gancho a la altura justa para que el cable caiga en el hilo (los dos
+        // sujetadores rectos tienen el gancho y el cable a la misma altura)
+        Sujetador corto = SUJETADOR_NUEVO_CORTO;
+        float ganchoY = contacto.y - (corto.cable()[1] - corto.gancho()[1]);
+        Vector2f pie = new Vector2f(0f, ganchoY + GANCHO_BAJO_TOPE - HUNDIMIENTO_GANCHO);
+        float alto = vigaAbajo - pie.y;
+        boolean curvada = ajustes.forma() == FormaColgante.CURVADA;
+        float codo45 = Math.min(CODO_COLGANTE, alto / 2f);
+        pie.x = curvada ? cuelga - codo45 : cuelga - alto * (float) Math.tan(Math.toRadians(ANGULO_PUNTAL));
+        Vector2f gancho = new Vector2f(pie.x, ganchoY);
+        float distancia = gancho.distance(contacto);
+        Sujetador s = distancia >= SUJETADOR_NUEVO.largo() ? SUJETADOR_NUEVO : corto;
+        Vector2f cable = brazo(out, s, gancho, contacto, false, s.alargar(distancia));
+
+        Vector2f cabeza = new Vector2f(cuelga, vigaAbajo);
+        if (curvada) {
+            Vector2f codo = new Vector2f(pie.x, vigaAbajo - codo45);
+            Vector2f d = new Vector2f(cabeza).sub(codo).normalize();
+            float[] ingleteCodo = inglete(new Vector2f(0, 1), d);
+            // el pie cortado en horizontal; la punta, en horizontal contra la viga
+            barra(out, pie, codo, 0f, ingleteCodo[0]);
+            barra(out, codo, cabeza, ingleteCodo[1], -d.x / d.y);
+        } else {
+            Vector2f d = new Vector2f(cabeza).sub(pie).normalize();
+            float corte = -d.x / d.y;
+            barra(out, pie, cabeza, corte, corte);
+        }
+
+        float x = CENTRO_COLGANTE;
+        Vector3f sustentador = switch (ajustes.aislador()) {
+            case ENCIMA -> aislador(out, TipoAislador.TIPO1, x, vigaArriba, vigaAbajo);
+            case COLGADO -> aislador(out, TipoAislador.TIPO2, x, vigaArriba, vigaAbajo);
+            case VERTICAL_ENCIMA -> aislador(out, TipoAislador.TIPO3, x, vigaArriba, vigaAbajo);
+            case VERTICAL_COLGADO -> {
+                // el vertical del reves (girado 180 grados sobre X), colgando de la cara de abajo
+                float[] c = PiezasDatos.AISLADOR_VERTICAL.CABLE_JOINT;
+                float base = PiezasDatos.AISLADOR_VERTICAL.MIN[1];
+                out.add(new Colocacion(PiezasDatos.AISLADOR_VERTICAL.ID, null,
+                        new Matrix4f().translate(x, vigaAbajo, Z).rotateX((float) Math.PI).translate(-c[0], -base, -c[2])));
+                yield new Vector3f(x, vigaAbajo - (c[1] - base), Z);
+            }
+        };
+        Vector3f hilo = new Vector3f(cable.x, cable.y, Z);
+        return new Resultado(out, hilo, sustentador, hilo, List.of());
+    }
+
+    /**
+     * Una viga de referencia para la vista previa de la ventana (no es parte del bloque): de x0 a x1, con su
+     * cara de abajo y de arriba a esas alturas.
+     */
+    public static List<Colocacion> vigaReferencia(float x0, float x1, float abajo, float arriba) {
+        List<Colocacion> tubo = new ArrayList<>();
+        float y = (abajo + arriba) / 2f;
+        barra(tubo, new Vector2f(x0, y), new Vector2f(x1, y), 0f, 0f);
+        // el tubo mide 2 px: se engorda alrededor de su eje hasta el grosor de la viga
+        float s = (arriba - abajo) / (2f * MEDIA_BARRA);
+        Matrix4f engordar = new Matrix4f().translate(0, y, Z).scale(1f, s, s).translate(0, -y, -Z);
+        return tubo.stream().map(c -> new Colocacion(c.pieza(), c.elementos(), new Matrix4f(engordar).mul(c.matriz()),
+                null, c.variacion())).toList();
     }
 
     // ------------------------------------------------------------------ brazos de atirantado
@@ -394,6 +543,35 @@ public final class MensulaLayout {
         return tocar(g, giroBrazo(g, contacto, sujetador, false, 0f), bajo, cara);
     }
 
+    /** Interior de una doble: el sujetador baja estos grados desde la diagonal hasta el hilo. */
+    public static final float INCLINACION_SUJETADOR_DOBLE = 25f;
+
+    /**
+     * Interior de una doble: con la diagonal corta de la del medio y la exterior, el sujetador recto cuelga del
+     * punto de ella desde el que baja {@link #INCLINACION_SUJETADOR_DOBLE} hasta el hilo (que en una doble queda
+     * bajo su aislador, ver {@link MensulaDoble#extra}), alargado lo que haga falta. Si asi quedara mas corto
+     * que la pieza, el gancho baja por la diagonal hasta que quepa.
+     */
+    private static Vector2f brazoInteriorDoble(List<Colocacion> out, Vector2f contacto, Vector2f ancla, Vector2f codo) {
+        Vector2f u = new Vector2f(codo).sub(ancla).normalize();
+        Vector2f bajo = new Vector2f(u.y, -u.x);
+        float largoDiagonal = codo.distance(ancla);
+        float caida = caidaGancho(u.y / u.x) - HUNDIMIENTO_GANCHO;
+        Sujetador corto = SUJETADOR_NUEVO_CORTO;
+        float tan = (float) Math.tan(Math.toRadians(INCLINACION_SUJETADOR_DOBLE));
+        // "lado" = distancia del gancho al codo por la diagonal: de cerca del codo hacia el ancla
+        float lado = resolver(2f, largoDiagonal - 2f, d -> {
+            Vector2f g = ganchoTriangulo(ancla.x, u, bajo, largoDiagonal, d, caida, contacto, corto);
+            return (g.y - contacto.y) - tan * (contacto.x - g.x);
+        });
+        lado = resolver(lado, largoDiagonal - 2f, d -> ganchoTriangulo(ancla.x, u, bajo, largoDiagonal, d, caida, contacto, corto)
+                .distance(contacto) >= corto.largo() ? 1f : -1f);
+        Vector2f gancho = ganchoTriangulo(ancla.x, u, bajo, largoDiagonal, lado, caida, contacto, corto);
+        Sujetador s = gancho.distance(contacto) >= SUJETADOR_NUEVO.largo() ? SUJETADOR_NUEVO : SUJETADOR_NUEVO_CORTO;
+        gancho = ganchoTriangulo(ancla.x, u, bajo, largoDiagonal, lado, caida, contacto, s);
+        return brazo(out, s, gancho, contacto, false, s.alargar(gancho.distance(contacto)));
+    }
+
     /**
      * Interior con alcance largo: puntal en L. Sale de la cara de abajo de la horizontal y baja
      * inclinado ANGULO_PUNTAL hacia el poste; en su punta, el sujetador corto horizontal hacia la via.
@@ -421,7 +599,7 @@ public final class MensulaLayout {
      * hilo queda alto, el tubo a 45 grados se acorta (sube el gancho) y, si aun no basta, el sujetador baja
      * menos inclinado.
      */
-    private static Vector2f brazoMedio(List<Colocacion> out, Vector2f contacto, Vector2f codo, float tanCodo, float r) {
+    private static Vector2f brazoMedio(List<Colocacion> out, Vector2f contacto, Vector2f codo, float tanCodo, float r, float xAislador) {
         Sujetador corto = SUJETADOR_NUEVO_CORTO;
         float senoMax = (float) Math.sin(Math.toRadians(r <= 16f * Ajustes.ANCHURA.min()
                 ? INCLINACION_SUJETADOR_MEDIO_ESTRECHA : INCLINACION_SUJETADOR_MEDIO));
@@ -444,7 +622,7 @@ public final class MensulaLayout {
         float largo = Math.max(corto.largo(), alto / Math.max(seno, 0.05f));
         float dx = (float) Math.sqrt(Math.max(0f, largo * largo - alto * alto));
         // la horizontal acaba donde haga falta para que el gancho quede ahi, nunca antes del aislador
-        float fin = Math.max(r + FIN_MIN, contacto.x + dx - avance);
+        float fin = Math.max(xAislador + FIN_MIN, contacto.x + dx - avance);
         // el gancho cuelga del eje de la perforada a su cara de abajo (la que mira al hilo), metido
         // HUNDIMIENTO_GANCHO; si asi el sujetador corto ya no llega a su largo, la horizontal sigue un poco
         Vector2f bajo = new Vector2f(-SEN45, -SEN45);
@@ -481,7 +659,7 @@ public final class MensulaLayout {
      * brazo en arco alargado, girado hacia el poste, va metido en el lado de la vertical, cerca de su final, y
      * baja un poco hacia el hilo. El tubo a 45 grados se alarga para que sobre la menor vertical posible.
      */
-    private static Vector2f brazoExterior(List<Colocacion> out, Vector2f contacto, Vector2f codo, float tanCodo, float r) {
+    private static Vector2f brazoExterior(List<Colocacion> out, Vector2f contacto, Vector2f codo, float tanCodo, float xAislador) {
         float largo = SUJETADOR_CORTO.largo(ALARGAR_EXTERIOR);
         double inc = Math.toRadians(INCLINACION_BRAZO_EXTERIOR);
         Vector2f gancho = new Vector2f(contacto.x + largo * (float) Math.cos(inc), contacto.y + largo * (float) Math.sin(inc));
@@ -495,8 +673,8 @@ public final class MensulaLayout {
                 (BARRA_Y - (gancho.y - AGUJERO_DESDE_FINAL + LARGO_PERFORADA)) / SEN45 - LARGO_PERFORADA);
         float avance = (bajada + LARGO_PERFORADA) * SEN45;
         float fin = vertX - avance;
-        if (fin < r + FIN_MIN) {
-            fin = r + FIN_MIN;
+        if (fin < xAislador + FIN_MIN) {
+            fin = xAislador + FIN_MIN;
             gancho.x += fin + avance - vertX;
             float dx = gancho.x - contacto.x;
             gancho.y = contacto.y + (float) Math.sqrt(Math.max(0f, largo * largo - dx * dx));
@@ -611,17 +789,18 @@ public final class MensulaLayout {
      * cara: la chapa se repite en trozos de su tamano (la textura no se estira), el saliente se queda en
      * medio y los tornillos, sin deformar, en las esquinas.
      */
-    private static void placa(List<Colocacion> out, float mastil, float y) {
+    private static void placa(List<Colocacion> out, float mastil, float y, float anchoMinimo) {
         float[] p = PiezasDatos.TIRANTE.JOINT_WALL_POINT;
         float trasera = PiezasDatos.TIRANTE.MIN[0];
         float grosorPoste = 16f + 2f * mastil;
         float ancho = PiezasDatos.TIRANTE.MAX[2] - PiezasDatos.TIRANTE.MIN[2];
         Matrix4f centro = new Matrix4f().translate(mastil - trasera, y - p[1], Z).translate(0, 0, -p[2]);
-        if (grosorPoste <= 8f) {
+        if (grosorPoste <= 8f && anchoMinimo <= ancho) {
             out.add(new Colocacion(PiezasDatos.TIRANTE.ID, sinClonable(), centro));
             return;
         }
-        float total = grosorPoste - MARGEN_PLACA;
+        // la de una mensula doble abarca las dos aunque el poste sea fino
+        float total = Math.max(grosorPoste - MARGEN_PLACA, anchoMinimo);
         int trozos = Math.max(1, Math.round(total / ancho));
         float trozo = total / trozos;
         for (int k = 0; k < trozos; k++) {
@@ -711,8 +890,14 @@ public final class MensulaLayout {
 
     /** Aislador de arriba sobre la horizontal en x = r. Devuelve por donde pasa el sustentador. */
     private static Vector3f aislador(List<Colocacion> out, TipoAislador tipo, float r) {
-        float arriba = BARRA_Y + MEDIA_BARRA;
-        float abajo = BARRA_Y - MEDIA_BARRA;
+        return aislador(out, tipo, r, BARRA_Y + MEDIA_BARRA, BARRA_Y - MEDIA_BARRA);
+    }
+
+    /**
+     * Aislador en x = r sobre una barra o viga con su cara de arriba en {@code arriba} (tipos 1 y 3) y la de
+     * abajo en {@code abajo} (tipo 2, colgado).
+     */
+    private static Vector3f aislador(List<Colocacion> out, TipoAislador tipo, float r, float arriba, float abajo) {
         switch (tipo) {
             case TIPO1 -> {
                 float[] c = PiezasDatos.AISLADOR_HORIZONTAL.CABLE_JOINT;

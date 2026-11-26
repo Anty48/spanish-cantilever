@@ -33,6 +33,19 @@ distinto. Es un solo hilo recto que entra en la barra horizontal, justo antes de
 reconfigura el tirante la sigue (y si baja de anchura 3 se quita); al romper la ménsula o ese bloque del poste
 el cable vuelve a la bobina. `/mensula tirante` (operador) monta una prueba.
 
+**Ménsula doble (bifurcación)**: clic derecho en una ménsula puesta con otra en la mano: la segunda va al lado
+de la vía por el que se clica, con el zigzag contrario (interior → exterior; medio o exterior → interior) y los
+aisladores desalineados; la placa del poste se ensancha para las dos. Anchura hasta 2,5 cada una; altura de
+catenaria, desplazamiento Y y cable de soporte iguales en las dos; la altura del soporte puede diferir dos pasos.
+Con la bobina de P&W: una cara lateral engancha el cable a la ménsula de ese lado y la cara de arriba a las dos a
+la vez (un cable, dos catenarias), para el tramo de antes de la bifurcación.
+
+**Ménsula colgante**: cuelga de una viga horizontal (soporte de ménsula o de línea, españoles o de P&W) o de la
+cara de abajo de un bloque sólido; se pone clicando por debajo. El bloque queda encima del hilo y el brazo cuelga
+a lo largo de la viga, al otro lado de quien lo pone. Ventana: aislador (rollo o vertical, encima o colgado),
+forma del brazo (diagonal o curvada), anchura de 1 a 3 y altura de catenaria (desde la cara de abajo de la viga).
+Se hace con una ménsula (y al revés).
+
 ## Postes y materiales
 
 - **Postes ibéricos y piezas de poste españolas**, en el mismo gris: postes de celosía (plano, plano diagonal y

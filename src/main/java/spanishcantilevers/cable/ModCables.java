@@ -10,6 +10,8 @@ public final class ModCables {
     public static final CableTirante TIRANTE = WireTypeRegistry.register(SpanishCantilevers.MOD_ID, "diagonal_stay", CableTirante::new);
     /** El cable de corriente de PNW con un hilo a cada aislador de los remates dobles (bobina en modo corriente). */
     public static final CableAisladores AISLADORES = WireTypeRegistry.register(SpanishCantilevers.MOD_ID, "double_insulator_wire", CableAisladores::new);
+    /** La catenaria de PNW que, enganchada por arriba a una mensula doble, tiende una a cada mensula. */
+    public static final CatenariaBifurcada BIFURCADA = WireTypeRegistry.register(SpanishCantilevers.MOD_ID, "bifurcated_catenary", CatenariaBifurcada::new);
 
     private ModCables() {
     }

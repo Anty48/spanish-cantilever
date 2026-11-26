@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
-import de.mrjulsen.paw.block.abstractions.AbstractRotatableBlock;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
@@ -25,8 +26,10 @@ import net.minecraftforge.client.ChunkRenderTypeSet;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
 import spanishcantilevers.block.MensulaBlock;
+import spanishcantilevers.block.MensulaBlockEntity;
 import spanishcantilevers.geometry.Ajustes;
 import spanishcantilevers.geometry.Colocacion;
+import spanishcantilevers.geometry.MensulaDoble;
 import spanishcantilevers.geometry.MensulaLayout;
 
 /**
@@ -36,12 +39,15 @@ import spanishcantilevers.geometry.MensulaLayout;
 public class MensulaBakedModel implements BakedModel {
     private static final ModelProperty<Float> HUECO = new ModelProperty<>();
     private static final ModelProperty<Ajustes> AJUSTES = new ModelProperty<>();
+    /** La segunda mensula de una doble (null si es sencilla) y hacia que lado quedo. */
+    private static final ModelProperty<Ajustes> SEGUNDA = new ModelProperty<>();
+    private static final ModelProperty<Integer> LADO = new ModelProperty<>();
     private static final ChunkRenderTypeSet RENDER_TYPES = ChunkRenderTypeSet.of(RenderType.cutout());
 
     private final BakedModel original;
     private final Map<Key, List<BakedQuad>> cache = new ConcurrentHashMap<>();
 
-    private record Key(BlockState state, Ajustes ajustes, float hueco) {
+    private record Key(BlockState state, Ajustes ajustes, Ajustes segunda, int lado, float hueco) {
     }
 
     public MensulaBakedModel(BakedModel original) {
@@ -51,10 +57,13 @@ public class MensulaBakedModel implements BakedModel {
     @Override
     public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData modelData) {
         if (state.getBlock() instanceof MensulaBlock block) {
-            return ModelData.builder()
+            ModelData.Builder datos = ModelData.builder()
                     .with(HUECO, block.huecoPoste(level, pos, state))
-                    .with(AJUSTES, MensulaBlock.ajustes(level, pos))
-                    .build();
+                    .with(AJUSTES, MensulaBlock.ajustes(level, pos));
+            if (level.getBlockEntity(pos) instanceof MensulaBlockEntity be && be.doble()) {
+                datos.with(SEGUNDA, be.getSegunda()).with(LADO, be.getLado());
+            }
+            return datos.build();
         }
         return modelData;
     }
@@ -68,8 +77,16 @@ public class MensulaBakedModel implements BakedModel {
         }
         Float hueco = data.get(HUECO);
         Ajustes ajustes = data.get(AJUSTES);
-        return cache.computeIfAbsent(new Key(state, ajustes == null ? Ajustes.DEFECTO : ajustes, hueco == null ? 2f : hueco),
-                k -> hornear(MensulaLayout.calcular(k.ajustes(), k.hueco()), mensulaABloque(k.state())));
+        Integer lado = data.get(LADO);
+        return cache.computeIfAbsent(new Key(state, ajustes == null ? Ajustes.DEFECTO : ajustes, data.get(SEGUNDA),
+                        lado == null ? 1 : lado, hueco == null ? 2f : hueco),
+                k -> hornear(piezas(k.ajustes(), k.segunda(), k.lado(), k.hueco()), MensulaBlock.mensulaABloque(k.state())));
+    }
+
+    /** Las piezas de una mensula sencilla o, si hay {@code segunda}, de las dos de una doble. */
+    private static List<Colocacion> piezas(Ajustes ajustes, @Nullable Ajustes segunda, int lado, float hueco) {
+        return segunda == null ? MensulaLayout.calcular(ajustes, hueco).piezas()
+                : MensulaLayout.calcularDoble(ajustes, segunda, lado, hueco).piezas();
     }
 
     @Override
@@ -82,47 +99,30 @@ public class MensulaBakedModel implements BakedModel {
      * via, Y hacia arriba y el plano de la mensula en Z = 0,5.
      */
     public static List<BakedQuad> vistaPrevia(Ajustes ajustes) {
-        return hornear(MensulaLayout.calcular(ajustes, 0f), new Matrix4f().scale(1f / 16f));
+        return hornear(MensulaLayout.calcular(ajustes, 0f).piezas(), new Matrix4f().scale(1f / 16f));
     }
 
-    private static List<BakedQuad> hornear(MensulaLayout.Resultado layout, Matrix4f mundo) {
+    /** Las dos de una doble (para cambiar una de ellas en la ventana), igual que {@link #vistaPrevia}. */
+    public static List<BakedQuad> vistaPrevia(Ajustes editada, MensulaDoble.Pareja pareja) {
+        Ajustes[] par = pareja.con(editada);
+        return hornear(piezas(par[0], par[1], pareja.lado(), 0f), new Matrix4f().scale(1f / 16f));
+    }
+
+    private static List<BakedQuad> hornear(List<Colocacion> piezas, Matrix4f mundo) {
+        return hornear(piezas, mundo::transformPosition);
+    }
+
+    /** Las piezas en quads; {@code aBloque} lleva cada vertice de px de la mensula a donde se dibuja. */
+    static List<BakedQuad> hornear(List<Colocacion> piezas, Consumer<Vector3f> aBloque) {
         List<BakedQuad> quads = new ArrayList<>();
-        for (Colocacion c : layout.piezas()) {
+        for (Colocacion c : piezas) {
             // bloques de la pieza -> px de la pieza -> px de la mensula -> bloque final
             Pieza.get(c.pieza()).bake(c.elementos(), c.variacion(), p -> {
                 c.aMensula(p.mul(16f));
-                mundo.transformPosition(p);
+                aBloque.accept(p);
             }, quads);
         }
         return quads;
-    }
-
-    /**
-     * Pixeles de la mensula -> coordenadas del bloque. Misma secuencia que CantileverModel de PNW:
-     * giro fino alrededor del centro del poste, desplazamiento en la diagonal de 45 grados y giro
-     * segun FACING.
-     */
-    static Matrix4f mensulaABloque(BlockState state) {
-        MensulaBlock block = (MensulaBlock) state.getBlock();
-        Direction facing = state.getValue(AbstractRotatableBlock.FACING);
-        if (facing.getAxis() == Direction.Axis.Z) {
-            facing = facing.getOpposite();
-        }
-        float fino = block.getRelativeYRotation(state);
-        // pivote de PNW: (-p.y, 0, p.x) + centro, con p = getRotationPivotPoint = (0, 1)
-        float px = -1f + 0.5f, pz = 0f + 0.5f;
-        Matrix4f m = new Matrix4f()
-                .translate(0.5f, 0, 0.5f)
-                .rotateY((float) Math.toRadians(facing.toYRot() + 90f))
-                .translate(-0.5f, 0, -0.5f);
-        if (state.getValue(AbstractRotatableBlock.ROTATION) >= 3) {
-            m.translate(0, 0, 1);
-        }
-        m.translate(px, 0, pz)
-                .rotateY((float) Math.toRadians(fino))
-                .translate(-px, 0, -pz)
-                .scale(1f / 16f);
-        return m;
     }
 
     @Override

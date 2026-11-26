@@ -8,7 +8,7 @@ import spanishcantilevers.SpanishCantilevers;
 
 /** Canal de red del mod (las ventanas de la mensula y del soporte de tunel, y los avisos en rojo). */
 public final class ModRed {
-    private static final String VERSION = "3";
+    private static final String VERSION = "4";
     public static final SimpleChannel CANAL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(SpanishCantilevers.MOD_ID, "main"), () -> VERSION, VERSION::equals, VERSION::equals);
 
@@ -25,6 +25,11 @@ public final class ModRed {
                 .encoder(ConfigurarSoporteTunel::encode)
                 .decoder(ConfigurarSoporteTunel::decode)
                 .consumerNetworkThread(ConfigurarSoporteTunel::handle)
+                .add();
+        CANAL.messageBuilder(ConfigurarColgante.class, 3, NetworkDirection.PLAY_TO_SERVER)
+                .encoder(ConfigurarColgante::encode)
+                .decoder(ConfigurarColgante::decode)
+                .consumerNetworkThread(ConfigurarColgante::handle)
                 .add();
         CANAL.messageBuilder(Aviso.class, 2, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(Aviso::encode)

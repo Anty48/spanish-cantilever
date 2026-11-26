@@ -24,9 +24,14 @@ public record Colocacion(String pieza, int[] elementos, Matrix4f matriz, @Nullab
         this(pieza, elementos, matriz, inglete, 0);
     }
 
-    /** La misma pieza movida {@code dy} px en vertical (el corte a inglete se mueve con ella). */
+    /** La misma pieza movida {@code dy} px en vertical. */
     public Colocacion desplazada(float dy) {
-        Matrix4f t = new Matrix4f().translation(0, dy, 0);
+        return desplazada(0f, dy, 0f);
+    }
+
+    /** La misma pieza movida (px); el corte a inglete se mueve con ella. */
+    public Colocacion desplazada(float dx, float dy, float dz) {
+        Matrix4f t = new Matrix4f().translation(dx, dy, dz);
         Inglete movido = inglete == null ? null
                 : new Inglete(new Matrix4f(t).mul(inglete.linea()), inglete.largo(), inglete.tanInicio(), inglete.tanFin());
         return new Colocacion(pieza, elementos, new Matrix4f(t).mul(matriz), movido, variacion);

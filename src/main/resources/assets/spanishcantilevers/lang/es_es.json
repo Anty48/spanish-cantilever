@@ -1,5 +1,6 @@
 {
   "block.spanishcantilevers.mensula": "Ménsula española",
+  "block.spanishcantilevers.mensula_colgante": "Ménsula española colgante",
   "itemGroup.spanishcantilevers": "Ménsulas españolas",
   "gui.spanishcantilevers.mensula.titulo": "Ménsula española",
   "gui.spanishcantilevers.mensula.avanzado": "Opciones avanzadas",
@@ -89,5 +90,18 @@
   "block.spanishcantilevers.green_iberian_flat_lattice_mast_diagonal_double_insulator": "Poste LAV diagonal ADIF con aislador doble",
   "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal_double_insulator": "Poste ibérico diagonal con aislador doble",
   "block.spanishcantilevers.iberian_concrete_column_mast": "Poste de columna de hormigón",
-  "block.spanishcantilevers.iberian_concrete_column_mast_insulator": "Poste de columna de hormigón con aislador"
+  "block.spanishcantilevers.iberian_concrete_column_mast_insulator": "Poste de columna de hormigón con aislador",
+  "gui.spanishcantilevers.colgante.titulo": "Ménsula española colgante",
+  "enum.spanishcantilevers.aislador_colgante": "Aislador",
+  "enum.spanishcantilevers.aislador_colgante.encima": "Encima de la viga",
+  "enum.spanishcantilevers.aislador_colgante.colgado": "Colgado bajo la viga",
+  "enum.spanishcantilevers.aislador_colgante.vertical_encima": "Vertical, encima de la viga",
+  "enum.spanishcantilevers.aislador_colgante.vertical_colgado": "Vertical, colgado bajo la viga",
+  "enum.spanishcantilevers.forma_colgante": "Forma del brazo",
+  "enum.spanishcantilevers.forma_colgante.diagonal": "Diagonal",
+  "enum.spanishcantilevers.forma_colgante.curvada": "Curvada",
+  "aviso.spanishcantilevers.colgante_soporte": "La ménsula colgante va debajo de un brazo de poste, de un soporte de línea o de un bloque sólido: haz clic en su cara de abajo",
+  "aviso.spanishcantilevers.mensula_doble_lado": "Ménsula doble: haz clic en una cara lateral para enganchar el cable a esa ménsula, o en la cara de arriba para engancharlo a las dos",
+  "aviso.spanishcantilevers.mensula_doble_anchura": "Ménsula doble: la anchura máxima es 2,5",
+  "aviso.spanishcantilevers.mensula_doble_llena": "Esta ménsula ya es doble"
 }

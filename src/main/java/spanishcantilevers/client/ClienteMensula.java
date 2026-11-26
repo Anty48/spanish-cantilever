@@ -17,8 +17,13 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.loading.FMLPaths;
+import spanishcantilevers.block.MensulaColganteBlock;
 import spanishcantilevers.geometry.Ajustes;
+import spanishcantilevers.geometry.AjustesColgante;
+import spanishcantilevers.geometry.MensulaDoble;
+import spanishcantilevers.item.MensulaColganteItem;
 import spanishcantilevers.item.MensulaItem;
+import spanishcantilevers.network.ConfigurarColgante;
 import spanishcantilevers.block.AjustesTunel;
 import spanishcantilevers.item.SoporteTunelItem;
 import spanishcantilevers.network.ConfigurarMensula;
@@ -73,9 +78,14 @@ public final class ClienteMensula {
         });
     }
 
-    /** Ventana para una mensula ya puesta. */
-    public static void abrirBloque(BlockPos pos, Ajustes ajustes) {
-        abrir(ajustes, nuevos -> ModRed.CANAL.sendToServer(new ConfigurarMensula(pos, nuevos)));
+    /**
+     * Ventana para una mensula ya puesta. En una doble, {@code pareja} trae la otra (la ventana respeta las
+     * reglas de la doble y la vista previa muestra las dos); null en una sencilla.
+     */
+    public static void abrirBloque(BlockPos pos, Ajustes ajustes, @Nullable MensulaDoble.Pareja pareja) {
+        int cual = pareja == null ? 0 : pareja.cual();
+        abrirVentana(root -> new VentanaMensula(root, ajustes, pareja,
+                nuevos -> ModRed.CANAL.sendToServer(new ConfigurarMensula(pos, cual, nuevos))));
     }
 
     /** Donde se guarda la configuracion por defecto del soporte de tunel de este jugador. */
@@ -127,8 +137,60 @@ public final class ClienteMensula {
         }));
     }
 
+    /** Para la vista previa sin viga de verdad (desde el objeto): un brazo de poste. */
+    private static final MensulaColganteBlock.Viga VIGA_PREVIA = new MensulaColganteBlock.Viga(22f, 26f, null);
+
+    /** Ventana de una mensula colgante ya puesta (con la viga de la que cuelga en la vista previa). */
+    public static void abrirColgante(BlockPos pos, AjustesColgante ajustes, @Nullable MensulaColganteBlock.Viga viga) {
+        abrirVentana(root -> new VentanaColgante(root, ajustes, viga == null ? VIGA_PREVIA : viga,
+                nuevos -> ModRed.CANAL.sendToServer(new ConfigurarColgante(pos, nuevos))));
+    }
+
+    /** Donde se guarda la configuracion por defecto de la mensula colgante de este jugador. */
+    private static final Path PREDETERMINADO_COLGANTE = FMLPaths.CONFIGDIR.get().resolve("spanishcantilevers-predeterminado-colgante.nbt");
+
+    /** La configuracion por defecto de la colgante guardada por el jugador, o {@link AjustesColgante#DEFECTO}. */
+    public static AjustesColgante predeterminadoColgante() {
+        try {
+            CompoundTag nbt = Files.exists(PREDETERMINADO_COLGANTE) ? NbtIo.read(PREDETERMINADO_COLGANTE.toFile()) : null;
+            return nbt == null ? AjustesColgante.DEFECTO : AjustesColgante.leer(nbt);
+        } catch (IOException e) {
+            return AjustesColgante.DEFECTO;
+        }
+    }
+
+    public static boolean guardarPredeterminadoColgante(AjustesColgante ajustes) {
+        try {
+            NbtIo.write(ajustes.validados().escribir(new CompoundTag()), PREDETERMINADO_COLGANTE.toFile());
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Ventana para la mensula colgante en la mano: lo escogido se guarda en el objeto. Si el objeto nunca se
+     * configuro ({@code ajustes} null), propone la configuracion por defecto del jugador.
+     */
+    public static void abrirColganteObjeto(@Nullable AjustesColgante ajustes) {
+        AjustesColgante inicial = ajustes != null ? ajustes : predeterminadoColgante();
+        abrirVentana(root -> new VentanaColgante(root, inicial, VIGA_PREVIA, nuevos -> {
+            var player = Minecraft.getInstance().player;
+            if (player != null) {
+                for (InteractionHand mano : InteractionHand.values()) {
+                    ItemStack stack = player.getItemInHand(mano);
+                    if (stack.getItem() instanceof MensulaColganteItem) {
+                        MensulaColganteItem.setAjustes(stack, nuevos);
+                        break;
+                    }
+                }
+            }
+            ModRed.CANAL.sendToServer(new ConfigurarColgante(null, nuevos));
+        }));
+    }
+
     private static void abrir(Ajustes ajustes, java.util.function.Consumer<Ajustes> alCerrar) {
-        abrirVentana(root -> new VentanaMensula(root, ajustes, alCerrar));
+        abrirVentana(root -> new VentanaMensula(root, ajustes, null, alCerrar));
     }
 
     /** Igual que ClientWrapper.showCantileverSettingsScreen de PNW. */

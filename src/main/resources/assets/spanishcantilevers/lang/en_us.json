@@ -1,5 +1,6 @@
 {
   "block.spanishcantilevers.mensula": "Spanish Cantilever",
+  "block.spanishcantilevers.mensula_colgante": "Hanging Spanish Cantilever",
   "itemGroup.spanishcantilevers": "Spanish Cantilevers",
   "gui.spanishcantilevers.mensula.titulo": "Spanish Cantilever",
   "gui.spanishcantilevers.mensula.avanzado": "Advanced options",
@@ -89,5 +90,18 @@
   "block.spanishcantilevers.green_iberian_flat_lattice_mast_diagonal_double_insulator": "ADIF LAV Diagonal Mast Double Insulator",
   "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal_double_insulator": "Iberian Diagonal Mast Double Insulator",
   "block.spanishcantilevers.iberian_concrete_column_mast": "Concrete Column Mast",
-  "block.spanishcantilevers.iberian_concrete_column_mast_insulator": "Concrete Column Mast Insulator"
+  "block.spanishcantilevers.iberian_concrete_column_mast_insulator": "Concrete Column Mast Insulator",
+  "gui.spanishcantilevers.colgante.titulo": "Hanging Spanish Cantilever",
+  "enum.spanishcantilevers.aislador_colgante": "Insulator",
+  "enum.spanishcantilevers.aislador_colgante.encima": "On top of the beam",
+  "enum.spanishcantilevers.aislador_colgante.colgado": "Hanging under the beam",
+  "enum.spanishcantilevers.aislador_colgante.vertical_encima": "Vertical, on top of the beam",
+  "enum.spanishcantilevers.aislador_colgante.vertical_colgado": "Vertical, hanging under the beam",
+  "enum.spanishcantilevers.forma_colgante": "Arm shape",
+  "enum.spanishcantilevers.forma_colgante.diagonal": "Diagonal",
+  "enum.spanishcantilevers.forma_colgante.curvada": "Bent",
+  "aviso.spanishcantilevers.colgante_soporte": "The hanging cantilever goes under a cantilever bracket, a power line bracket or a solid block: click its bottom face",
+  "aviso.spanishcantilevers.mensula_doble_lado": "Double cantilever: click a side face to link the wire to that cantilever, or the top face to link it to both",
+  "aviso.spanishcantilevers.mensula_doble_anchura": "Double cantilever: the maximum width is 2.5",
+  "aviso.spanishcantilevers.mensula_doble_llena": "This cantilever is already double"
 }

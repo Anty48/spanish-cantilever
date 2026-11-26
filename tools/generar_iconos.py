@@ -1,4 +1,4 @@
-"""Dibuja los iconos de las ventanas en textures/gui/iconos.png (14 iconos de 16x16, siluetas de un color).
+"""Dibuja los iconos de las ventanas en textures/gui/iconos.png (20 iconos de 16x16, siluetas de un color).
 
 Uso:  python tools/generar_iconos.py
 
@@ -10,8 +10,14 @@ Todo queda dentro de un margen de 1 px (de 1 a 14), como los iconos de PNW.
   8-9   version techo / pared
   10-11 tamano del de techo: normal / grande (marco de lado a lado)
   12-13 tamano del de pared: brazo corto / largo (de lado, con la pared a la derecha)
+  14-17 aislador de la mensula colgante: rollo encima de la viga, rollo colgado, vertical encima y
+        vertical colgado (los tres primeros, los mismos que 0-2)
+  18-19 forma del tubo de la mensula colgante: diagonal / curvada (de lado: viga arriba, tubo y sujetador)
 Los del soporte de tunel tienen el mismo dibujo que el sprite del objeto. El de techo se ve de frente
 como lo ve quien lo pone: la pinza izquierda, a la izquierda.
+
+OJO: los iconos 0-13 de la hoja los retoco el usuario a mano. El script NO los vuelve a dibujar: los copia
+de la hoja que haya (A_MANO). Los 14-16 son copia de sus 0-2 y el 17, su 2 del reves.
 """
 import os
 
@@ -114,6 +120,28 @@ def pared(largo=False):
     return px
 
 
+def aislador_vertical_colgante():
+    """El vertical del reves: tubo arriba, el aislador colgando y el cable abajo."""
+    return {(x, 15 - y) for x, y in aislador_vertical()}
+
+
+def colgante(curvada):
+    """La mensula colgante de lado: viga arriba, el tubo que baja a la izquierda y el sujetador hasta el cable."""
+    px = set()
+    rect(px, 1, 1, 14, 2)  # viga
+    if curvada:
+        for i in range(3):  # tramo a 45 grados bajo la viga
+            rect(px, 5 - i, 3 + i, 6 - i, 3 + i)
+        rect(px, 2, 6, 3, 12)  # vertical
+    else:
+        for i in range(10):  # diagonal: arriba mas cerca del cable
+            x = 6 - (i * 4) // 9
+            rect(px, x - 1, 3 + i, x, 3 + i)
+    rect(px, 2, 12, 12, 12)  # sujetador
+    rect(px, 11, 13, 13, 14)  # pinza y cable
+    return px
+
+
 ICONOS_TODOS = {
     0: aislador_encima(),
     1: aislador_colgante(),
@@ -129,12 +157,31 @@ ICONOS_TODOS = {
     11: techo(0, grande=True),
     12: pared(),
     13: pared(largo=True),
+    14: aislador_encima(),
+    15: aislador_colgante(),
+    16: aislador_vertical(),
+    17: aislador_vertical_colgante(),
+    18: colgante(False),
+    19: colgante(True),
 }
 
 
+# iconos retocados a mano en la hoja: se copian tal cual (indice nuevo -> (indice en la hoja, del reves))
+A_MANO = {i: (i, False) for i in range(14)}
+A_MANO.update({14: (0, False), 15: (1, False), 16: (2, False), 17: (2, True)})
+
+
 def main():
+    vieja = Image.open(ICONOS).convert('RGBA')
     hoja = Image.new('RGBA', (16 * len(ICONOS_TODOS), 16), (0, 0, 0, 0))
     for indice, px in ICONOS_TODOS.items():
+        if indice in A_MANO:
+            origen, reves = A_MANO[indice]
+            icono = vieja.crop((origen * 16, 0, origen * 16 + 16, 16))
+            if reves:
+                icono = icono.transpose(Image.FLIP_TOP_BOTTOM)
+            hoja.paste(icono, (indice * 16, 0))
+            continue
         for x, y in px:
             hoja.putpixel((indice * 16 + x, y), COLOR)
     hoja.save(ICONOS)

@@ -20,18 +20,24 @@ import spanishcantilevers.item.MensulaItem;
 /**
  * Cliente -> servidor: la ventana de la mensula se ha cerrado con estos ajustes. Van a la mensula
  * ya puesta en {@code pos} o, si no hay pos, al objeto que el jugador tiene en la mano (como PNW).
+ * En una mensula doble, {@code cual} dice a cual de las dos (0 = la que ya estaba, 1 = la anadida).
  */
-public record ConfigurarMensula(@Nullable BlockPos pos, Ajustes ajustes) {
+public record ConfigurarMensula(@Nullable BlockPos pos, int cual, Ajustes ajustes) {
+    public ConfigurarMensula(@Nullable BlockPos pos, Ajustes ajustes) {
+        this(pos, 0, ajustes);
+    }
+
     /** Distancia maxima (al cuadrado, en bloques) a la que se puede cambiar una mensula puesta. */
     private static final double DISTANCIA_MAX_SQ = 8 * 8;
 
     public void encode(FriendlyByteBuf buf) {
         buf.writeNullable(pos, FriendlyByteBuf::writeBlockPos);
+        buf.writeByte(cual);
         ajustes.escribir(buf);
     }
 
     public static ConfigurarMensula decode(FriendlyByteBuf buf) {
-        return new ConfigurarMensula(buf.readNullable(FriendlyByteBuf::readBlockPos), Ajustes.leer(buf));
+        return new ConfigurarMensula(buf.readNullable(FriendlyByteBuf::readBlockPos), buf.readByte() == 1 ? 1 : 0, Ajustes.leer(buf));
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -55,7 +61,7 @@ public record ConfigurarMensula(@Nullable BlockPos pos, Ajustes ajustes) {
             if (level.isLoaded(pos) && level.mayInteract(player, pos)
                     && player.distanceToSqr(pos.getCenter()) <= DISTANCIA_MAX_SQ
                     && level.getBlockEntity(pos) instanceof MensulaBlockEntity be) {
-                be.setAjustes(validos);
+                be.setAjustes(cual, validos);
                 // PNW guarda los enganches al tender: los cables ya puestos se rehacen con los nuevos
                 RecolocarCables.enBloque(level, pos);
                 TiranteDiagonal.recolocar(level, pos, player);

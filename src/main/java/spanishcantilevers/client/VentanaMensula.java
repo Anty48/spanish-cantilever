@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -42,23 +44,29 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import spanishcantilevers.SpanishCantilevers;
 import spanishcantilevers.block.ModoZigzag;
 import spanishcantilevers.block.TipoAislador;
 import spanishcantilevers.geometry.Ajustes;
+import spanishcantilevers.geometry.MensulaDoble;
 import spanishcantilevers.geometry.MensulaLayout;
 
 /**
  * Ventana de ajustes de la mensula, hecha igual que la de la mensula de PNW (su textura, sus
  * deslizadores de Create y la vista previa en el centro), para que se sienta parte del mismo mod.
  * Basada en CantileverSettingsScreen de Pantographs &amp; Wires (MrJulsen, GPL-3.0).
+ *
+ * <p>Para una de las dos mensulas de una doble ({@link MensulaDoble}) se respetan sus reglas: el zigzag queda
+ * fijo, la anchura no pasa de 3, no hay aislador colgado y la altura del soporte no se aleja de la de la otra.
+ * La vista previa muestra las dos.
  */
 public class VentanaMensula extends DLWindow {
     /** Como en PNW, las opciones avanzadas se recuerdan mientras dure la partida. */
     private static boolean avanzado = false;
 
     private static final DLTexture TEXTURA = new DLTexture(new ResourceLocation("pantographsandwires", "textures/gui/cantilever_settings.png"), 256, 256);
-    private static final DLTexture ICONOS = new DLTexture(new ResourceLocation(SpanishCantilevers.MOD_ID, "textures/gui/iconos.png"), 224, 16);
+    private static final DLTexture ICONOS = new DLTexture(new ResourceLocation(SpanishCantilevers.MOD_ID, "textures/gui/iconos.png"), 320, 16);
     /** Primer icono de cada selector en textures/gui/iconos.png (uno de 16x16 por opcion, en orden). */
     private static final int ICONO_AISLADOR = 0;
     private static final int ICONO_CABLE_SOPORTE = 3;
@@ -66,6 +74,8 @@ public class VentanaMensula extends DLWindow {
     static final int ICONO_VERSION_TUNEL = 8;
     static final int ICONO_TAMANO_TECHO = 10;
     static final int ICONO_TAMANO_PARED = 12;
+    static final int ICONO_AISLADOR_COLGANTE = 14;
+    static final int ICONO_FORMA_COLGANTE = 18;
     private static final int ANCHO = 251;
     private static final int ALTO = 231;
     private static final int FILA_DESLIZADORES = 155;
@@ -80,14 +90,18 @@ public class VentanaMensula extends DLWindow {
     private final Component txtAvanzado = Component.translatable("gui.spanishcantilevers.mensula.avanzado");
 
     private Ajustes ajustes;
+    /** La otra mensula si es una de una doble; null si es sencilla. */
+    @Nullable
+    private final MensulaDoble.Pareja pareja;
     private List<BakedQuad> vista;
     private float centroX;
     private float centroY;
     private float escala;
 
-    public VentanaMensula(DLWindowManager manager, Ajustes inicial, Consumer<Ajustes> alCerrar) {
+    public VentanaMensula(DLWindowManager manager, Ajustes inicial, @Nullable MensulaDoble.Pareja pareja, Consumer<Ajustes> alCerrar) {
         super(manager);
-        this.ajustes = inicial.validados();
+        this.pareja = pareja;
+        this.ajustes = pareja == null ? inicial.validados() : MensulaDoble.limpiar(inicial);
         setSize(ANCHO, ALTO);
         centrar();
         addEventListener(DLGuiStandardEvents.ScreenLayoutUpdatedEvent.class, (s, e) -> {
@@ -114,6 +128,9 @@ public class VentanaMensula extends DLWindow {
             ajustes = ajustes.conAnchura(v);
             recolocar[0].run();
         });
+        if (pareja != null) {
+            anchura.max.set((double) MensulaDoble.anchuraMaxima());
+        }
         // la altura del soporte que ha escogido el jugador: el interior con la anchura minima la deja fija solo
         // mientras dura, y al salir de el se recupera (como la catenaria con el aislador tipo 2)
         float[] alturaElegida = {ajustes.altura()};
@@ -143,6 +160,11 @@ public class VentanaMensula extends DLWindow {
         catenaria.min.set((double) Ajustes.alturaCatenariaMinima(ajustes.tipo()));
         aislador.addEventListener(DLSlider.ValueChangedEvent.class, (s, e) -> {
             TipoAislador tipo = OpcionAislador.values()[(int) e.value()].tipo;
+            if (pareja != null && tipo == TipoAislador.TIPO2) {
+                // en una doble el aislador va siempre arriba: se salta el colgado
+                aislador.value.set((double) (ajustes.tipo() == TipoAislador.TIPO1 ? TipoAislador.TIPO3 : TipoAislador.TIPO1).ordinal());
+                return false;
+            }
             ajustes = ajustes.conTipo(tipo);
             // con el tipo 2 el hilo de contacto no puede subir tanto (el deslizador se ajusta solo); con los
             // otros vuelve a la altura que tenia escogida
@@ -158,6 +180,11 @@ public class VentanaMensula extends DLWindow {
 
         CreateEnumSlider<OpcionZigzag> zigzag = new CreateEnumSlider<>(0, FILA_SELECTORES, 50, 20, OpcionZigzag.class);
         zigzag.value.set((double) ajustes.modo().ordinal());
+        if (pareja != null) {
+            // en una doble cada una tiene el zigzag contrario al de la otra: se queda fijo
+            zigzag.min.set((double) ajustes.modo().ordinal());
+            zigzag.max.set((double) ajustes.modo().ordinal());
+        }
         zigzag.addEventListener(DLSlider.ValueChangedEvent.class, (s, e) -> {
             ajustes = ajustes.conModo(OpcionZigzag.values()[(int) e.value()].modo);
             recolocar[0].run();
@@ -224,10 +251,13 @@ public class VentanaMensula extends DLWindow {
             // donde no cuenta, el deslizador va de la fija a la fija (como la catenaria con el tipo 2); al salir
             // de ahi, la que tenia escogida
             float fija = Ajustes.alturaFija(ajustes.anchura(), ajustes.modo());
+            // en una doble, la altura del soporte no se aleja de la de la otra
+            float minimo = pareja == null ? Ajustes.ALTURA.min() : MensulaDoble.alturaMinima(pareja.otra());
+            float maximo = pareja == null ? Ajustes.ALTURA.max() : MensulaDoble.alturaMaxima(pareja.otra());
             alturaAutomatica[0] = true;
-            altura.min.set((double) (Float.isNaN(fija) ? Ajustes.ALTURA.min() : fija));
-            altura.max.set((double) (Float.isNaN(fija) ? Ajustes.ALTURA.max() : fija));
-            altura.value.set((double) (Float.isNaN(fija) ? alturaElegida[0] : fija));
+            altura.min.set((double) (Float.isNaN(fija) ? minimo : fija));
+            altura.max.set((double) (Float.isNaN(fija) ? maximo : fija));
+            altura.value.set((double) (Float.isNaN(fija) ? Mth.clamp(alturaElegida[0], minimo, maximo) : fija));
             alturaAutomatica[0] = false;
             ajustes = ajustes.conAltura(altura.value.get().floatValue());
             repartir(new DLGuiComponent[]{anchura, altura, catenaria, desplazamiento}, ANCHO / 2);
@@ -306,12 +336,28 @@ public class VentanaMensula extends DLWindow {
             return;
         }
         Ajustes a = ajustes.validados();
-        vista = MensulaBakedModel.vistaPrevia(a);
-        MensulaLayout.Resultado r = MensulaLayout.calcular(a, 0f);
-        float minY = Math.min(r.contacto().y(), 0f) - 2f;
-        float maxY = Math.max(r.sustentador().y(), MensulaLayout.BARRA_Y) + 3f;
+        List<MensulaLayout.Resultado> mensulas;
+        if (pareja == null) {
+            vista = MensulaBakedModel.vistaPrevia(a);
+            mensulas = List.of(MensulaLayout.calcular(a, 0f));
+        } else {
+            vista = MensulaBakedModel.vistaPrevia(a, pareja);
+            Ajustes[] par = pareja.con(a);
+            MensulaLayout.Doble doble = MensulaLayout.calcularDoble(par[0], par[1], pareja.lado(), 0f);
+            mensulas = List.of(doble.primera(), doble.segunda());
+        }
+        float minY = 0f;
+        float maxY = MensulaLayout.BARRA_Y;
+        float maxX = 0f;
+        for (MensulaLayout.Resultado r : mensulas) {
+            minY = Math.min(minY, r.contacto().y());
+            maxY = Math.max(maxY, r.sustentador().y());
+            maxX = Math.max(maxX, r.contacto().x() + 20f);
+        }
+        minY -= 2f;
+        maxY += 3f;
         // el medio y el exterior pueden llegar mas alla del hilo: que quepa todo lo que se dibuja
-        float maxX = Math.max(r.contacto().x() + 20f, xMaxima(vista) + 4f);
+        maxX = Math.max(maxX, xMaxima(vista) + 4f);
         centroX = maxX / 2f;
         centroY = (minY + maxY) / 2f;
         // px de la mensula -> px de la pantalla, sin pasarse de la zona azul
