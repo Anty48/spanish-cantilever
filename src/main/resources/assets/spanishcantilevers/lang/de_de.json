@@ -1,5 +1,6 @@
 {
   "block.spanishcantilevers.mensula": "Spanischer Ausleger",
+  "block.spanishcantilevers.mensula_colgante": "Hängender spanischer Ausleger",
   "itemGroup.spanishcantilevers": "Spanische Ausleger",
   "gui.spanishcantilevers.mensula.titulo": "Spanischer Ausleger",
   "gui.spanishcantilevers.mensula.avanzado": "Erweiterte Optionen",
@@ -89,5 +90,18 @@
   "block.spanishcantilevers.green_iberian_flat_lattice_mast_diagonal_double_insulator": "ADIF-LAV-Mast (diagonal) mit doppeltem Isolator",
   "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal_double_insulator": "Iberischer Mast (diagonal) mit doppeltem Isolator",
   "block.spanishcantilevers.iberian_concrete_column_mast": "Betonsäulenmast",
-  "block.spanishcantilevers.iberian_concrete_column_mast_insulator": "Betonsäulenmast mit Isolator"
+  "block.spanishcantilevers.iberian_concrete_column_mast_insulator": "Betonsäulenmast mit Isolator",
+  "gui.spanishcantilevers.colgante.titulo": "Hängender spanischer Ausleger",
+  "enum.spanishcantilevers.aislador_colgante": "Isolator",
+  "enum.spanishcantilevers.aislador_colgante.encima": "Auf dem Träger",
+  "enum.spanishcantilevers.aislador_colgante.colgado": "Unter dem Träger hängend",
+  "enum.spanishcantilevers.aislador_colgante.vertical_encima": "Senkrecht, auf dem Träger",
+  "enum.spanishcantilevers.aislador_colgante.vertical_colgado": "Senkrecht, unter dem Träger hängend",
+  "enum.spanishcantilevers.forma_colgante": "Armform",
+  "enum.spanishcantilevers.forma_colgante.diagonal": "Diagonal",
+  "enum.spanishcantilevers.forma_colgante.curvada": "Gebogen",
+  "aviso.spanishcantilevers.colgante_soporte": "Der hängende Ausleger kommt unter einen Auslegerträger, einen Leitungsträger oder einen festen Block: klicke auf dessen Unterseite",
+  "aviso.spanishcantilevers.mensula_doble_lado": "Doppelausleger: klicke auf eine Seitenfläche, um den Draht an diesen Ausleger anzuschließen, oder auf die Oberseite für beide",
+  "aviso.spanishcantilevers.mensula_doble_anchura": "Doppelausleger: die maximale Breite ist 2,5",
+  "aviso.spanishcantilevers.mensula_doble_llena": "Dieser Ausleger ist schon doppelt"
 }

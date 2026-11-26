@@ -14,10 +14,13 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import de.mrjulsen.paw.blockentity.PantographBlockEntity;
 import spanishcantilevers.block.MensulaBlock;
+import spanishcantilevers.block.MensulaColganteBlock;
+import spanishcantilevers.block.MensulaColganteBlockEntity;
 import spanishcantilevers.block.PantografoEspanolBlock;
 import spanishcantilevers.block.MensulaBlockEntity;
 import spanishcantilevers.block.SoporteTunelBlock;
 import spanishcantilevers.block.SoporteTunelBlockEntity;
+import spanishcantilevers.item.MensulaColganteItem;
 import spanishcantilevers.item.MensulaItem;
 import spanishcantilevers.item.PantografoEspanolItem;
 import spanishcantilevers.item.PerfilRigidoItem;
@@ -43,6 +46,17 @@ public final class ModBlocks {
 
     public static final DeferredHolder<Item, Item> MENSULA_ITEM = ITEMS.register("mensula",
             () -> new MensulaItem(MENSULA.get(), new Item.Properties()));
+
+    /** Mensula colgante: el puntal de la mensula interior ancha, colgado de una viga o de un bloque. */
+    public static final DeferredHolder<net.minecraft.world.level.block.Block, MensulaColganteBlock> MENSULA_COLGANTE = BLOCKS.register("mensula_colgante",
+            () -> new MensulaColganteBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(3.0f, 6.0f)
+                    .sound(SoundType.METAL)
+                    .requiresCorrectToolForDrops()));
+
+    public static final DeferredHolder<Item, Item> MENSULA_COLGANTE_ITEM = ITEMS.register("mensula_colgante",
+            () -> new MensulaColganteItem(MENSULA_COLGANTE.get(), new Item.Properties()));
 
     /** Acero espanol: hierro y tinte negro. Material de los postes y de la mensula. */
     public static final DeferredHolder<Item, Item> ACERO_IBERICO = ITEMS.register("iberian_steel_ingot", () -> new Item(new Item.Properties()));
@@ -95,6 +109,10 @@ public final class ModBlocks {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MensulaBlockEntity>> MENSULA_BE = BLOCK_ENTITIES.register("mensula",
             () -> BlockEntityType.Builder.of(MensulaBlockEntity::new, MENSULA.get()).build(null));
 
+    @SuppressWarnings("DataFlowIssue")
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MensulaColganteBlockEntity>> MENSULA_COLGANTE_BE = BLOCK_ENTITIES.register("mensula_colgante",
+            () -> BlockEntityType.Builder.of(MensulaColganteBlockEntity::new, MENSULA_COLGANTE.get()).build(null));
+
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_TABS.register("main",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.spanishcantilevers"))
@@ -102,6 +120,7 @@ public final class ModBlocks {
                     .displayItems((params, output) -> {
                         // lo propio del mod, los lingotes y despues los postes por colores
                         output.accept(MENSULA_ITEM.get());
+                        output.accept(MENSULA_COLGANTE_ITEM.get());
                         output.accept(SOPORTE_TUNEL_ITEM.get());
                         output.accept(PERFIL_RIGIDO.get());
                         output.accept(PANTOGRAFO_ITEM.get());

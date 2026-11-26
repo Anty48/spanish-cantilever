@@ -1,5 +1,6 @@
 {
   "block.spanishcantilevers.mensula": "Mènsula espanyola",
+  "block.spanishcantilevers.mensula_colgante": "Mènsula espanyola penjant",
   "itemGroup.spanishcantilevers": "Mènsules espanyoles",
   "gui.spanishcantilevers.mensula.titulo": "Mènsula espanyola",
   "gui.spanishcantilevers.mensula.avanzado": "Opcions avançades",
@@ -89,5 +90,18 @@
   "block.spanishcantilevers.green_iberian_flat_lattice_mast_diagonal_double_insulator": "Pal LAV diagonal ADIF amb aïllador doble",
   "block.spanishcantilevers.iberian_flat_lattice_mast_diagonal_double_insulator": "Pal ibèric diagonal amb aïllador doble",
   "block.spanishcantilevers.iberian_concrete_column_mast": "Pal de columna de formigó",
-  "block.spanishcantilevers.iberian_concrete_column_mast_insulator": "Pal de columna de formigó amb aïllador"
+  "block.spanishcantilevers.iberian_concrete_column_mast_insulator": "Pal de columna de formigó amb aïllador",
+  "gui.spanishcantilevers.colgante.titulo": "Mènsula espanyola penjant",
+  "enum.spanishcantilevers.aislador_colgante": "Aïllador",
+  "enum.spanishcantilevers.aislador_colgante.encima": "Damunt de la biga",
+  "enum.spanishcantilevers.aislador_colgante.colgado": "Penjat sota la biga",
+  "enum.spanishcantilevers.aislador_colgante.vertical_encima": "Vertical, damunt de la biga",
+  "enum.spanishcantilevers.aislador_colgante.vertical_colgado": "Vertical, penjat sota la biga",
+  "enum.spanishcantilevers.forma_colgante": "Forma del braç",
+  "enum.spanishcantilevers.forma_colgante.diagonal": "Diagonal",
+  "enum.spanishcantilevers.forma_colgante.curvada": "Corbada",
+  "aviso.spanishcantilevers.colgante_soporte": "La mènsula penjant va sota un braç de pal, un suport de línia o un bloc sòlid: fes clic a la seva cara de sota",
+  "aviso.spanishcantilevers.mensula_doble_lado": "Mènsula doble: fes clic a una cara lateral per enganxar el cable a aquesta mènsula, o a la cara de dalt per enganxar-lo a les dues",
+  "aviso.spanishcantilevers.mensula_doble_anchura": "Mènsula doble: l'amplada màxima és 2,5",
+  "aviso.spanishcantilevers.mensula_doble_llena": "Aquesta mènsula ja és doble"
 }

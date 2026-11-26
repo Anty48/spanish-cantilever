@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "spanishcantilevers:mensula"
+    }
+  ],
+  "result": {
+    "id": "spanishcantilevers:mensula_colgante",
+    "count": 1
+  }
+}

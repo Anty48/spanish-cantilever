@@ -14,7 +14,7 @@ import spanishcantilevers.SpanishCantilevers;
  */
 @EventBusSubscriber(modid = SpanishCantilevers.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public final class ModRed {
-    private static final String VERSION = "3";
+    private static final String VERSION = "4";
 
     private ModRed() {
     }
@@ -24,6 +24,7 @@ public final class ModRed {
         PayloadRegistrar registrar = event.registrar(VERSION);
         registrar.playToServer(ConfigurarMensula.TYPE, ConfigurarMensula.STREAM_CODEC, (p, ctx) -> p.handle(ctx));
         registrar.playToServer(ConfigurarSoporteTunel.TYPE, ConfigurarSoporteTunel.STREAM_CODEC, (p, ctx) -> p.handle(ctx));
+        registrar.playToServer(ConfigurarColgante.TYPE, ConfigurarColgante.STREAM_CODEC, (p, ctx) -> p.handle(ctx));
         registrar.playToClient(Aviso.TYPE, Aviso.STREAM_CODEC, (p, ctx) -> p.handle(ctx));
     }
 }

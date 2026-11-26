@@ -58,6 +58,8 @@ public final class ClientSetup {
                 // la mensula y el soporte de tunel se montan con las piezas de Blockbench
                 if (mrl.id().getPath().equals("mensula")) {
                     entry.setValue(new MensulaBakedModel(entry.getValue()));
+                } else if (mrl.id().getPath().equals("mensula_colgante")) {
+                    entry.setValue(new ColganteBakedModel(entry.getValue()));
                 } else if (mrl.id().getPath().equals("soporte_tunel")) {
                     entry.setValue(new SoporteTunelBakedModel(entry.getValue()));
                 }
